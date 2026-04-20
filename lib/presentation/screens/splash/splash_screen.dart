@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:animate_do/animate_do.dart';
-import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_strings.dart';
+import '../../../core/theme/app_colors.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -18,9 +17,10 @@ class _SplashScreenState extends State<SplashScreen> {
     _navigate();
   }
 
-  Future<void> _navigate() async {
-    await Future.delayed(const Duration(seconds: 3));
-    if (mounted) context.go('/onboarding');
+  void _navigate() {
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) context.go('/onboarding');
+    });
   }
 
   @override
@@ -58,7 +58,7 @@ class _SplashScreenState extends State<SplashScreen> {
             FadeInUp(
               delay: const Duration(milliseconds: 400),
               child: const Text(
-                AppStrings.appName,
+                'SafeCampus AI',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 32,
@@ -71,7 +71,7 @@ class _SplashScreenState extends State<SplashScreen> {
             FadeInUp(
               delay: const Duration(milliseconds: 600),
               child: const Text(
-                AppStrings.tagline,
+                'Tu seguridad, nuestra prioridad',
                 style: TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 14,

@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:animate_do/animate_do.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/services/api_service.dart';
 
-class RegistroScreen extends StatefulWidget {
-  const RegistroScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<RegistroScreen> createState() => _RegistroScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegistroScreenState extends State<RegistroScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final PageController _pageController = PageController();
   final _apiService = ApiService();
   int _currentStep = 0;

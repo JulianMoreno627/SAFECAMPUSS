@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import '../../../core/constants/app_colors.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 
 class CrearReporteScreen extends StatefulWidget {
   const CrearReporteScreen({super.key});
@@ -22,84 +23,100 @@ class _CrearReporteScreenState extends State<CrearReporteScreen> {
   String _nivelUrgencia = 'medio';
   bool _isLoading = false;
   bool _ubicacionObtenida = false;
-  String _ubicacionTexto = 'Obteniendo ubicación...';
-
-  // Tipos de incidente
-  final List<Map<String, dynamic>> _tiposIncidente = [
-    {
-      'tipo': 'Robo',
-      'icon': Icons.phone_android_rounded,
-      'color': AppColors.riskHigh
-    },
-    {
-      'tipo': 'Acoso',
-      'icon': Icons.warning_rounded,
-      'color': AppColors.riskHigh
-    },
-    {
-      'tipo': 'Persona sospechosa',
-      'icon': Icons.person_off_rounded,
-      'color': AppColors.riskMedium
-    },
-    {
-      'tipo': 'Iluminación',
-      'icon': Icons.light_mode_rounded,
-      'color': AppColors.riskLow
-    },
-    {
-      'tipo': 'Pelea',
-      'icon': Icons.sports_mma_rounded,
-      'color': AppColors.riskCritic
-    },
-    {
-      'tipo': 'Vandalismo',
-      'icon': Icons.broken_image_rounded,
-      'color': AppColors.riskMedium
-    },
-    {
-      'tipo': 'Accidente',
-      'icon': Icons.car_crash_rounded,
-      'color': AppColors.riskHigh
-    },
-    {
-      'tipo': 'Otro',
-      'icon': Icons.more_horiz_rounded,
-      'color': AppColors.textSecondary
-    },
-  ];
-
-  // Niveles de urgencia
-  final List<Map<String, dynamic>> _nivelesUrgencia = [
-    {
-      'nivel': 'bajo',
-      'label': 'Bajo',
-      'color': AppColors.riskLow,
-      'icon': Icons.arrow_downward_rounded
-    },
-    {
-      'nivel': 'medio',
-      'label': 'Medio',
-      'color': AppColors.riskMedium,
-      'icon': Icons.remove_rounded
-    },
-    {
-      'nivel': 'alto',
-      'label': 'Alto',
-      'color': AppColors.riskHigh,
-      'icon': Icons.arrow_upward_rounded
-    },
-    {
-      'nivel': 'critico',
-      'label': 'Crítico',
-      'color': AppColors.riskCritic,
-      'icon': Icons.priority_high_rounded
-    },
-  ];
+  bool _isAnalyzing = false;
+  late String _ubicacionTexto;
+  late List<Map<String, dynamic>> _tiposIncidente;
+  late List<Map<String, dynamic>> _nivelesUrgencia;
 
   @override
   void initState() {
     super.initState();
     _obtenerUbicacion();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _ubicacionTexto = AppLocalizations.of(context)!.obtainingLocation;
+    _tiposIncidente = _getTiposIncidente(context);
+    _nivelesUrgencia = _getNivelesUrgencia(context);
+  }
+
+  // Tipos de incidente
+  List<Map<String, dynamic>> _getTiposIncidente(BuildContext context) {
+    return [
+      {
+        'tipo': 'Robo',
+        'icon': Icons.phone_android_rounded,
+        'color': AppColors.riskHigh
+      },
+      {
+        'tipo': 'Acoso',
+        'icon': Icons.warning_rounded,
+        'color': AppColors.riskHigh
+      },
+      {
+        'tipo': 'Persona sospechosa',
+        'icon': Icons.person_off_rounded,
+        'color': AppColors.riskMedium
+      },
+      {
+        'tipo': 'Iluminación',
+        'icon': Icons.light_mode_rounded,
+        'color': AppColors.riskLow
+      },
+      {
+        'tipo': 'Pelea',
+        'icon': Icons.sports_mma_rounded,
+        'color': AppColors.riskCritical
+      },
+      {
+        'tipo': 'Vandalismo',
+        'icon': Icons.broken_image_rounded,
+        'color': AppColors.riskMedium
+      },
+      {
+        'tipo': 'Accidente',
+        'icon': Icons.car_crash_rounded,
+        'color': AppColors.riskHigh
+      },
+      {
+        'tipo': 'Otro',
+        'icon': Icons.more_horiz_rounded,
+        'color': AppColors.textSecondary
+      },
+    ];
+  }
+
+  // Niveles de urgencia
+  List<Map<String, dynamic>> _getNivelesUrgencia(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return [
+      {
+        'nivel': 'bajo',
+        'label': l10n.low,
+        'color': AppColors.riskLow,
+        'icon': Icons.arrow_downward_rounded
+      },
+      {
+        'nivel': 'medio',
+        'label': l10n.medium,
+        'color': AppColors.riskMedium,
+        'icon': Icons.remove_rounded
+      },
+      {
+        'nivel': 'alto',
+        'label': l10n.high,
+        'color': AppColors.riskHigh,
+        'icon': Icons.arrow_upward_rounded
+      },
+      {
+        'nivel': 'critico',
+        'label': l10n.critical,
+        'color': AppColors.riskCritical,
+        'icon': Icons.priority_high_rounded
+      },
+    ];
   }
 
   @override
@@ -130,6 +147,7 @@ class _CrearReporteScreenState extends State<CrearReporteScreen> {
   }
 
   void _mostrarOpcionesImagen() {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.surface,
@@ -150,21 +168,40 @@ class _CrearReporteScreenState extends State<CrearReporteScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
-              'Agregar foto',
-              style: TextStyle(
+            Text(
+              l10n.addPhoto,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 8),
+            if (_isAnalyzing)
+              const Row(
+                children: [
+                  SizedBox(
+                    width: 12,
+                    height: 12,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.accent,
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    'AI analizando...',
+                    style: TextStyle(color: AppColors.accent, fontSize: 12),
+                  ),
+                ],
+              ),
+            const SizedBox(height: 8),
             Row(
               children: [
                 Expanded(
                   child: _buildImageOption(
                     icon: Icons.camera_alt_rounded,
-                    label: 'Cámara',
+                    label: l10n.camera,
                     onTap: () {
                       Navigator.pop(context);
                       _seleccionarImagen(ImageSource.camera);
@@ -175,7 +212,7 @@ class _CrearReporteScreenState extends State<CrearReporteScreen> {
                 Expanded(
                   child: _buildImageOption(
                     icon: Icons.photo_library_rounded,
-                    label: 'Galería',
+                    label: l10n.gallery,
                     onTap: () {
                       Navigator.pop(context);
                       _seleccionarImagen(ImageSource.gallery);
@@ -226,117 +263,46 @@ class _CrearReporteScreenState extends State<CrearReporteScreen> {
   }
 
   Future<void> _enviarReporte() async {
+    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
     if (_tipoSeleccionado == null) {
-      _mostrarError('Selecciona el tipo de incidente');
-      return;
-    }
-    if (!_ubicacionObtenida) {
-      _mostrarError('Espera a que se obtenga la ubicación');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.selectType),
+          backgroundColor: AppColors.riskHigh,
+        ),
+      );
       return;
     }
 
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 2));
-    setState(() => _isLoading = false);
 
-    if (mounted) {
-      _mostrarExito();
-    }
-  }
+    try {
+      // Simular envío
+      await Future.delayed(const Duration(seconds: 2));
 
-  void _mostrarError(String mensaje) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.error_rounded, color: Colors.white),
-            const SizedBox(width: 10),
-            Text(mensaje),
-          ],
-        ),
-        backgroundColor: AppColors.riskHigh,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
-  }
-
-  void _mostrarExito() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => Dialog(
-        backgroundColor: AppColors.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        child: Padding(
-          padding: const EdgeInsets.all(28),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.riskLow.withValues(alpha: 0.15),
-                  border: Border.all(
-                    color: AppColors.riskLow.withValues(alpha: 0.5),
-                    width: 2,
-                  ),
-                ),
-                child: const Icon(
-                  Icons.check_rounded,
-                  color: AppColors.riskLow,
-                  size: 44,
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                '¡Reporte Enviado!',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'La IA está analizando tu reporte y notificando a los estudiantes cercanos.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 14,
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.accent,
-                    foregroundColor: Colors.black,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
-                  child: const Text(
-                    'Ver en el mapa',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ],
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.reportSuccess),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
           ),
-        ),
-      ),
-    );
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.errorGeneric),
+            backgroundColor: AppColors.riskCritical,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import '../constants/app_colors.dart';
+import 'app_colors.dart';
 
 class AppTheme {
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
+    fontFamily: 'Montserrat', // Ejemplo de fuente
     brightness: Brightness.dark,
     scaffoldBackgroundColor: AppColors.background,
     primaryColor: AppColors.primary,

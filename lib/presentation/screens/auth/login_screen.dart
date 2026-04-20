@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:animate_do/animate_do.dart';
-import '../../../core/constants/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_icons.dart';
 import '../../../core/services/api_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -39,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen>
       );
 
       if (response['token'] != null) {
-        if (mounted) context.go('/mapa');
+        if (mounted) context.go('/map');
       }
     } catch (e) {
       if (mounted) {
@@ -59,18 +61,20 @@ class _LoginScreenState extends State<LoginScreen>
     setState(() => _isLoading = true);
     await Future.delayed(const Duration(seconds: 1));
     setState(() => _isLoading = false);
-    if (mounted) context.go('/mapa');
+    if (mounted) context.go('/map');
   }
 
   Future<void> _biometricLogin() async {
     setState(() => _isLoading = true);
     await Future.delayed(const Duration(seconds: 1));
     setState(() => _isLoading = false);
-    if (mounted) context.go('/mapa');
+    if (mounted) context.go('/map');
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Stack(
@@ -88,11 +92,11 @@ class _LoginScreenState extends State<LoginScreen>
                     children: [
                       // Header
                       const SizedBox(height: 40),
-                      _buildHeader(),
+                      _buildHeader(l10n),
                       const SizedBox(height: 32),
 
                       // Formulario ocupa el resto
-                      Expanded(child: _buildForm()),
+                      Expanded(child: _buildForm(l10n)),
                     ],
                   ),
                 ),
@@ -171,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   // ─── Header ───────────────────────────────────────────────────────────────
 
-  Widget _buildHeader() {
+  Widget _buildHeader(AppLocalizations l10n) {
     return Column(
       children: [
         // Logo con glow
@@ -196,7 +200,7 @@ class _LoginScreenState extends State<LoginScreen>
               ],
             ),
             child: const Icon(
-              Icons.shield_rounded,
+              AppIcons.login,
               size: 50,
               color: Colors.white,
             ),
@@ -212,9 +216,9 @@ class _LoginScreenState extends State<LoginScreen>
             shaderCallback: (bounds) => const LinearGradient(
               colors: [Colors.white, AppColors.accent],
             ).createShader(bounds),
-            child: const Text(
-              'SafeCampus AI',
-              style: TextStyle(
+            child: Text(
+              l10n.appTitle,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 26,
                 fontWeight: FontWeight.bold,
@@ -228,9 +232,9 @@ class _LoginScreenState extends State<LoginScreen>
 
         FadeInDown(
           delay: const Duration(milliseconds: 300),
-          child: const Text(
-            'Tu seguridad, nuestra prioridad',
-            style: TextStyle(
+          child: Text(
+            l10n.loginSubtitle,
+            style: const TextStyle(
               color: AppColors.textSecondary,
               fontSize: 13,
             ),
@@ -240,9 +244,9 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  // ─── Formulario ───────────────────────────────────────────────────────────
+  // ─── Form ─────────────────────────────────────────────────────────────────
 
-  Widget _buildForm() {
+  Widget _buildForm(AppLocalizations l10n) {
     return FadeInUp(
       duration: const Duration(milliseconds: 600),
       child: Container(
@@ -264,18 +268,18 @@ class _LoginScreenState extends State<LoginScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Título
-              const Text(
-                'Iniciar Sesión',
-                style: TextStyle(
+              Text(
+                l10n.loginButton,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 4),
-              const Text(
-                'Bienvenido de nuevo',
-                style: TextStyle(
+              Text(
+                l10n.loginSubtitle,
+                style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 13,
                 ),
@@ -284,11 +288,11 @@ class _LoginScreenState extends State<LoginScreen>
               const SizedBox(height: 24),
 
               // Email
-              _buildEmailField(),
+              _buildEmailField(l10n),
               const SizedBox(height: 14),
 
               // Contraseña
-              _buildPasswordField(),
+              _buildPasswordField(l10n),
               const SizedBox(height: 6),
 
               // Olvidé contraseña
@@ -301,7 +305,7 @@ class _LoginScreenState extends State<LoginScreen>
                     minimumSize: Size.zero,
                   ),
                   child: const Text(
-                    '¿Olvidaste tu contraseña?',
+                    'Forgot password?',
                     style: TextStyle(
                       color: AppColors.accent,
                       fontSize: 13,
@@ -313,7 +317,7 @@ class _LoginScreenState extends State<LoginScreen>
               const SizedBox(height: 20),
 
               // Botón ingresar
-              _buildLoginButton(),
+              _buildLoginButton(l10n),
 
               const SizedBox(height: 20),
 
@@ -336,18 +340,18 @@ class _LoginScreenState extends State<LoginScreen>
               // Link a registro
               Center(
                 child: GestureDetector(
-                  onTap: () => context.go('/registro'),
+                  onTap: () => context.go('/register'),
                   child: RichText(
-                    text: const TextSpan(
-                      text: '¿No tienes cuenta? ',
-                      style: TextStyle(
+                    text: TextSpan(
+                      text: l10n.noAccount,
+                      style: const TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 14,
                       ),
                       children: [
                         TextSpan(
-                          text: 'Regístrate',
-                          style: TextStyle(
+                          text: ' ${l10n.registerButton}',
+                          style: const TextStyle(
                             color: AppColors.accent,
                             fontWeight: FontWeight.bold,
                           ),
@@ -366,13 +370,13 @@ class _LoginScreenState extends State<LoginScreen>
 
   // ─── Campos ───────────────────────────────────────────────────────────────
 
-  Widget _buildEmailField() {
+  Widget _buildEmailField(AppLocalizations l10n) {
     return TextFormField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
       style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
-        hintText: 'Correo electrónico',
+        hintText: l10n.emailLabel,
         hintStyle: const TextStyle(color: AppColors.textSecondary),
         prefixIcon: const Icon(Icons.email_outlined, color: AppColors.accent),
         filled: true,
@@ -388,20 +392,20 @@ class _LoginScreenState extends State<LoginScreen>
         errorStyle: const TextStyle(color: AppColors.riskHigh),
       ),
       validator: (value) {
-        if (value == null || value.isEmpty) return 'Ingresa tu correo';
-        if (!value.contains('@')) return 'Correo inválido';
+        if (value == null || value.isEmpty) return 'Required';
+        if (!value.contains('@')) return 'Invalid email';
         return null;
       },
     );
   }
 
-  Widget _buildPasswordField() {
+  Widget _buildPasswordField(AppLocalizations l10n) {
     return TextFormField(
       controller: _passwordController,
       obscureText: _obscurePassword,
       style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
-        hintText: 'Contraseña',
+        hintText: l10n.passwordLabel,
         hintStyle: const TextStyle(color: AppColors.textSecondary),
         prefixIcon:
             const Icon(Icons.lock_outline_rounded, color: AppColors.accent),
@@ -426,8 +430,8 @@ class _LoginScreenState extends State<LoginScreen>
         errorStyle: const TextStyle(color: AppColors.riskHigh),
       ),
       validator: (value) {
-        if (value == null || value.isEmpty) return 'Ingresa tu contraseña';
-        if (value.length < 6) return 'Mínimo 6 caracteres';
+        if (value == null || value.isEmpty) return 'Required';
+        if (value.length < 6) return 'Min 6 chars';
         return null;
       },
     );
@@ -435,7 +439,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   // ─── Botones ──────────────────────────────────────────────────────────────
 
-  Widget _buildLoginButton() {
+  Widget _buildLoginButton(AppLocalizations l10n) {
     return SizedBox(
       width: double.infinity,
       height: 52,
@@ -459,9 +463,9 @@ class _LoginScreenState extends State<LoginScreen>
                   color: Colors.black,
                 ),
               )
-            : const Text(
-                'Ingresar',
-                style: TextStyle(
+            : Text(
+                l10n.loginButton,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 0.5,
@@ -472,20 +476,20 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _buildDivider() {
-    return const Row(
+    return Row(
       children: [
-        Expanded(child: Divider(color: Colors.white12)),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12),
+        Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.1))),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            'o continúa con',
+            'OR',
             style: TextStyle(
               color: AppColors.textSecondary,
               fontSize: 12,
             ),
           ),
         ),
-        Expanded(child: Divider(color: Colors.white12)),
+        Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.1))),
       ],
     );
   }
@@ -495,16 +499,24 @@ class _LoginScreenState extends State<LoginScreen>
       onPressed: _isLoading ? null : _googleLogin,
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 13),
-        side: const BorderSide(color: Colors.white24),
+        side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
         ),
       ),
-      icon:
-          const Icon(Icons.g_mobiledata_rounded, color: Colors.white, size: 22),
+      icon: Image.network(
+        'https://www.gstatic.com/images/branding/product/2x/googleg_48dp.png',
+        height: 20,
+        errorBuilder: (context, error, stackTrace) => const Icon(
+          Icons.g_mobiledata_rounded,
+          color: Colors.white,
+          size: 24,
+        ),
+      ),
       label: const Text(
         'Google',
         style: TextStyle(color: Colors.white, fontSize: 14),
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }
@@ -523,6 +535,7 @@ class _LoginScreenState extends State<LoginScreen>
       label: const Text(
         'Huella',
         style: TextStyle(color: AppColors.accent, fontSize: 14),
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }
