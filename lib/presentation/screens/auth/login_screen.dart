@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/services/api_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,6 +16,7 @@ class _LoginScreenState extends State<LoginScreen>
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _apiService = ApiService();
   bool _obscurePassword = true;
   bool _isLoading = false;
 
@@ -32,30 +33,19 @@ class _LoginScreenState extends State<LoginScreen>
     setState(() => _isLoading = true);
     
     try {
-      final supabase = Supabase.instance.client;
-      
-      final response = await supabase.auth.signInWithPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+      final response = await _apiService.login(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
       );
 
-      if (response.user != null) {
+      if (response['token'] != null) {
         if (mounted) context.go('/mapa');
-      }
-    } on AuthException catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.message),
-            backgroundColor: AppColors.riskHigh,
-          ),
-        );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Error inesperado al iniciar sesión'),
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception: ', '')),
             backgroundColor: AppColors.riskHigh,
           ),
         );

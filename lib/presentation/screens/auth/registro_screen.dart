@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/services/api_service.dart';
 
 class RegistroScreen extends StatefulWidget {
   const RegistroScreen({super.key});
@@ -13,6 +13,7 @@ class RegistroScreen extends StatefulWidget {
 
 class _RegistroScreenState extends State<RegistroScreen> {
   final PageController _pageController = PageController();
+  final _apiService = ApiService();
   int _currentStep = 0;
   bool _isLoading = false;
 
@@ -110,40 +111,15 @@ class _RegistroScreenState extends State<RegistroScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final supabase = Supabase.instance.client;
-
-      // 1. Verificar manualmente si el correo ya existe en la tabla de perfiles
-      final existingUser = await supabase
-          .from('profiles')
-          .select('email')
-          .eq('email', _emailController.text.trim())
-          .maybeSingle();
-
-      if (existingUser != null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Este correo electrónico ya está registrado. Por favor, inicia sesión.'),
-              backgroundColor: AppColors.riskHigh,
-            ),
-          );
-        }
-        setState(() => _isLoading = false);
-        return;
-      }
-
-      // 2. Realizar el registro en Supabase Auth
-      final response = await supabase.auth.signUp(
+      final response = await _apiService.register(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
-        data: {
-          'nombre': _nombreController.text.trim(),
-          'apellido': _apellidoController.text.trim(),
-          'telefono': _telefonoController.text.trim(),
-        },
+        nombre: _nombreController.text.trim(),
+        apellido: _apellidoController.text.trim(),
+        telefono: _telefonoController.text.trim(),
       );
 
-      if (response.user != null) {
+      if (response['token'] != null) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -154,20 +130,11 @@ class _RegistroScreenState extends State<RegistroScreen> {
           context.go('/login');
         }
       }
-    } on AuthException catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.message),
-            backgroundColor: AppColors.riskHigh,
-          ),
-        );
-      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Error inesperado al registrar'),
+          SnackBar(
+            content: Text(e.toString().replaceAll('Exception: ', '')),
             backgroundColor: AppColors.riskHigh,
           ),
         );
