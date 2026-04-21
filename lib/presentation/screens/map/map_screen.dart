@@ -8,6 +8,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/providers/location_provider.dart';
 import '../../../core/providers/reports_provider.dart';
+import '../../widgets/reporte_detalle_sheet.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
@@ -229,6 +230,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 
   void _showReportDetail(dynamic report) {
-    // Show report detail bottom sheet
+    ReporteDetalleSheet.show(context, Map<String, dynamic>.from(report));
   }
 }

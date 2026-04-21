@@ -23,7 +23,7 @@ class _CrearReporteScreenState extends State<CrearReporteScreen> {
   String _nivelUrgencia = 'medio';
   bool _isLoading = false;
   bool _ubicacionObtenida = false;
-  bool _isAnalyzing = false;
+  final bool _isAnalyzing = false;
   late String _ubicacionTexto;
   late List<Map<String, dynamic>> _tiposIncidente;
   late List<Map<String, dynamic>> _nivelesUrgencia;
