@@ -43,6 +43,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 TileLayer(
                   urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                   subdomains: const ['a', 'b', 'c'],
+                  userAgentPackageName: 'com.safecampus.safecampus_ai',
                 ),
                 // Location Marker
                 if (locationState.currentPosition != null)
