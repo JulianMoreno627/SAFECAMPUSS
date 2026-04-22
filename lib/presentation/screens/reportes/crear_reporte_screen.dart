@@ -59,7 +59,6 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
     _nivelesUrgencia = _getNivelesUrgencia(context);
   }
 
-  // Tipos de incidente
   List<Map<String, dynamic>> _getTiposIncidente(BuildContext context) {
     return [
       {
@@ -105,7 +104,6 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
     ];
   }
 
-  // Niveles de urgencia
   List<Map<String, dynamic>> _getNivelesUrgencia(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return [
@@ -151,7 +149,8 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
       return;
     }
     setState(() => _aiSuggesting = true);
-    _debounceTimer = Timer(const Duration(milliseconds: 1600), () => _clasificarConIA(value));
+    _debounceTimer = Timer(
+        const Duration(milliseconds: 1600), () => _clasificarConIA(value));
   }
 
   Future<void> _clasificarConIA(String descripcion) async {
@@ -172,13 +171,16 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
   Future<void> _obtenerUbicacion() async {
     final pos = ref.read(locationProvider).currentPosition;
     if (pos == null) {
-      if (mounted) setState(() => _ubicacionTexto = 'No se pudo obtener la ubicación');
+      if (mounted) {
+        setState(() => _ubicacionTexto = 'No se pudo obtener la ubicación');
+      }
       return;
     }
     _lat = pos.latitude;
     _lng = pos.longitude;
     try {
-      final placemarks = await placemarkFromCoordinates(pos.latitude, pos.longitude);
+      final placemarks =
+          await placemarkFromCoordinates(pos.latitude, pos.longitude);
       if (mounted) {
         final p = placemarks.isNotEmpty ? placemarks.first : null;
         final addr = [p?.street, p?.subLocality, p?.locality]
@@ -195,7 +197,8 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
       if (mounted) {
         setState(() {
           _ubicacionObtenida = true;
-          _ubicacionTexto = '${pos.latitude.toStringAsFixed(5)}, ${pos.longitude.toStringAsFixed(5)}';
+          _ubicacionTexto =
+              '${pos.latitude.toStringAsFixed(5)}, ${pos.longitude.toStringAsFixed(5)}';
         });
       }
     }
@@ -222,75 +225,76 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
       builder: (ctx) {
         final cs = Theme.of(ctx).colorScheme;
         return Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(
-                color: cs.onSurface.withValues(alpha: 0.24),
-                borderRadius: BorderRadius.circular(2),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: cs.onSurface.withValues(alpha: 0.24),
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              l10n.addPhoto,
-              style: TextStyle(
-                color: cs.onSurface,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+              const SizedBox(height: 20),
+              Text(
+                l10n.addPhoto,
+                style: TextStyle(
+                  color: cs.onSurface,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            if (_isAnalyzing)
-              const Row(
+              const SizedBox(height: 8),
+              if (_isAnalyzing)
+                const Row(
+                  children: [
+                    SizedBox(
+                      width: 12,
+                      height: 12,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.accent,
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      'AI analizando...',
+                      style:
+                          TextStyle(color: AppColors.accent, fontSize: 12),
+                    ),
+                  ],
+                ),
+              const SizedBox(height: 8),
+              Row(
                 children: [
-                  SizedBox(
-                    width: 12,
-                    height: 12,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: AppColors.accent,
+                  Expanded(
+                    child: _buildImageOption(
+                      icon: Icons.camera_alt_rounded,
+                      label: l10n.camera,
+                      onTap: () {
+                        Navigator.pop(context);
+                        _seleccionarImagen(ImageSource.camera);
+                      },
                     ),
                   ),
-                  SizedBox(width: 8),
-                  Text(
-                    'AI analizando...',
-                    style: TextStyle(color: AppColors.accent, fontSize: 12),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildImageOption(
+                      icon: Icons.photo_library_rounded,
+                      label: l10n.gallery,
+                      onTap: () {
+                        Navigator.pop(context);
+                        _seleccionarImagen(ImageSource.gallery);
+                      },
+                    ),
                   ),
                 ],
               ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildImageOption(
-                    icon: Icons.camera_alt_rounded,
-                    label: l10n.camera,
-                    onTap: () {
-                      Navigator.pop(context);
-                      _seleccionarImagen(ImageSource.camera);
-                    },
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _buildImageOption(
-                    icon: Icons.photo_library_rounded,
-                    label: l10n.gallery,
-                    onTap: () {
-                      Navigator.pop(context);
-                      _seleccionarImagen(ImageSource.gallery);
-                    },
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
+              const SizedBox(height: 16),
+            ],
+          ),
         );
       },
     );
@@ -335,7 +339,9 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
     if (!_formKey.currentState!.validate()) return;
     if (_tipoSeleccionado == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.selectType), backgroundColor: AppColors.riskHigh),
+        SnackBar(
+            content: Text(l10n.selectType),
+            backgroundColor: AppColors.riskHigh),
       );
       return;
     }
@@ -362,8 +368,9 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
         userId: userId,
       );
 
-      // Refrescar reportes en mapa y lista
-      await ref.read(reportsProvider.notifier).fetchNearbyReports(_lat!, _lng!);
+      await ref
+          .read(reportsProvider.notifier)
+          .fetchNearbyReports(_lat!, _lng!);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -394,7 +401,6 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // Fondo decorativo
           Positioned(
             top: -80,
             right: -60,
@@ -412,14 +418,10 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
               ),
             ),
           ),
-
           SafeArea(
             child: Column(
               children: [
-                // Header
                 _buildHeader(),
-
-                // Formulario
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
@@ -428,61 +430,42 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Sección foto
                           _buildSeccion(
                             '📸 Foto del Incidente',
                             'Opcional pero ayuda a la IA a clasificar mejor',
                             _buildFotoSection(),
                           ),
-
                           const SizedBox(height: 20),
-
-                          // Sección tipo
                           _buildSeccion(
                             '🚨 Tipo de Incidente',
                             'Selecciona la categoría que mejor describe',
                             _buildTiposGrid(),
                           ),
-
                           const SizedBox(height: 20),
-
-                          // Sección descripción
                           _buildSeccion(
                             '📝 Descripción',
                             'Cuéntanos qué pasó con el mayor detalle posible',
                             _buildDescripcionField(),
                           ),
-
                           const SizedBox(height: 20),
-
-                          // Sección urgencia
                           _buildSeccion(
                             '⚡ Nivel de Urgencia',
                             'La IA también calculará su propio nivel',
                             _buildUrgenciaSelector(),
                           ),
-
                           const SizedBox(height: 20),
-
-                          // Sección testigos
                           _buildSeccion(
                             '👥 Testigos',
                             'Número aproximado de personas que vieron el incidente',
                             _buildTestigosField(),
                           ),
-
                           const SizedBox(height: 20),
-
-                          // Sección ubicación
                           _buildSeccion(
                             '📍 Ubicación',
                             'Se obtiene automáticamente',
                             _buildUbicacionCard(),
                           ),
-
                           const SizedBox(height: 20),
-
-                          // Aviso IA
                           _buildAvisoIA(),
                         ],
                       ),
@@ -492,8 +475,6 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
               ],
             ),
           ),
-
-          // Botón enviar fijo abajo
           Positioned(
             bottom: 0,
             left: 0,
@@ -504,8 +485,6 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
       ),
     );
   }
-
-  // ── Header ────────────────────────────────────────────────────────────────
 
   Widget _buildHeader() {
     final cs = Theme.of(context).colorScheme;
@@ -554,7 +533,8 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
             ),
             const Spacer(),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: AppColors.riskHigh.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(20),
@@ -584,8 +564,6 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
     );
   }
 
-  // ── Sección wrapper ───────────────────────────────────────────────────────
-
   Widget _buildSeccion(String titulo, String subtitulo, Widget child) {
     final cs = Theme.of(context).colorScheme;
     return FadeInUp(
@@ -614,8 +592,6 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
       ),
     );
   }
-
-  // ── Foto ──────────────────────────────────────────────────────────────────
 
   Widget _buildFotoSection() {
     final cs = Theme.of(context).colorScheme;
@@ -651,7 +627,8 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                     top: 10,
                     right: 10,
                     child: GestureDetector(
-                      onTap: () => setState(() => _imagenSeleccionada = null),
+                      onTap: () =>
+                          setState(() => _imagenSeleccionada = null),
                       child: Container(
                         width: 32,
                         height: 32,
@@ -735,8 +712,6 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
     );
   }
 
-  // ── Tipos de incidente ────────────────────────────────────────────────────
-
   Widget _buildTiposGrid() {
     final cs = Theme.of(context).colorScheme;
     return GridView.builder(
@@ -755,7 +730,6 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
         final isAiSuggested = _aiSuggestedTipo == tipo['tipo'];
         return GestureDetector(
           onTap: () => setState(() => _tipoSeleccionado = tipo['tipo']),
-<<<<<<< HEAD
           child: Stack(
             fit: StackFit.expand,
             children: [
@@ -764,62 +738,25 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                 decoration: BoxDecoration(
                   color: isSelected
                       ? (tipo['color'] as Color).withValues(alpha: 0.2)
-                      : AppColors.cardColor,
+                      : Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
                     color: isSelected
                         ? tipo['color'] as Color
                         : isAiSuggested
                             ? AppColors.accent.withValues(alpha: 0.6)
-                            : Colors.white12,
+                            : cs.outlineVariant,
                     width: isSelected || isAiSuggested ? 2 : 1,
-=======
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? (tipo['color'] as Color).withValues(alpha: 0.2)
-                  : Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: isSelected ? tipo['color'] as Color : cs.outlineVariant,
-                width: isSelected ? 2 : 1,
-              ),
-              boxShadow: isSelected
-                  ? [
-                      BoxShadow(
-                        color: (tipo['color'] as Color).withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        spreadRadius: 1,
-                      )
-                    ]
-                  : [],
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  tipo['icon'] as IconData,
-                  color: isSelected
-                      ? tipo['color'] as Color
-                      : cs.onSurfaceVariant,
-                  size: 24,
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  tipo['tipo'],
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: isSelected ? cs.onSurface : cs.onSurfaceVariant,
-                    fontSize: 10,
-                    fontWeight:
-                        isSelected ? FontWeight.bold : FontWeight.normal,
->>>>>>> 58271cffa769bba33d5fd7dd62f07d58de9a16db
                   ),
                   boxShadow: isSelected
-                      ? [BoxShadow(
-                          color: (tipo['color'] as Color).withValues(alpha: 0.3),
-                          blurRadius: 8, spreadRadius: 1)]
+                      ? [
+                          BoxShadow(
+                            color: (tipo['color'] as Color)
+                                .withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            spreadRadius: 1,
+                          )
+                        ]
                       : [],
                 ),
                 child: Column(
@@ -829,7 +766,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                       tipo['icon'] as IconData,
                       color: isSelected
                           ? tipo['color'] as Color
-                          : AppColors.textSecondary,
+                          : cs.onSurfaceVariant,
                       size: 24,
                     ),
                     const SizedBox(height: 6),
@@ -837,9 +774,12 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                       tipo['tipo'],
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: isSelected ? Colors.white : AppColors.textSecondary,
+                        color:
+                            isSelected ? cs.onSurface : cs.onSurfaceVariant,
                         fontSize: 10,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -849,9 +789,11 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
               ),
               if (isAiSuggested)
                 Positioned(
-                  top: 4, right: 4,
+                  top: 4,
+                  right: 4,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 4, vertical: 2),
                     decoration: BoxDecoration(
                       color: AppColors.accent,
                       borderRadius: BorderRadius.circular(6),
@@ -870,10 +812,8 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
     );
   }
 
-  // ── Descripción ───────────────────────────────────────────────────────────
-
   Widget _buildDescripcionField() {
-<<<<<<< HEAD
+    final cs = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -881,23 +821,24 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
           controller: _descripcionController,
           maxLines: 4,
           maxLength: 300,
-          style: const TextStyle(color: Colors.white, fontSize: 14),
+          style: TextStyle(color: cs.onSurface, fontSize: 14),
           onChanged: _onDescripcionChanged,
           decoration: InputDecoration(
             hintText:
                 'Ej: Vi a una persona sospechosa merodeando el parqueadero norte alrededor de las 10 PM...',
-            hintStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+            hintStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
             filled: true,
-            fillColor: AppColors.cardColor,
+            fillColor: Theme.of(context).cardColor,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
               borderSide: BorderSide.none,
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide: const BorderSide(color: AppColors.accent, width: 1.5),
+              borderSide:
+                  const BorderSide(color: AppColors.accent, width: 1.5),
             ),
-            counterStyle: const TextStyle(color: AppColors.textSecondary),
+            counterStyle: TextStyle(color: cs.onSurfaceVariant),
             errorStyle: const TextStyle(color: AppColors.riskHigh),
           ),
           validator: (v) {
@@ -906,7 +847,6 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
             return null;
           },
         ),
-        // ── Indicador IA ──────────────────────────────────────────────────
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           child: _aiSuggesting
@@ -916,7 +856,8 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                   child: Row(
                     children: [
                       const SizedBox(
-                        width: 12, height: 12,
+                        width: 12,
+                        height: 12,
                         child: CircularProgressIndicator(
                             strokeWidth: 1.5, color: AppColors.accent),
                       ),
@@ -950,43 +891,8 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                   : const SizedBox.shrink(key: ValueKey('empty')),
         ),
       ],
-=======
-    final cs = Theme.of(context).colorScheme;
-    return TextFormField(
-      controller: _descripcionController,
-      maxLines: 4,
-      maxLength: 300,
-      style: TextStyle(color: cs.onSurface, fontSize: 14),
-      decoration: InputDecoration(
-        hintText:
-            'Ej: Vi a una persona sospechosa merodeando el parqueadero norte alrededor de las 10 PM...',
-        hintStyle: TextStyle(
-          color: cs.onSurfaceVariant,
-          fontSize: 13,
-        ),
-        filled: true,
-        fillColor: Theme.of(context).cardColor,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.accent, width: 1.5),
-        ),
-        counterStyle: TextStyle(color: cs.onSurfaceVariant),
-        errorStyle: const TextStyle(color: AppColors.riskHigh),
-      ),
-      validator: (v) {
-        if (v == null || v.isEmpty) return 'Describe el incidente';
-        if (v.length < 20) return 'Mínimo 20 caracteres';
-        return null;
-      },
->>>>>>> 58271cffa769bba33d5fd7dd62f07d58de9a16db
     );
   }
-
-  // ── Urgencia ──────────────────────────────────────────────────────────────
 
   Widget _buildUrgenciaSelector() {
     final cs = Theme.of(context).colorScheme;
@@ -1026,7 +932,8 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                     style: TextStyle(
                       color: isSelected ? color : cs.onSurfaceVariant,
                       fontSize: 11,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -1034,7 +941,8 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                     height: 14,
                     child: _aiSuggestedUrgencia == nivel['nivel']
                         ? Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 5, vertical: 1),
                             decoration: BoxDecoration(
                               color: AppColors.accent,
                               borderRadius: BorderRadius.circular(6),
@@ -1056,12 +964,9 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
     );
   }
 
-  // ── Testigos ──────────────────────────────────────────────────────────────
-
   Widget _buildTestigosField() {
     return Row(
       children: [
-        // Botón menos
         GestureDetector(
           onTap: () {
             final val = int.tryParse(_testigosController.text) ?? 0;
@@ -1082,10 +987,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                 color: Theme.of(context).colorScheme.onSurface, size: 20),
           ),
         ),
-
         const SizedBox(width: 12),
-
-        // Campo número
         Expanded(
           child: TextFormField(
             controller: _testigosController,
@@ -1118,10 +1020,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
             ),
           ),
         ),
-
         const SizedBox(width: 12),
-
-        // Botón más
         GestureDetector(
           onTap: () {
             final val = int.tryParse(_testigosController.text) ?? 0;
@@ -1144,8 +1043,6 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
       ],
     );
   }
-
-  // ── Ubicación ─────────────────────────────────────────────────────────────
 
   Widget _buildUbicacionCard() {
     final cs = Theme.of(context).colorScheme;
@@ -1227,8 +1124,6 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
     );
   }
 
-  // ── Aviso IA ──────────────────────────────────────────────────────────────
-
   Widget _buildAvisoIA() {
     return Container(
       padding: const EdgeInsets.all(14),
@@ -1263,8 +1158,6 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
       ),
     );
   }
-
-  // ── Botón enviar ──────────────────────────────────────────────────────────
 
   Widget _buildBotonEnviar() {
     final cs = Theme.of(context).colorScheme;
