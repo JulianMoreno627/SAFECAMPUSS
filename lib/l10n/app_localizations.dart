@@ -1976,6 +1976,24 @@ abstract class AppLocalizations {
   /// **'Change profile photo'**
   String get changeProfilePhoto;
 
+  /// No description provided for @profileUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated successfully'**
+  String get profileUpdated;
+
+  /// No description provided for @saveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get saveButton;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get saveChanges;
+
   /// No description provided for @deletePhoto.
   ///
   /// In en, this message translates to:

@@ -17,7 +17,10 @@ class AiService {
   void init() {
     final apiKey = dotenv.env['GEMINI_API_KEY'];
     if (apiKey != null && apiKey.isNotEmpty && apiKey != 'pending') {
-      _model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
+      _model = GenerativeModel(
+        model: 'gemini-1.5-flash',
+        apiKey: apiKey,
+      );
     }
   }
 
@@ -73,10 +76,7 @@ Descripción: "$descripcion"
     try {
       final response = await _model!.generateContent([Content.text(prompt)]);
       final raw = response.text?.trim() ?? '';
-      final clean = raw
-          .replaceAll('```json', '')
-          .replaceAll('```', '')
-          .trim();
+      final clean = raw.replaceAll('```json', '').replaceAll('```', '').trim();
       final data = jsonDecode(clean) as Map<String, dynamic>;
       return {
         'tipo': data['tipo']?.toString() ?? 'Otro',
@@ -95,8 +95,14 @@ Descripción: "$descripcion"
     if (_model == null) return null;
 
     const categorias = [
-      'Robo', 'Acoso', 'Persona sospechosa', 'Iluminación',
-      'Pelea', 'Vandalismo', 'Accidente', 'Otro',
+      'Robo',
+      'Acoso',
+      'Persona sospechosa',
+      'Iluminación',
+      'Pelea',
+      'Vandalismo',
+      'Accidente',
+      'Otro',
     ];
 
     final prompt = '''
@@ -131,8 +137,10 @@ Responde solo con el nombre de la categoría.
       urgencias[urg] = (urgencias[urg] ?? 0) + 1;
     }
 
-    final tiposStr = tipos.entries.map((e) => '${e.key}: ${e.value}').join(', ');
-    final urgStr = urgencias.entries.map((e) => '${e.key}: ${e.value}').join(', ');
+    final tiposStr =
+        tipos.entries.map((e) => '${e.key}: ${e.value}').join(', ');
+    final urgStr =
+        urgencias.entries.map((e) => '${e.key}: ${e.value}').join(', ');
 
     final prompt = '''
 Analiza estos incidentes de seguridad en un campus universitario y escribe un análisis breve (máximo 3 oraciones) en español con tendencias detectadas y una recomendación práctica para los estudiantes. Sé directo y útil.
@@ -179,7 +187,8 @@ $resumen
       final data = jsonDecode(clean) as Map<String, dynamic>;
       return {
         'nivel': data['nivel']?.toString() ?? 'medio',
-        'recomendacion': data['recomendacion']?.toString() ?? 'Mantente alerta.',
+        'recomendacion':
+            data['recomendacion']?.toString() ?? 'Mantente alerta.',
       };
     } catch (e) {
       _logger.e('analyzeRisk error: $e');

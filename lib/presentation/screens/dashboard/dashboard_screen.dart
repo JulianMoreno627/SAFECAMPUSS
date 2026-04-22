@@ -214,18 +214,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         value: entry.value.toDouble(),
         color: palette[i % palette.length],
         title: '${pct.toStringAsFixed(0)}%',
-        radius: 52,
+        radius: 40, // Reducido de 52 para evitar solapamiento
         titleStyle: const TextStyle(
-            color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-        badgeWidget: entry.value > 1
-            ? Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: palette[i % palette.length].withValues(alpha: 0.2),
-                  shape: BoxShape.circle,
-                ),
-              )
-            : null,
+            color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
       );
     }).toList();
 
@@ -250,12 +241,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             Row(
               children: [
                 SizedBox(
-                  height: 160,
-                  width: 160,
+                  height: 140, // Reducido de 160
+                  width: 140, // Reducido de 160
                   child: PieChart(
                     PieChartData(
                       sections: sections,
-                      centerSpaceRadius: 36,
+                      centerSpaceRadius: 30, // Reducido de 36
                       sectionsSpace: 2,
                     ),
                   ),

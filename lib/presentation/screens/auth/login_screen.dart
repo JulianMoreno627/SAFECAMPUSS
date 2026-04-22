@@ -164,11 +164,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       body: Stack(
         children: [
           _buildStaticBackground(),
-          const Positioned(
-            top: 52,
-            right: 20,
-            child: LanguageToggleButton(),
-          ),
           SafeArea(
             child: CustomScrollView(
               slivers: [
@@ -185,6 +180,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
               ],
             ),
+          ),
+          const Positioned(
+            top: 52,
+            right: 20,
+            child: LanguageToggleButton(),
           ),
         ],
       ),

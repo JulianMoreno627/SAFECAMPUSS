@@ -4,6 +4,7 @@ import 'package:animate_do/animate_do.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/services/api_service.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../widgets/language_toggle_button.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -174,6 +175,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 _buildNavButtons(l10n),
               ],
             ),
+          ),
+          const Positioned(
+            top: 52,
+            right: 20,
+            child: LanguageToggleButton(),
           ),
         ],
       ),

@@ -22,7 +22,7 @@ class GeminiService {
         apiKey: apiKey,
         generationConfig: GenerationConfig(
           temperature: 0.7,
-          maxOutputTokens: 500,
+          maxOutputTokens: 1000,
         ),
       );
     }
@@ -92,7 +92,8 @@ Responde exactamente en este formato JSON:
         ? 'Sin reportes recientes'
         : reportesCercanos
             .take(5)
-            .map((r) => '- ${r.tipo.label}: ${r.descripcion} (${r.nivelUrgencia.label})')
+            .map((r) =>
+                '- ${r.tipo.label}: ${r.descripcion} (${r.nivelUrgencia.label})')
             .join('\n');
 
     final prompt = '''
@@ -251,10 +252,7 @@ Responde exactamente en este formato JSON:
   Map<String, dynamic>? _parseJson(String raw) {
     if (raw.isEmpty) return null;
 
-    final clean = raw
-        .replaceAll('```json', '')
-        .replaceAll('```', '')
-        .trim();
+    final clean = raw.replaceAll('```json', '').replaceAll('```', '').trim();
 
     // Intento 1: jsonDecode estándar
     try {

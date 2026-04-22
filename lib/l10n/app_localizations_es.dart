@@ -996,6 +996,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get changeProfilePhoto => 'Cambiar foto de perfil';
 
   @override
+  String get profileUpdated => 'Perfil actualizado correctamente';
+
+  @override
+  String get saveButton => 'Guardar';
+
+  @override
+  String get saveChanges => 'Guardar cambios';
+
+  @override
   String get deletePhoto => 'Eliminar foto';
 
   @override

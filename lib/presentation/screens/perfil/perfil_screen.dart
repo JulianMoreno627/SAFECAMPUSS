@@ -302,7 +302,7 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
           _OptionTile(
             icon: Icons.person_outline_rounded,
             label: l10n.editProfile,
-            onTap: () {},
+            onTap: () => context.push('/perfil/editar-perfil'),
           ),
           _OptionTile(
             icon: Icons.notifications_outlined,
