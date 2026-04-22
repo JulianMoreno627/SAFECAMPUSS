@@ -27,9 +27,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final locationState = ref.watch(locationProvider);
     final reportsState = ref.watch(reportsProvider);
     final l10n = AppLocalizations.of(context)!;
+    final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       body: Stack(
         children: [
           // ── Main Map ────────────────────────────────────────────────────
@@ -37,16 +37,17 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             child: FlutterMap(
               mapController: _mapController,
               options: MapOptions(
-                initialCenter: locationState.currentPosition ?? const LatLng(1.2136, -77.2811),
+                initialCenter: locationState.currentPosition ??
+                    const LatLng(1.2136, -77.2811),
                 initialZoom: 16,
               ),
               children: [
                 TileLayer(
-                  urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  urlTemplate:
+                      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                   subdomains: const ['a', 'b', 'c'],
                   userAgentPackageName: 'com.safecampus.safecampus_ai',
                 ),
-                // Location Marker
                 if (locationState.currentPosition != null)
                   MarkerLayer(
                     markers: [
@@ -58,9 +59,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                       ),
                     ],
                   ),
-                // Report Markers
                 MarkerLayer(
-                  markers: reportsState.reportesCercanos.map((report) {
+                  markers:
+                      reportsState.reportesCercanos.map((report) {
                     return Marker(
                       point: LatLng(report['lat'], report['lng']),
                       width: 40,
@@ -78,7 +79,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             top: 40,
             left: 20,
             right: 20,
-            child: _buildHeader(reportsState, l10n),
+            child: _buildHeader(reportsState, l10n, cs),
           ),
 
           // ── Floating Action Buttons ─────────────────────────────────────
@@ -143,13 +144,15 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             border: Border.all(color: Colors.white, width: 2),
             boxShadow: [
               BoxShadow(
-                color: _getRiskColor(report['nivel_urgencia']).withValues(alpha: 0.4),
+                color: _getRiskColor(report['nivel_urgencia'])
+                    .withValues(alpha: 0.4),
                 blurRadius: 8,
                 spreadRadius: 2,
               ),
             ],
           ),
-          child: const Icon(AppIcons.riskHigh, size: 18, color: Colors.white),
+          child: const Icon(AppIcons.riskHigh,
+              size: 18, color: Colors.white),
         ),
       ),
     );
@@ -157,21 +160,34 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   Color _getRiskColor(String? level) {
     switch (level?.toLowerCase()) {
-      case 'critico': return AppColors.riskCritical;
-      case 'alto': return AppColors.riskHigh;
-      case 'medio': return AppColors.riskMedium;
-      default: return AppColors.riskLow;
+      case 'critico':
+        return AppColors.riskCritical;
+      case 'alto':
+        return AppColors.riskHigh;
+      case 'medio':
+        return AppColors.riskMedium;
+      default:
+        return AppColors.riskLow;
     }
   }
 
-  Widget _buildHeader(ReportsState reportsState, AppLocalizations l10n) {
+  Widget _buildHeader(
+      ReportsState reportsState, AppLocalizations l10n, ColorScheme cs) {
     return FadeInDown(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: AppColors.surface.withValues(alpha: 0.9),
+          color: cs.surface.withValues(alpha: 0.92),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+          border: Border.all(color: cs.outlineVariant),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Row(
           children: [
@@ -184,7 +200,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 children: [
                   Text(
                     l10n.mapTitle,
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: cs.onSurface,
+                        fontWeight: FontWeight.bold),
                   ),
                   Text(
                     '${l10n.riskLevel}: ${reportsState.nivelRiesgo}',
@@ -197,41 +215,52 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 ],
               ),
             ),
-            const Icon(AppIcons.notification, color: Colors.white70),
+            Icon(AppIcons.notification,
+                color: cs.onSurface.withValues(alpha: 0.7)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildFloatingActions(AppLocalizations l10n, LocationState locationState) {
+  Widget _buildFloatingActions(
+      AppLocalizations l10n, LocationState locationState) {
+    final cardColor = Theme.of(context).cardColor;
+
     return Column(
       children: [
         FloatingActionButton(
           heroTag: 'my_location',
-          onPressed: () => _centerOnLocation(locationState.currentPosition),
-          backgroundColor: AppColors.cardColor,
-          child: const Icon(AppIcons.location, color: AppColors.accent),
+          onPressed: () =>
+              _centerOnLocation(locationState.currentPosition),
+          backgroundColor: cardColor,
+          child:
+              const Icon(AppIcons.location, color: AppColors.accent),
         ),
         const SizedBox(height: 16),
         FloatingActionButton(
           heroTag: 'sos',
-          onPressed: () => setState(() => _sosActive = !_sosActive),
-          backgroundColor: _sosActive ? AppColors.sosRed : AppColors.cardColor,
-          child: Icon(AppIcons.sos, color: _sosActive ? Colors.white : AppColors.sosRed),
+          onPressed: () =>
+              setState(() => _sosActive = !_sosActive),
+          backgroundColor:
+              _sosActive ? AppColors.sosRed : cardColor,
+          child: Icon(AppIcons.sos,
+              color: _sosActive ? Colors.white : AppColors.sosRed),
         ),
         const SizedBox(height: 16),
         FloatingActionButton(
           heroTag: 'report',
           onPressed: () => context.push('/map/crear-reporte'),
           backgroundColor: AppColors.accent,
-          child: const Icon(AppIcons.report, color: Colors.black),
+          child:
+              const Icon(AppIcons.report, color: Colors.black),
         ),
       ],
     );
   }
 
   void _showReportDetail(dynamic report) {
-    ReporteDetalleSheet.show(context, Map<String, dynamic>.from(report));
+    ReporteDetalleSheet.show(
+        context, Map<String, dynamic>.from(report));
   }
 }

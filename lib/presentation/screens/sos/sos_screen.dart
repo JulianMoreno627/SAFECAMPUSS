@@ -31,12 +31,13 @@ class _SosScreenState extends State<SosScreen>
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(),
+            _buildHeader(cs),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -45,9 +46,9 @@ class _SosScreenState extends State<SosScreen>
                     const SizedBox(height: 32),
                     _buildSosButton(),
                     const SizedBox(height: 40),
-                    _buildQuickActions(),
+                    _buildQuickActions(cs),
                     const SizedBox(height: 32),
-                    _buildEmergencyContacts(),
+                    _buildEmergencyContacts(cs),
                   ],
                 ),
               ),
@@ -58,25 +59,27 @@ class _SosScreenState extends State<SosScreen>
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(ColorScheme cs) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       child: Row(
         children: [
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'Emergencia SOS',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: cs.onSurface,
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               Text(
                 'Presiona y mantén para activar',
-                style: TextStyle(color: Colors.white54, fontSize: 13),
+                style: TextStyle(
+                    color: cs.onSurface.withValues(alpha: 0.54),
+                    fontSize: 13),
               ),
             ],
           ),
@@ -84,10 +87,11 @@ class _SosScreenState extends State<SosScreen>
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppColors.cardColor,
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.history_rounded, color: Colors.white54, size: 20),
+            child: Icon(Icons.history_rounded,
+                color: cs.onSurface.withValues(alpha: 0.54), size: 20),
           ),
         ],
       ),
@@ -105,38 +109,40 @@ class _SosScreenState extends State<SosScreen>
             return Stack(
               alignment: Alignment.center,
               children: [
-                // Outer pulse ring
                 Container(
                   width: 220 + pulse * 30,
                   height: 220 + pulse * 30,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppColors.sosRed.withValues(alpha: 0.08 + pulse * 0.08),
+                    color: AppColors.sosRed
+                        .withValues(alpha: 0.08 + pulse * 0.08),
                   ),
                 ),
-                // Middle ring
                 Container(
                   width: 180 + pulse * 16,
                   height: 180 + pulse * 16,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppColors.sosRed.withValues(alpha: 0.15 + pulse * 0.1),
+                    color: AppColors.sosRed
+                        .withValues(alpha: 0.15 + pulse * 0.1),
                   ),
                 ),
-                // Main button
                 Container(
                   width: 148,
                   height: 148,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: _activated ? AppColors.sosRed : AppColors.cardColor,
+                    color: _activated
+                        ? AppColors.sosRed
+                        : Theme.of(context).cardColor,
                     border: Border.all(
                       color: AppColors.sosRed,
                       width: _activated ? 0 : 3,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.sosRed.withValues(alpha: _activated ? 0.5 : 0.2),
+                        color: AppColors.sosRed.withValues(
+                            alpha: _activated ? 0.5 : 0.2),
                         blurRadius: _activated ? 40 : 20,
                         spreadRadius: _activated ? 4 : 0,
                       ),
@@ -147,14 +153,18 @@ class _SosScreenState extends State<SosScreen>
                     children: [
                       Icon(
                         Icons.emergency_rounded,
-                        color: _activated ? Colors.white : AppColors.sosRed,
+                        color: _activated
+                            ? Colors.white
+                            : AppColors.sosRed,
                         size: 48,
                       ),
                       const SizedBox(height: 4),
                       Text(
                         _activated ? 'ACTIVO' : 'SOS',
                         style: TextStyle(
-                          color: _activated ? Colors.white : AppColors.sosRed,
+                          color: _activated
+                              ? Colors.white
+                              : AppColors.sosRed,
                           fontSize: 18,
                           fontWeight: FontWeight.w900,
                           letterSpacing: 3,
@@ -171,11 +181,14 @@ class _SosScreenState extends State<SosScreen>
     );
   }
 
-  Widget _buildQuickActions() {
+  Widget _buildQuickActions(ColorScheme cs) {
     final actions = [
-      (Icons.phone_rounded, 'Llamar\nEmergencias', '123', AppColors.riskHigh),
-      (Icons.share_location_rounded, 'Compartir\nUbicación', '', AppColors.accent),
-      (Icons.record_voice_over_rounded, 'Alertar\nContactos', '', AppColors.riskMedium),
+      (Icons.phone_rounded, 'Llamar\nEmergencias', '123',
+          AppColors.riskHigh),
+      (Icons.share_location_rounded, 'Compartir\nUbicación', '',
+          AppColors.accent),
+      (Icons.record_voice_over_rounded, 'Alertar\nContactos', '',
+          AppColors.riskMedium),
     ];
 
     return FadeInUp(
@@ -183,16 +196,20 @@ class _SosScreenState extends State<SosScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Acciones Rápidas',
-            style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+            style: TextStyle(
+                color: cs.onSurface,
+                fontSize: 16,
+                fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           Row(
             children: actions.map((a) {
               return Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4),
                   child: _QuickActionButton(
                     icon: a.$1,
                     label: a.$2,
@@ -208,7 +225,7 @@ class _SosScreenState extends State<SosScreen>
     );
   }
 
-  Widget _buildEmergencyContacts() {
+  Widget _buildEmergencyContacts(ColorScheme cs) {
     return FadeInUp(
       delay: const Duration(milliseconds: 300),
       child: Column(
@@ -216,46 +233,57 @@ class _SosScreenState extends State<SosScreen>
         children: [
           Row(
             children: [
-              const Text(
+              Text(
                 'Contactos de Emergencia',
-                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: cs.onSurface,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold),
               ),
               const Spacer(),
               TextButton.icon(
                 onPressed: () {},
-                icon: const Icon(Icons.add_rounded, size: 16, color: AppColors.accent),
-                label: const Text('Agregar', style: TextStyle(color: AppColors.accent, fontSize: 12)),
+                icon: const Icon(Icons.add_rounded,
+                    size: 16, color: AppColors.accent),
+                label: const Text('Agregar',
+                    style: TextStyle(
+                        color: AppColors.accent, fontSize: 12)),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          _buildContactPlaceholder(),
+          _buildContactPlaceholder(cs),
         ],
       ),
     );
   }
 
-  Widget _buildContactPlaceholder() {
+  Widget _buildContactPlaceholder(ColorScheme cs) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardColor,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+        border: Border.all(color: cs.outlineVariant),
       ),
-      child: const Column(
+      child: Column(
         children: [
-          Icon(Icons.group_add_rounded, color: Colors.white24, size: 40),
-          SizedBox(height: 12),
+          Icon(Icons.group_add_rounded,
+              color: cs.onSurface.withValues(alpha: 0.24), size: 40),
+          const SizedBox(height: 12),
           Text(
             'Sin contactos de emergencia',
-            style: TextStyle(color: Colors.white54, fontSize: 14),
+            style: TextStyle(
+                color: cs.onSurface.withValues(alpha: 0.54),
+                fontSize: 14),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             'Agrega personas de confianza que serán alertadas en caso de emergencia',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white30, fontSize: 12),
+            style: TextStyle(
+                color: cs.onSurface.withValues(alpha: 0.3),
+                fontSize: 12),
           ),
         ],
       ),
@@ -281,7 +309,8 @@ class _QuickActionButton extends StatelessWidget {
     return GestureDetector(
       onTap: () {},
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        padding:
+            const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(16),
@@ -294,7 +323,10 @@ class _QuickActionButton extends StatelessWidget {
             Text(
               label,
               textAlign: TextAlign.center,
-              style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                  color: color,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600),
             ),
           ],
         ),

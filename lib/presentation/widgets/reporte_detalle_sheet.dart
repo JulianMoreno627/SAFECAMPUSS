@@ -18,23 +18,35 @@ class ReporteDetalleSheet extends StatelessWidget {
 
   Color get _riskColor {
     switch (report['nivel_urgencia']?.toString().toLowerCase()) {
-      case 'critico': return AppColors.riskCritical;
-      case 'alto':    return AppColors.riskHigh;
-      case 'medio':   return AppColors.riskMedium;
-      default:        return AppColors.riskLow;
+      case 'critico':
+        return AppColors.riskCritical;
+      case 'alto':
+        return AppColors.riskHigh;
+      case 'medio':
+        return AppColors.riskMedium;
+      default:
+        return AppColors.riskLow;
     }
   }
 
   IconData get _typeIcon {
     switch (report['tipo']?.toString().toLowerCase()) {
-      case 'robo':               return Icons.no_backpack_rounded;
-      case 'acoso':              return Icons.person_off_rounded;
-      case 'pelea':              return Icons.sports_kabaddi_rounded;
-      case 'vandalismo':         return Icons.broken_image_rounded;
-      case 'accidente':          return Icons.car_crash_rounded;
-      case 'persona sospechosa': return Icons.visibility_rounded;
-      case 'iluminación':        return Icons.flashlight_off_rounded;
-      default:                   return Icons.report_rounded;
+      case 'robo':
+        return Icons.no_backpack_rounded;
+      case 'acoso':
+        return Icons.person_off_rounded;
+      case 'pelea':
+        return Icons.sports_kabaddi_rounded;
+      case 'vandalismo':
+        return Icons.broken_image_rounded;
+      case 'accidente':
+        return Icons.car_crash_rounded;
+      case 'persona sospechosa':
+        return Icons.visibility_rounded;
+      case 'iluminación':
+        return Icons.flashlight_off_rounded;
+      default:
+        return Icons.report_rounded;
     }
   }
 
@@ -43,16 +55,17 @@ class ReporteDetalleSheet extends StatelessWidget {
     final date = DateTime.tryParse(raw);
     if (date == null) return 'Hace un momento';
     final diff = DateTime.now().difference(date);
-    if (diff.inMinutes < 1)  return 'Ahora mismo';
+    if (diff.inMinutes < 1) return 'Ahora mismo';
     if (diff.inMinutes < 60) return 'Hace ${diff.inMinutes} min';
-    if (diff.inHours < 24)   return 'Hace ${diff.inHours} h';
-    if (diff.inDays < 7)     return 'Hace ${diff.inDays} días';
+    if (diff.inHours < 24) return 'Hace ${diff.inHours} h';
+    if (diff.inDays < 7) return 'Hace ${diff.inDays} días';
     return 'Hace más de una semana';
   }
 
   @override
   Widget build(BuildContext context) {
     final color = _riskColor;
+    final cs = Theme.of(context).colorScheme;
 
     return DraggableScrollableSheet(
       initialChildSize: 0.52,
@@ -61,14 +74,15 @@ class ReporteDetalleSheet extends StatelessWidget {
       builder: (context, scrollController) {
         return Container(
           decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            color: cs.surface,
+            borderRadius:
+                const BorderRadius.vertical(top: Radius.circular(24)),
             border: Border(
               top: BorderSide(color: color.withValues(alpha: 0.5), width: 2),
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.4),
+                color: Colors.black.withValues(alpha: 0.2),
                 blurRadius: 30,
               ),
             ],
@@ -84,7 +98,7 @@ class ReporteDetalleSheet extends StatelessWidget {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.white24,
+                    color: cs.onSurface.withValues(alpha: 0.24),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -94,11 +108,13 @@ class ReporteDetalleSheet extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: color.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: color.withValues(alpha: 0.4)),
+                      border:
+                          Border.all(color: color.withValues(alpha: 0.4)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -106,7 +122,9 @@ class ReporteDetalleSheet extends StatelessWidget {
                         Icon(Icons.circle, size: 8, color: color),
                         const SizedBox(width: 6),
                         Text(
-                          (report['nivel_urgencia'] ?? 'bajo').toString().toUpperCase(),
+                          (report['nivel_urgencia'] ?? 'bajo')
+                              .toString()
+                              .toUpperCase(),
                           style: TextStyle(
                             color: color,
                             fontSize: 11,
@@ -120,7 +138,9 @@ class ReporteDetalleSheet extends StatelessWidget {
                   const Spacer(),
                   Text(
                     _timeAgo(report['created_at']?.toString()),
-                    style: const TextStyle(color: Colors.white38, fontSize: 12),
+                    style: TextStyle(
+                        color: cs.onSurface.withValues(alpha: 0.38),
+                        fontSize: 12),
                   ),
                 ],
               ),
@@ -146,8 +166,8 @@ class ReporteDetalleSheet extends StatelessWidget {
                       children: [
                         Text(
                           report['tipo'] ?? 'Incidente',
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: cs.onSurface,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
@@ -170,8 +190,8 @@ class ReporteDetalleSheet extends StatelessWidget {
                 title: 'Descripción',
                 child: Text(
                   report['descripcion'] ?? 'Sin descripción disponible.',
-                  style: const TextStyle(
-                    color: Colors.white70,
+                  style: TextStyle(
+                    color: cs.onSurface.withValues(alpha: 0.7),
                     fontSize: 14,
                     height: 1.6,
                   ),
@@ -217,7 +237,8 @@ class ReporteDetalleSheet extends StatelessWidget {
                       onTap: () {
                         final tipo = report['tipo'] ?? 'Incidente';
                         final desc = report['descripcion'] ?? '';
-                        final urgencia = report['nivel_urgencia'] ?? '';
+                        final urgencia =
+                            report['nivel_urgencia'] ?? '';
                         Share.share(
                           'SafeCampus AI — Reporte: $tipo ($urgencia)\n$desc',
                         );
@@ -251,13 +272,15 @@ class _Section extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: const TextStyle(
-            color: Colors.white54,
+          style: TextStyle(
+            color: cs.onSurface.withValues(alpha: 0.54),
             fontSize: 11,
             fontWeight: FontWeight.w600,
             letterSpacing: 1,
@@ -285,6 +308,8 @@ class _DetailRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Row(
       children: [
         Container(
@@ -299,8 +324,13 @@ class _DetailRow extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: const TextStyle(color: Colors.white38, fontSize: 11)),
-            Text(value, style: const TextStyle(color: Colors.white, fontSize: 14)),
+            Text(label,
+                style: TextStyle(
+                    color: cs.onSurface.withValues(alpha: 0.38),
+                    fontSize: 11)),
+            Text(value,
+                style:
+                    TextStyle(color: cs.onSurface, fontSize: 14)),
           ],
         ),
       ],
@@ -339,7 +369,10 @@ class _ActionButton extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               label,
-              style: TextStyle(color: color, fontWeight: FontWeight.w600, fontSize: 14),
+              style: TextStyle(
+                  color: color,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14),
             ),
           ],
         ),
