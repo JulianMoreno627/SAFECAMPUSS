@@ -11,10 +11,14 @@ class AppTheme {
     primaryColor: AppColors.primary,
     colorScheme: const ColorScheme.dark(
       primary: AppColors.primary,
+      onPrimary: Colors.white,
       secondary: AppColors.secondary,
+      onSecondary: Colors.white,
       surface: AppColors.surface,
-      onSurface: Colors.white,
+      onSurface: AppColors.textPrimary,
       onSurfaceVariant: AppColors.textSecondary,
+      error: AppColors.riskHigh,
+      onError: Colors.white,
       outlineVariant: Color(0x1FFFFFFF), // white12
     ),
     cardTheme: const CardThemeData(
@@ -31,8 +35,7 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        padding:
-            const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
@@ -70,18 +73,22 @@ class AppTheme {
     useMaterial3: true,
     fontFamily: 'Montserrat',
     brightness: Brightness.light,
-    scaffoldBackgroundColor: const Color(0xFFF0F4FF),
+    scaffoldBackgroundColor: AppColors.backgroundLight,
     primaryColor: AppColors.primary,
     colorScheme: const ColorScheme.light(
       primary: AppColors.primary,
+      onPrimary: Colors.white,
       secondary: AppColors.secondary,
-      surface: Color(0xFFFFFFFF),
-      onSurface: Color(0xFF1A1C2E),
-      onSurfaceVariant: Color(0xFF546E7A),
+      onSecondary: Colors.white,
+      surface: AppColors.surfaceLight,
+      onSurface: AppColors.textPrimaryLight,
+      onSurfaceVariant: AppColors.textSecondaryLight,
+      error: AppColors.riskHigh,
+      onError: Colors.white,
       outlineVariant: Color(0xFFDEE2EF),
     ),
     cardTheme: const CardThemeData(
-      color: Color(0xFFFFFFFF),
+      color: AppColors.cardColorLight,
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(16)),
@@ -94,13 +101,12 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        padding:
-            const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: Colors.white,
+      fillColor: AppColors.surfaceLight,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none,
@@ -112,17 +118,17 @@ class AppTheme {
     ),
     textTheme: const TextTheme(
       displayLarge: TextStyle(
-        color: Color(0xFF1A1C2E),
+        color: AppColors.textPrimaryLight,
         fontSize: 32,
         fontWeight: FontWeight.bold,
       ),
       titleLarge: TextStyle(
-        color: Color(0xFF1A1C2E),
+        color: AppColors.textPrimaryLight,
         fontSize: 20,
         fontWeight: FontWeight.w600,
       ),
       bodyMedium: TextStyle(
-        color: Color(0xFF546E7A),
+        color: AppColors.textSecondaryLight,
         fontSize: 14,
       ),
     ),

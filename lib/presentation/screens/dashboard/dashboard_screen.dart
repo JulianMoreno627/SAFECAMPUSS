@@ -430,12 +430,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   Widget _buildAITrendsCard(AppLocalizations l10n) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     return FadeInUp(
       delay: const Duration(milliseconds: 300),
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: AppColors.cardColor,
+          color: theme.cardColor,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: AppColors.accent.withValues(alpha: 0.25)),
         ),
@@ -455,8 +457,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ),
                 const SizedBox(width: 10),
                 Text(l10n.dashboardAiAnalysis,
-                    style: const TextStyle(
-                        color: Colors.white,
+                    style: TextStyle(
+                        color: cs.onSurface,
                         fontSize: 15,
                         fontWeight: FontWeight.bold)),
               ],
@@ -485,14 +487,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       ? Text(
                           _aiTrends!,
                           key: const ValueKey('result'),
-                          style: const TextStyle(
-                              color: Colors.white70, fontSize: 13, height: 1.6),
+                          style: TextStyle(
+                              color: cs.onSurfaceVariant,
+                              fontSize: 13,
+                              height: 1.6),
                         )
                       : Text(
                           l10n.trendsNoData,
                           key: const ValueKey('empty'),
-                          style: const TextStyle(
-                              color: Colors.white38, fontSize: 13, height: 1.5),
+                          style: TextStyle(
+                              color: cs.onSurface.withValues(alpha: 0.38),
+                              fontSize: 13,
+                              height: 1.5),
                         ),
             ),
           ],

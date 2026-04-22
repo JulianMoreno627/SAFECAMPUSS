@@ -135,8 +135,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Stack(
         children: [
           _buildBackground(),
@@ -226,6 +227,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Widget _buildHeader() {
     final l10n = AppLocalizations.of(context)!;
+    final cs = Theme.of(context).colorScheme;
     final stepTitles = [
       l10n.step1Title,
       l10n.step2Title,
@@ -247,13 +249,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: cs.surface,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white12),
+                border: Border.all(color: cs.outlineVariant),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.arrow_back_ios_new_rounded,
-                color: Colors.white,
+                color: cs.onSurface,
                 size: 18,
               ),
             ),
@@ -270,8 +272,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: Text(
                   stepTitles[_currentStep],
                   key: ValueKey(_currentStep),
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: cs.onSurface,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -282,8 +284,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: Text(
                   stepSubtitles[_currentStep],
                   key: ValueKey('sub_$_currentStep'),
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
+                  style: TextStyle(
+                    color: cs.onSurfaceVariant,
                     fontSize: 13,
                   ),
                 ),
@@ -326,7 +328,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         borderRadius: BorderRadius.circular(10),
         child: LinearProgressIndicator(
           value: (_currentStep + 1) / 3,
-          backgroundColor: Colors.white12,
+          backgroundColor: Theme.of(context).colorScheme.outlineVariant,
           valueColor: const AlwaysStoppedAnimation<Color>(AppColors.accent),
           minHeight: 6,
         ),
@@ -337,6 +339,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   // ─── Indicadores de pasos ─────────────────────────────────────────────────
 
   Widget _buildStepIndicators() {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
@@ -357,13 +360,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ? AppColors.riskLow
                         : isActive
                             ? AppColors.accent
-                            : AppColors.surface,
+                            : cs.surface,
                     border: Border.all(
                       color: isCompleted
                           ? AppColors.riskLow
                           : isActive
                               ? AppColors.accent
-                              : Colors.white24,
+                              : cs.outlineVariant,
                       width: 2,
                     ),
                     boxShadow: isActive
@@ -379,8 +382,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Icon(
                     isCompleted ? Icons.check_rounded : _stepIcons[index],
                     size: 18,
-                    color:
-                        isCompleted || isActive ? Colors.white : Colors.white38,
+                    color: isCompleted || isActive
+                        ? Colors.white
+                        : cs.onSurface.withOpacity(0.3),
                   ),
                 ),
 
@@ -392,7 +396,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       height: 2,
                       color: index < _currentStep
                           ? AppColors.riskLow
-                          : Colors.white12,
+                          : cs.outlineVariant,
                     ),
                   ),
               ],
@@ -406,6 +410,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   // ─── PASO 1 — Datos Personales ────────────────────────────────────────────
 
   Widget _buildStep1(AppLocalizations l10n) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     return FadeInRight(
       duration: const Duration(milliseconds: 400),
       child: SingleChildScrollView(
@@ -423,16 +429,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       height: 80,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: AppColors.cardColor,
+                        color: theme.cardColor,
                         border: Border.all(
                           color: AppColors.accent.withValues(alpha: 0.4),
                           width: 2,
                         ),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.person_rounded,
                         size: 44,
-                        color: AppColors.textSecondary,
+                        color: cs.onSurfaceVariant,
                       ),
                     ),
                     Positioned(
@@ -498,6 +504,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   // ─── PASO 2 — Cuenta ──────────────────────────────────────────────────────
 
   Widget _buildStep2(AppLocalizations l10n) {
+    final theme = Theme.of(context);
     return FadeInRight(
       duration: const Duration(milliseconds: 400),
       child: SingleChildScrollView(
@@ -513,7 +520,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   height: 80,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppColors.cardColor,
+                    color: theme.cardColor,
                     border: Border.all(
                       color: AppColors.accent.withValues(alpha: 0.4),
                       width: 2,
@@ -595,6 +602,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   // ─── PASO 3 — Confirmación ────────────────────────────────────────────────
 
   Widget _buildStep3(AppLocalizations l10n) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     return FadeInRight(
       duration: const Duration(milliseconds: 400),
       child: SingleChildScrollView(
@@ -634,9 +643,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: cs.surface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white12),
+                border: Border.all(color: cs.outlineVariant),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -644,7 +653,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Text(
                     l10n.accountSummary,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: cs.onSurface,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -655,13 +664,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     l10n.firstName,
                     '${_nombreController.text} ${_apellidoController.text}',
                   ),
-                  const Divider(color: Colors.white12, height: 20),
+                  Divider(color: cs.outlineVariant, height: 20),
                   _buildSummaryRow(
                     Icons.phone_rounded,
                     l10n.phone,
                     _telefonoController.text,
                   ),
-                  const Divider(color: Colors.white12, height: 20),
+                  Divider(color: cs.outlineVariant, height: 20),
                   _buildSummaryRow(
                     Icons.email_outlined,
                     l10n.emailLabel,
@@ -677,12 +686,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: cs.surface,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: _acceptTerms
                       ? AppColors.accent.withValues(alpha: 0.4)
-                      : Colors.white12,
+                      : cs.outlineVariant,
                 ),
               ),
               child: Row(
@@ -699,8 +708,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ? AppColors.accent
                             : Colors.transparent,
                         border: Border.all(
-                          color:
-                              _acceptTerms ? AppColors.accent : Colors.white38,
+                          color: _acceptTerms
+                              ? AppColors.accent
+                              : cs.onSurface.withOpacity(0.3),
                           width: 2,
                         ),
                       ),
@@ -717,8 +727,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Expanded(
                     child: RichText(
                       text: TextSpan(
-                        style: const TextStyle(
-                          color: AppColors.textSecondary,
+                        style: TextStyle(
+                          color: cs.onSurfaceVariant,
                           fontSize: 13,
                           height: 1.4,
                         ),
@@ -762,17 +772,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
     TextInputType? keyboardType,
     String? Function(String?)? validator,
   }) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
-      style: const TextStyle(color: Colors.white),
+      style: TextStyle(color: cs.onSurface),
       validator: validator,
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: AppColors.textSecondary),
+        hintStyle: TextStyle(color: cs.onSurfaceVariant),
         prefixIcon: Icon(icon, color: AppColors.accent, size: 20),
         filled: true,
-        fillColor: AppColors.cardColor,
+        fillColor: theme.cardColor,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
@@ -793,26 +805,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
     required VoidCallback onToggle,
     String? Function(String?)? validator,
   }) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     return TextFormField(
       controller: controller,
       obscureText: obscure,
-      style: const TextStyle(color: Colors.white),
+      style: TextStyle(color: cs.onSurface),
       validator: validator,
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: AppColors.textSecondary),
+        hintStyle: TextStyle(color: cs.onSurfaceVariant),
         prefixIcon: const Icon(Icons.lock_outline_rounded,
             color: AppColors.accent, size: 20),
         suffixIcon: IconButton(
           icon: Icon(
             obscure ? Icons.visibility_off : Icons.visibility,
-            color: AppColors.textSecondary,
+            color: cs.onSurfaceVariant,
             size: 20,
           ),
           onPressed: onToggle,
         ),
         filled: true,
-        fillColor: AppColors.cardColor,
+        fillColor: theme.cardColor,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
@@ -841,7 +855,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       AppColors.accent,
     ];
 
-    final labels = [l10n.passWeak, l10n.passFair, l10n.passGood, l10n.passStrong];
+    final labels = [
+      l10n.passWeak,
+      l10n.passFair,
+      l10n.passGood,
+      l10n.passStrong
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -854,7 +873,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 height: 4,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(2),
-                  color: i < strength ? colors[strength - 1] : Colors.white12,
+                  color: i < strength
+                      ? colors[strength - 1]
+                      : Theme.of(context).colorScheme.outlineVariant,
                 ),
               ),
             );
@@ -865,7 +886,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           Text(
             '${l10n.passwordIs} ${labels[strength > 0 ? strength - 1 : 0]}',
             style: TextStyle(
-              color: strength > 0 ? colors[strength - 1] : Colors.white38,
+              color: strength > 0
+                  ? colors[strength - 1]
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
               fontSize: 12,
             ),
           ),
@@ -875,6 +898,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _buildSummaryRow(IconData icon, String label, String value) {
+    final cs = Theme.of(context).colorScheme;
     return Row(
       children: [
         Icon(icon, color: AppColors.accent, size: 18),
@@ -884,15 +908,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
           children: [
             Text(
               label,
-              style: const TextStyle(
-                color: AppColors.textSecondary,
+              style: TextStyle(
+                color: cs.onSurfaceVariant,
                 fontSize: 11,
               ),
             ),
             Text(
               value.isEmpty ? '—' : value,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: cs.onSurface,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
