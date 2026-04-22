@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/providers/auth_provider.dart';
 
@@ -163,7 +164,7 @@ class PerfilScreen extends ConsumerWidget {
           _OptionTile(
             icon: Icons.notifications_outlined,
             label: 'Notificaciones',
-            onTap: () {},
+            onTap: () => context.push('/perfil/notificaciones'),
           ),
           _OptionTile(
             icon: Icons.lock_outline_rounded,
@@ -179,7 +180,7 @@ class PerfilScreen extends ConsumerWidget {
           _OptionTile(
             icon: Icons.contacts_rounded,
             label: 'Contactos de Emergencia',
-            onTap: () {},
+            onTap: () => context.push('/sos/contactos-emergencia'),
           ),
           _OptionTile(
             icon: Icons.history_rounded,
@@ -200,12 +201,12 @@ class PerfilScreen extends ConsumerWidget {
           _OptionTile(
             icon: Icons.settings_outlined,
             label: 'Configuración',
-            onTap: () {},
+            onTap: () => context.push('/perfil/configuracion'),
           ),
           _OptionTile(
             icon: Icons.help_outline_rounded,
             label: 'Guía de Seguridad',
-            onTap: () {},
+            onTap: () => context.push('/perfil/guia-seguridad'),
           ),
           _OptionTile(
             icon: Icons.info_outline_rounded,

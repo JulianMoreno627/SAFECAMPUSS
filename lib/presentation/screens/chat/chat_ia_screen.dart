@@ -38,7 +38,7 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
     final service = AiService();
     if (!service.isReady) {
       setState(() {
-        _messages.add(_Msg(
+        _messages.add(const _Msg(
           text: 'SafeBot no está disponible sin una clave de API configurada. '
               'Agrega GEMINI_API_KEY al archivo .env para activarlo.',
           isUser: false,
@@ -52,7 +52,7 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
     _session = service.startChatSession(reportesCercanos: reports);
     setState(() {
       _ready = true;
-      _messages.add(_Msg(
+      _messages.add(const _Msg(
         text: '¡Hola! Soy SafeBot 🤖, tu asistente de seguridad en el campus. '
             'Estoy al tanto de los incidentes cercanos y listo para ayudarte. '
             '¿En qué puedo asistirte hoy?',
@@ -93,7 +93,7 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
       if (mounted) {
         setState(() {
           _isTyping = false;
-          _messages.add(_Msg(
+          _messages.add(const _Msg(
             text: 'Error al contactar SafeBot. Revisa tu conexión.',
             isUser: false,
             isError: true,

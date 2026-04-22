@@ -4,6 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'app.dart';
 import 'core/services/ai_service.dart';
+import 'core/services/gemini_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,6 +14,7 @@ void main() async {
 
   // Inicializar IA
   AiService().init();
+  GeminiService().init();
 
   // Inicializar Hive (BD local)
   await Hive.initFlutter();
