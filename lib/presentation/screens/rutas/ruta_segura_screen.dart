@@ -6,6 +6,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/services/gemini_service.dart';
 import '../../../core/providers/reports_provider.dart';
 import '../../../core/providers/location_provider.dart';
+import '../../../l10n/app_localizations.dart';
 
 class RutaSeguraScreen extends ConsumerStatefulWidget {
   const RutaSeguraScreen({super.key});
@@ -40,11 +41,11 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
     super.dispose();
   }
 
-  Future<void> _analizar() async {
+  Future<void> _analizar(AppLocalizations l10n) async {
     if (_destinoCtrl.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Ingresa el destino'),
+        SnackBar(
+          content: Text(l10n.enterDestinationHint),
           backgroundColor: AppColors.riskMedium,
           behavior: SnackBarBehavior.floating,
         ),
@@ -82,25 +83,27 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(),
+            _buildHeader(l10n),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
                 child: Column(
                   children: [
-                    FadeInUp(child: _buildInputCard()),
+                    FadeInUp(child: _buildInputCard(l10n)),
                     const SizedBox(height: 20),
                     if (_loading)
-                      FadeIn(child: _buildLoadingCard()),
+                      FadeIn(child: _buildLoadingCard(l10n)),
                     if (_resultado != null && !_loading)
-                      FadeInUp(child: _buildResultado()),
+                      FadeInUp(child: _buildResultado(l10n)),
                     if (_resultado == null && !_loading)
-                      FadeIn(child: _buildPlaceholder()),
+                      FadeIn(child: _buildPlaceholder(l10n)),
                   ],
                 ),
               ),
@@ -111,9 +114,7 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
     );
   }
 
-  // ── Header ────────────────────────────────────────────────────────────────
-
-  Widget _buildHeader() {
+  Widget _buildHeader(AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
       child: Row(
@@ -132,14 +133,14 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
             ),
           ),
           const SizedBox(width: 14),
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Ruta Segura',
-                  style: TextStyle(color: Colors.white, fontSize: 20,
+              Text(l10n.safeRouteTitle,
+                  style: const TextStyle(color: Colors.white, fontSize: 20,
                       fontWeight: FontWeight.bold)),
-              Text('Análisis de seguridad con IA',
-                  style: TextStyle(color: Colors.white54, fontSize: 12)),
+              Text(l10n.safeRouteSubtitle,
+                  style: const TextStyle(color: Colors.white54, fontSize: 12)),
             ],
           ),
           const Spacer(),
@@ -164,9 +165,7 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
     );
   }
 
-  // ── Input card ────────────────────────────────────────────────────────────
-
-  Widget _buildInputCard() {
+  Widget _buildInputCard(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -177,13 +176,13 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('¿A dónde vas?',
-              style: TextStyle(color: Colors.white, fontSize: 15,
+          Text(l10n.whereAreYouGoing,
+              style: const TextStyle(color: Colors.white, fontSize: 15,
                   fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
           _routeField(
             controller: _origenCtrl,
-            hint: 'Origen',
+            hint: l10n.routeOrigin,
             icon: Icons.my_location_rounded,
             iconColor: AppColors.riskLow,
           ),
@@ -196,7 +195,7 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
           ),
           _routeField(
             controller: _destinoCtrl,
-            hint: 'Destino',
+            hint: l10n.routeDestination,
             icon: Icons.location_on_rounded,
             iconColor: AppColors.riskHigh,
           ),
@@ -205,7 +204,7 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
             width: double.infinity,
             height: 50,
             child: ElevatedButton.icon(
-              onPressed: _loading ? null : _analizar,
+              onPressed: _loading ? null : () => _analizar(l10n),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.accent,
                 foregroundColor: Colors.black,
@@ -214,8 +213,8 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
                 elevation: 4,
               ),
               icon: const Icon(Icons.route_rounded, size: 20),
-              label: const Text('Analizar Ruta con IA',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+              label: Text(l10n.analyzeWithAI,
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
             ),
           ),
         ],
@@ -252,9 +251,7 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
     );
   }
 
-  // ── Loading ───────────────────────────────────────────────────────────────
-
-  Widget _buildLoadingCard() {
+  Widget _buildLoadingCard(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
@@ -271,11 +268,11 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
                 color: AppColors.accent, strokeWidth: 3),
           ),
           const SizedBox(height: 16),
-          const Text('SafeBot analizando la ruta...',
-              style: TextStyle(color: Colors.white,
+          Text(l10n.safebotAnalyzingRoute,
+              style: const TextStyle(color: Colors.white,
                   fontSize: 15, fontWeight: FontWeight.bold)),
           const SizedBox(height: 6),
-          Text('Revisando reportes cercanos y calculando el riesgo',
+          Text(l10n.checkingNearbyReports,
               textAlign: TextAlign.center,
               style: TextStyle(
                   color: Colors.white.withValues(alpha: 0.45),
@@ -285,9 +282,7 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
     );
   }
 
-  // ── Placeholder ───────────────────────────────────────────────────────────
-
-  Widget _buildPlaceholder() {
+  Widget _buildPlaceholder(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
@@ -307,12 +302,12 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
                 color: AppColors.accent, size: 40),
           ),
           const SizedBox(height: 16),
-          const Text('Análisis de ruta con IA',
-              style: TextStyle(color: Colors.white,
+          Text(l10n.aiRouteAnalysisTitle,
+              style: const TextStyle(color: Colors.white,
                   fontSize: 15, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Text(
-            'Ingresa origen y destino. SafeBot analizará los reportes de seguridad cercanos y calculará el nivel de riesgo de tu ruta.',
+            l10n.aiRouteAnalysisDesc,
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.45),
@@ -323,9 +318,7 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
     );
   }
 
-  // ── Resultado ─────────────────────────────────────────────────────────────
-
-  Widget _buildResultado() {
+  Widget _buildResultado(AppLocalizations l10n) {
     final r = _resultado!;
     final score = (r['score_seguridad'] as num?)?.toInt() ?? 60;
     final nivel = r['nivel_riesgo']?.toString() ?? 'medio';
@@ -336,7 +329,6 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
 
     return Column(
       children: [
-        // Score card
         Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
@@ -355,11 +347,11 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Score de Seguridad',
-                            style: TextStyle(
+                        Text(l10n.safetyScore,
+                            style: const TextStyle(
                                 color: Colors.white54, fontSize: 12)),
                         const SizedBox(height: 4),
-                        _nivelBadge(nivel),
+                        _nivelBadge(nivel, l10n),
                         const SizedBox(height: 10),
                         Text(
                           recomendacion,
@@ -373,7 +365,6 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
                 ],
               ),
 
-              // Ruta alternativa
               if (rutaAlternativa) ...[
                 const SizedBox(height: 16),
                 Container(
@@ -392,8 +383,8 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
                       Expanded(
                         child: Text(
                           motivo.isNotEmpty
-                              ? 'Ruta alternativa recomendada: $motivo'
-                              : 'SafeBot recomienda tomar una ruta alternativa',
+                              ? '${l10n.safebotRecommendsAlternative}: $motivo'
+                              : l10n.safebotRecommendsAlternative,
                           style: const TextStyle(
                               color: AppColors.riskMedium,
                               fontSize: 12, height: 1.4),
@@ -409,7 +400,6 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
 
         const SizedBox(height: 14),
 
-        // Tips card
         if (tips.isNotEmpty)
           Container(
             padding: const EdgeInsets.all(18),
@@ -421,13 +411,13 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   children: [
-                    Icon(Icons.tips_and_updates_rounded,
+                    const Icon(Icons.tips_and_updates_rounded,
                         color: AppColors.accent, size: 18),
-                    SizedBox(width: 8),
-                    Text('Consejos para esta ruta',
-                        style: TextStyle(color: Colors.white,
+                    const SizedBox(width: 8),
+                    Text(l10n.routeTipsTitle,
+                        style: const TextStyle(color: Colors.white,
                             fontSize: 14, fontWeight: FontWeight.bold)),
                   ],
                 ),
@@ -468,7 +458,6 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
 
         const SizedBox(height: 14),
 
-        // Nueva consulta
         SizedBox(
           width: double.infinity,
           height: 46,
@@ -482,8 +471,8 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
                   borderRadius: BorderRadius.circular(14)),
             ),
             icon: const Icon(Icons.refresh_rounded, size: 18),
-            label: const Text('Nueva consulta',
-                style: TextStyle(fontSize: 14)),
+            label: Text(l10n.newQueryLabel,
+                style: const TextStyle(fontSize: 14)),
           ),
         ),
       ],
@@ -499,7 +488,7 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
     }
   }
 
-  Widget _nivelBadge(String nivel) {
+  Widget _nivelBadge(String nivel, AppLocalizations l10n) {
     final color = _nivelColor(nivel);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -509,7 +498,7 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
         border: Border.all(color: color.withValues(alpha: 0.4)),
       ),
       child: Text(
-        'Riesgo ${nivel[0].toUpperCase()}${nivel.substring(1)}',
+        '${l10n.riskLabel} ${nivel[0].toUpperCase()}${nivel.substring(1)}',
         style: TextStyle(
             color: color, fontSize: 12, fontWeight: FontWeight.bold),
       ),

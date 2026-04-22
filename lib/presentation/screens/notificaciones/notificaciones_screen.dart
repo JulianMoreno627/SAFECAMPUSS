@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 
 class NotificacionesScreen extends StatefulWidget {
   const NotificacionesScreen({super.key});
@@ -78,15 +79,17 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(),
+            _buildHeader(l10n),
             Expanded(
               child: _notificaciones.isEmpty
-                  ? _buildEmpty()
+                  ? _buildEmpty(l10n)
                   : ListView.builder(
                       padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
                       itemCount: _notificaciones.length,
@@ -105,7 +108,7 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
       child: Row(
@@ -128,13 +131,13 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Notificaciones',
-                  style: TextStyle(
+              Text(l10n.notifScreenTitle,
+                  style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.bold)),
               if (_noLeidas > 0)
-                Text('$_noLeidas sin leer',
+                Text('$_noLeidas ${l10n.notifScreenSubtitle}',
                     style: const TextStyle(
                         color: AppColors.accent, fontSize: 12)),
             ],
@@ -143,27 +146,23 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
           if (_noLeidas > 0)
             TextButton(
               onPressed: _marcarTodasLeidas,
-              child: const Text('Leer todas',
-                  style: TextStyle(color: AppColors.accent, fontSize: 12)),
+              child: Text(l10n.notifMarkAllRead,
+                  style: const TextStyle(color: AppColors.accent, fontSize: 12)),
             ),
         ],
       ),
     );
   }
 
-  Widget _buildEmpty() {
-    return const Center(
+  Widget _buildEmpty(AppLocalizations l10n) {
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _EmptyIcon(),
-          SizedBox(height: 16),
-          Text('Sin notificaciones',
-              style: TextStyle(color: Colors.white54, fontSize: 16)),
-          SizedBox(height: 6),
-          Text('Te avisaremos cuando haya alertas en el campus',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white30, fontSize: 13)),
+          const _EmptyIcon(),
+          const SizedBox(height: 16),
+          Text(l10n.notifNoNotifications,
+              style: const TextStyle(color: Colors.white54, fontSize: 16)),
         ],
       ),
     );

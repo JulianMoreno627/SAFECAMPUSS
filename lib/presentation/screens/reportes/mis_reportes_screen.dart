@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/providers/reports_provider.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/location_provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../widgets/reporte_detalle_sheet.dart';
 
 class MisReportesScreen extends ConsumerStatefulWidget {
@@ -15,9 +16,8 @@ class MisReportesScreen extends ConsumerStatefulWidget {
 }
 
 class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
-  String _filtro = 'Todos';
-
-  static const _filtros = ['Todos', 'Crítico', 'Alto', 'Medio', 'Bajo'];
+  // Server-side key ('': all, 'critico', 'alto', 'medio', 'bajo')
+  String _filtroKey = '';
 
   static const _tipoIconos = {
     'robo':                Icons.phone_android_rounded,
@@ -37,6 +37,14 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
     'bajo':    AppColors.riskLow,
   };
 
+  List<(String, String)> _filtros(AppLocalizations l10n) => [
+    ('', l10n.filterAll),
+    ('critico', l10n.criticalRisk),
+    ('alto', l10n.highRisk),
+    ('medio', l10n.mediumRisk),
+    ('bajo', l10n.lowRisk),
+  ];
+
   Future<void> _refresh() async {
     final pos = ref.read(locationProvider).currentPosition;
     if (pos != null) {
@@ -52,9 +60,9 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
           r['user_id']?.toString() == userId ||
           r['usuario_id']?.toString() == userId;
       if (!esDelUsuario) return false;
-      if (_filtro == 'Todos') return true;
+      if (_filtroKey.isEmpty) return true;
       final nivel = r['nivel_urgencia']?.toString().toLowerCase() ?? '';
-      return nivel == _filtro.toLowerCase();
+      return nivel == _filtroKey;
     }).toList();
   }
 
@@ -64,14 +72,15 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
     final userId = ref.watch(authProvider).user?['id']?.toString() ?? '';
     final todos = reportsState.reportesCercanos;
     final misReportes = _filtrados(todos, userId);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(misReportes.length),
-            _buildFiltros(),
+            _buildHeader(misReportes.length, l10n),
+            _buildFiltros(l10n),
             Expanded(
               child: reportsState.isLoading
                   ? const Center(
@@ -82,7 +91,7 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
                       color: AppColors.accent,
                       backgroundColor: AppColors.cardColor,
                       child: misReportes.isEmpty
-                          ? _buildEmpty()
+                          ? _buildEmpty(l10n)
                           : _buildLista(misReportes),
                     ),
             ),
@@ -92,7 +101,7 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
     );
   }
 
-  Widget _buildHeader(int total) {
+  Widget _buildHeader(int total, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
       child: Row(
@@ -114,10 +123,10 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Mis Reportes',
-                  style: TextStyle(color: Colors.white, fontSize: 20,
+              Text(l10n.myReportsTitle,
+                  style: const TextStyle(color: Colors.white, fontSize: 20,
                       fontWeight: FontWeight.bold)),
-              Text('$total reporte${total != 1 ? 's' : ''} enviados',
+              Text('$total ${l10n.statsReports.toLowerCase()}',
                   style: const TextStyle(color: Colors.white54, fontSize: 12)),
             ],
           ),
@@ -126,19 +135,20 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
     );
   }
 
-  Widget _buildFiltros() {
+  Widget _buildFiltros(AppLocalizations l10n) {
+    final filtros = _filtros(l10n);
     return SizedBox(
       height: 48,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-        itemCount: _filtros.length,
+        itemCount: filtros.length,
         separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (_, i) {
-          final f = _filtros[i];
-          final sel = _filtro == f;
+          final (key, label) = filtros[i];
+          final sel = _filtroKey == key;
           return GestureDetector(
-            onTap: () => setState(() => _filtro = f),
+            onTap: () => setState(() => _filtroKey = key),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 180),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -150,7 +160,7 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
                 ),
               ),
               child: Text(
-                f,
+                label,
                 style: TextStyle(
                   color: sel ? Colors.black : Colors.white54,
                   fontSize: 12,
@@ -164,7 +174,7 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
     );
   }
 
-  Widget _buildEmpty() {
+  Widget _buildEmpty(AppLocalizations l10n) {
     return ListView(
       children: [
         SizedBox(
@@ -185,17 +195,17 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
               ),
               const SizedBox(height: 18),
               Text(
-                _filtro == 'Todos'
-                    ? 'No has enviado reportes'
-                    : 'Sin reportes de nivel $_filtro',
+                _filtroKey.isEmpty
+                    ? l10n.noReportsSent
+                    : l10n.noResults,
                 style: const TextStyle(color: Colors.white,
                     fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Ayuda a la comunidad reportando\nincidentes en el campus',
+              Text(
+                l10n.helpCommunityReport,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white54, fontSize: 13,
+                style: const TextStyle(color: Colors.white54, fontSize: 13,
                     height: 1.5),
               ),
             ],
@@ -240,10 +250,11 @@ class _ReporteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final tipo  = reporte['tipo']?.toString() ?? 'Otro';
     final desc  = reporte['descripcion']?.toString() ?? '';
     final nivel = reporte['nivel_urgencia']?.toString().toLowerCase() ?? 'bajo';
-    final fecha = _formatFecha(reporte['created_at']?.toString());
+    final fecha = _formatFecha(reporte['created_at']?.toString(), l10n);
 
     final icon  = tipoIconos[tipo.toLowerCase()] ?? Icons.report_outlined;
     final color = nivelColores[nivel] ?? AppColors.riskLow;
@@ -317,8 +328,8 @@ class _ReporteCard extends StatelessWidget {
     );
   }
 
-  String _formatFecha(String? raw) {
-    if (raw == null || raw.isEmpty) return 'Fecha desconocida';
+  String _formatFecha(String? raw, AppLocalizations l10n) {
+    if (raw == null || raw.isEmpty) return l10n.unknownDate;
     try {
       final dt = DateTime.parse(raw).toLocal();
       final diff = DateTime.now().difference(dt);
@@ -327,7 +338,7 @@ class _ReporteCard extends StatelessWidget {
       if (diff.inDays < 7) return 'Hace ${diff.inDays} días';
       return '${dt.day}/${dt.month}/${dt.year}';
     } catch (_) {
-      return 'Fecha desconocida';
+      return l10n.unknownDate;
     }
   }
 }

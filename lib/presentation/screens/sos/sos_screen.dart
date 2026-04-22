@@ -4,6 +4,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/services/ai_service.dart';
+import '../../../l10n/app_localizations.dart';
 
 class SosScreen extends ConsumerStatefulWidget {
   const SosScreen({super.key});
@@ -17,19 +18,9 @@ class _SosScreenState extends ConsumerState<SosScreen>
   late AnimationController _pulseController;
   bool _activated = false;
 
-  // IA
   String? _aiAdvice;
   bool _loadingAdvice = false;
   String? _selectedEmergency;
-
-  static const _emergencias = [
-    ('Robo / Asalto', Icons.no_backpack_rounded, AppColors.riskHigh),
-    ('Acoso', Icons.person_off_rounded, AppColors.riskMedium),
-    ('Accidente', Icons.car_crash_rounded, AppColors.riskHigh),
-    ('Pelea', Icons.sports_kabaddi_rounded, AppColors.riskCritical),
-    ('Me siento en peligro', Icons.emergency_rounded, AppColors.sosRed),
-    ('Otro', Icons.report_problem_rounded, AppColors.riskMedium),
-  ];
 
   @override
   void initState() {
@@ -45,6 +36,15 @@ class _SosScreenState extends ConsumerState<SosScreen>
     _pulseController.dispose();
     super.dispose();
   }
+
+  List<(String, IconData, Color)> _emergencias(AppLocalizations l10n) => [
+    (l10n.emergRobo, Icons.no_backpack_rounded, AppColors.riskHigh),
+    (l10n.emergAcoso, Icons.person_off_rounded, AppColors.riskMedium),
+    (l10n.emergAccidente, Icons.car_crash_rounded, AppColors.riskHigh),
+    (l10n.emergPelea, Icons.sports_kabaddi_rounded, AppColors.riskCritical),
+    (l10n.emergPeligro, Icons.emergency_rounded, AppColors.sosRed),
+    (l10n.emergOtro, Icons.report_problem_rounded, AppColors.riskMedium),
+  ];
 
   Future<void> _getAdvice(String tipo) async {
     setState(() {
@@ -64,25 +64,26 @@ class _SosScreenState extends ConsumerState<SosScreen>
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(cs),
+            _buildHeader(cs, l10n),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   children: [
                     const SizedBox(height: 28),
-                    _buildSosButton(),
+                    _buildSosButton(l10n),
                     const SizedBox(height: 32),
-                    _buildQuickActions(),
+                    _buildQuickActions(l10n),
                     const SizedBox(height: 28),
-                    _buildAIAdvisor(),
+                    _buildAIAdvisor(l10n),
                     const SizedBox(height: 28),
-                    _buildEmergencyContacts(),
+                    _buildEmergencyContacts(l10n),
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -94,9 +95,7 @@ class _SosScreenState extends ConsumerState<SosScreen>
     );
   }
 
-  // ── Header ────────────────────────────────────────────────────────────────
-
-  Widget _buildHeader(ColorScheme cs) {
+  Widget _buildHeader(ColorScheme cs, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       child: Row(
@@ -105,7 +104,7 @@ class _SosScreenState extends ConsumerState<SosScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Emergencia SOS',
+                l10n.sosTitle,
                 style: TextStyle(
                   color: cs.onSurface,
                   fontSize: 26,
@@ -113,7 +112,7 @@ class _SosScreenState extends ConsumerState<SosScreen>
                 ),
               ),
               Text(
-                'Presiona y mantén para activar',
+                l10n.holdToActivate,
                 style: TextStyle(
                     color: cs.onSurface.withValues(alpha: 0.54), fontSize: 13),
               ),
@@ -134,9 +133,7 @@ class _SosScreenState extends ConsumerState<SosScreen>
     );
   }
 
-  // ── SOS Button ────────────────────────────────────────────────────────────
-
-  Widget _buildSosButton() {
+  Widget _buildSosButton(AppLocalizations l10n) {
     return FadeInUp(
       child: GestureDetector(
         onLongPress: () => setState(() => _activated = !_activated),
@@ -152,8 +149,7 @@ class _SosScreenState extends ConsumerState<SosScreen>
                   height: 220 + pulse * 30,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppColors.sosRed
-                        .withValues(alpha: 0.08 + pulse * 0.08),
+                    color: AppColors.sosRed.withValues(alpha: 0.08 + pulse * 0.08),
                   ),
                 ),
                 Container(
@@ -161,8 +157,7 @@ class _SosScreenState extends ConsumerState<SosScreen>
                   height: 180 + pulse * 16,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppColors.sosRed
-                        .withValues(alpha: 0.15 + pulse * 0.1),
+                    color: AppColors.sosRed.withValues(alpha: 0.15 + pulse * 0.1),
                   ),
                 ),
                 Container(
@@ -170,16 +165,11 @@ class _SosScreenState extends ConsumerState<SosScreen>
                   height: 148,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: _activated
-                        ? AppColors.sosRed
-                        : Theme.of(context).cardColor,
-                    border: Border.all(
-                        color: AppColors.sosRed,
-                        width: _activated ? 0 : 3),
+                    color: _activated ? AppColors.sosRed : Theme.of(context).cardColor,
+                    border: Border.all(color: AppColors.sosRed, width: _activated ? 0 : 3),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.sosRed.withValues(
-                            alpha: _activated ? 0.5 : 0.2),
+                        color: AppColors.sosRed.withValues(alpha: _activated ? 0.5 : 0.2),
                         blurRadius: _activated ? 40 : 20,
                         spreadRadius: _activated ? 4 : 0,
                       ),
@@ -195,11 +185,9 @@ class _SosScreenState extends ConsumerState<SosScreen>
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        _activated ? 'ACTIVO' : 'SOS',
+                        _activated ? l10n.sosActiveLabel : 'SOS',
                         style: TextStyle(
-                          color: _activated
-                              ? Colors.white
-                              : AppColors.sosRed,
+                          color: _activated ? Colors.white : AppColors.sosRed,
                           fontSize: 18,
                           fontWeight: FontWeight.w900,
                           letterSpacing: 3,
@@ -216,9 +204,7 @@ class _SosScreenState extends ConsumerState<SosScreen>
     );
   }
 
-  // ── Quick Actions ─────────────────────────────────────────────────────────
-
-  Widget _buildQuickActions() {
+  Widget _buildQuickActions(AppLocalizations l10n) {
     final cs = Theme.of(context).colorScheme;
     return FadeInUp(
       delay: const Duration(milliseconds: 120),
@@ -226,32 +212,30 @@ class _SosScreenState extends ConsumerState<SosScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Acciones Rápidas',
+            l10n.quickActions,
             style: TextStyle(
-                color: cs.onSurface,
-                fontSize: 16,
-                fontWeight: FontWeight.bold),
+                color: cs.onSurface, fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           Row(
             children: [
               _QuickActionButton(
                 icon: Icons.phone_rounded,
-                label: 'Llamar\nEmergencias',
+                label: l10n.callEmergencies,
                 color: AppColors.riskHigh,
                 onTap: () {},
               ),
               const SizedBox(width: 10),
               _QuickActionButton(
                 icon: Icons.share_location_rounded,
-                label: 'Compartir\nUbicación',
+                label: l10n.shareLocation,
                 color: AppColors.accent,
                 onTap: () {},
               ),
               const SizedBox(width: 10),
               _QuickActionButton(
                 icon: Icons.record_voice_over_rounded,
-                label: 'Alertar\nContactos',
+                label: l10n.alertContacts,
                 color: AppColors.riskMedium,
                 onTap: () {},
               ),
@@ -262,10 +246,9 @@ class _SosScreenState extends ConsumerState<SosScreen>
     );
   }
 
-  // ── AI Advisor ────────────────────────────────────────────────────────────
-
-  Widget _buildAIAdvisor() {
+  Widget _buildAIAdvisor(AppLocalizations l10n) {
     final cs = Theme.of(context).colorScheme;
+    final emergencias = _emergencias(l10n);
     return FadeInUp(
       delay: const Duration(milliseconds: 200),
       child: Container(
@@ -294,42 +277,35 @@ class _SosScreenState extends ConsumerState<SosScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Asistente de Emergencia',
-                        style: TextStyle(
-                            color: cs.onSurface,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14),
-                      ),
-                      Text(
-                        'SafeBot te guía paso a paso',
-                        style: TextStyle(
-                            color: cs.onSurface.withValues(alpha: 0.54),
-                            fontSize: 11),
-                      ),
+                      Text(l10n.sosAdvisorTitle,
+                          style: TextStyle(
+                              color: cs.onSurface,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14)),
+                      Text(l10n.sosAdvisorSubtitle,
+                          style: TextStyle(
+                              color: cs.onSurface.withValues(alpha: 0.54),
+                              fontSize: 11)),
                     ],
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 14),
-            Text(
-              '¿Qué está pasando?',
-              style: TextStyle(
-                  color: cs.onSurface.withValues(alpha: 0.7), fontSize: 12),
-            ),
+            Text(l10n.sosWhatsHappening,
+                style: TextStyle(
+                    color: cs.onSurface.withValues(alpha: 0.7), fontSize: 12)),
             const SizedBox(height: 10),
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: _emergencias.map((e) {
+              children: emergencias.map((e) {
                 final isSelected = _selectedEmergency == e.$1;
                 return GestureDetector(
                   onTap: () => _getAdvice(e.$1),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 180),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 7),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                     decoration: BoxDecoration(
                       color: isSelected
                           ? e.$3.withValues(alpha: 0.2)
@@ -381,10 +357,9 @@ class _SosScreenState extends ConsumerState<SosScreen>
                                 strokeWidth: 1.5, color: AppColors.accent),
                           ),
                           const SizedBox(width: 10),
-                          Text('SafeBot preparando consejos...',
+                          Text(l10n.sosBotPreparing,
                               style: TextStyle(
-                                  color:
-                                      AppColors.accent.withValues(alpha: 0.8),
+                                  color: AppColors.accent.withValues(alpha: 0.8),
                                   fontSize: 13)),
                         ],
                       )
@@ -397,12 +372,14 @@ class _SosScreenState extends ConsumerState<SosScreen>
                               const Icon(Icons.warning_amber_rounded,
                                   color: AppColors.riskMedium, size: 16),
                               const SizedBox(width: 6),
-                              Text(
-                                'Pasos de acción — $_selectedEmergency',
-                                style: const TextStyle(
-                                    color: AppColors.riskMedium,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold),
+                              Expanded(
+                                child: Text(
+                                  '${l10n.sosActionSteps} — $_selectedEmergency',
+                                  style: const TextStyle(
+                                      color: AppColors.riskMedium,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold),
+                                ),
                               ),
                             ],
                           ),
@@ -424,9 +401,7 @@ class _SosScreenState extends ConsumerState<SosScreen>
     );
   }
 
-  // ── Emergency Contacts ────────────────────────────────────────────────────
-
-  Widget _buildEmergencyContacts() {
+  Widget _buildEmergencyContacts(AppLocalizations l10n) {
     final cs = Theme.of(context).colorScheme;
     return FadeInUp(
       delay: const Duration(milliseconds: 300),
@@ -436,7 +411,7 @@ class _SosScreenState extends ConsumerState<SosScreen>
           Row(
             children: [
               Text(
-                'Contactos de Emergencia',
+                l10n.emergencyContacts,
                 style: TextStyle(
                     color: cs.onSurface,
                     fontSize: 16,
@@ -447,8 +422,8 @@ class _SosScreenState extends ConsumerState<SosScreen>
                 onPressed: () => context.push('/sos/contactos-emergencia'),
                 icon: const Icon(Icons.add_rounded,
                     size: 16, color: AppColors.accent),
-                label: const Text('Agregar',
-                    style: TextStyle(color: AppColors.accent, fontSize: 12)),
+                label: Text(l10n.addLabel,
+                    style: const TextStyle(color: AppColors.accent, fontSize: 12)),
               ),
             ],
           ),
@@ -466,18 +441,16 @@ class _SosScreenState extends ConsumerState<SosScreen>
                     color: cs.onSurface.withValues(alpha: 0.24), size: 40),
                 const SizedBox(height: 12),
                 Text(
-                  'Sin contactos de emergencia',
+                  l10n.noEmergencyContacts,
                   style: TextStyle(
-                      color: cs.onSurface.withValues(alpha: 0.54),
-                      fontSize: 14),
+                      color: cs.onSurface.withValues(alpha: 0.54), fontSize: 14),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Agrega personas de confianza para alertarlas automáticamente',
+                  l10n.addTrustedPeople,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                      color: cs.onSurface.withValues(alpha: 0.3),
-                      fontSize: 12),
+                      color: cs.onSurface.withValues(alpha: 0.3), fontSize: 12),
                 ),
               ],
             ),
@@ -487,8 +460,6 @@ class _SosScreenState extends ConsumerState<SosScreen>
     );
   }
 }
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
 
 class _QuickActionButton extends StatelessWidget {
   final IconData icon;
@@ -523,9 +494,7 @@ class _QuickActionButton extends StatelessWidget {
                 label,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                    color: color,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600),
+                    color: color, fontSize: 11, fontWeight: FontWeight.w600),
               ),
             ],
           ),

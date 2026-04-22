@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 
 class GuiaSeguridadScreen extends StatefulWidget {
   const GuiaSeguridadScreen({super.key});
@@ -12,98 +13,65 @@ class GuiaSeguridadScreen extends StatefulWidget {
 class _GuiaSeguridadScreenState extends State<GuiaSeguridadScreen> {
   int _expandido = -1;
 
-  static const _guias = [
+  List<_Guia> _guias(AppLocalizations l10n) => [
     _Guia(
       icono: Icons.no_backpack_rounded,
       color: AppColors.riskHigh,
-      titulo: 'Ante un Robo o Asalto',
-      pasos: [
-        'No ofrezcas resistencia. Tu seguridad vale más que cualquier objeto.',
-        'Memoriza características del agresor: ropa, altura, dirección que tomó.',
-        'Aleja de la zona de inmediato y busca un lugar público y concurrido.',
-        'Llama a emergencias (123) y reporta el incidente en SafeCampus.',
-        'Conserva cualquier evidencia (mensajes, fotos) para el reporte policial.',
-      ],
+      titulo: l10n.guia1Title,
+      pasos: [l10n.guia1Step1, l10n.guia1Step2, l10n.guia1Step3, l10n.guia1Step4, l10n.guia1Step5],
     ),
     _Guia(
       icono: Icons.person_off_rounded,
       color: AppColors.riskMedium,
-      titulo: 'Ante Acoso',
-      pasos: [
-        'Sal del lugar y busca personas o zonas de seguridad del campus.',
-        'Documenta: fecha, hora, lugar, descripción del agresor.',
-        'Reporta en SafeCampus para alertar a otros estudiantes.',
-        'Habla con la oficina de bienestar universitario o seguridad del campus.',
-        'Si el acoso es digital, guarda capturas y bloquea al agresor.',
-      ],
+      titulo: l10n.guia2Title,
+      pasos: [l10n.guia2Step1, l10n.guia2Step2, l10n.guia2Step3, l10n.guia2Step4, l10n.guia2Step5],
     ),
     _Guia(
       icono: Icons.car_crash_rounded,
       color: AppColors.riskHigh,
-      titulo: 'Ante un Accidente',
-      pasos: [
-        'Evalúa la situación sin exponerte a más riesgos.',
-        'Llama al 123 (emergencias) si hay heridos.',
-        'No muevas a personas heridas salvo peligro inminente.',
-        'Señaliza el área para prevenir más accidentes.',
-        'Reporta el incidente en SafeCampus para activar alertas en la zona.',
-      ],
+      titulo: l10n.guia3Title,
+      pasos: [l10n.guia3Step1, l10n.guia3Step2, l10n.guia3Step3, l10n.guia3Step4, l10n.guia3Step5],
     ),
     _Guia(
       icono: Icons.sports_kabaddi_rounded,
       color: AppColors.riskCritical,
-      titulo: 'Ante una Pelea',
-      pasos: [
-        'No intervengas físicamente — llama a seguridad del campus.',
-        'Aleja de la zona inmediatamente.',
-        'Llama al número de seguridad del campus o al 123.',
-        'Reporta en SafeCampus con la ubicación exacta.',
-        'Si hay heridos, espera a los servicios de emergencia.',
-      ],
+      titulo: l10n.guia4Title,
+      pasos: [l10n.guia4Step1, l10n.guia4Step2, l10n.guia4Step3, l10n.guia4Step4, l10n.guia4Step5],
     ),
     _Guia(
       icono: Icons.lightbulb_outline_rounded,
       color: AppColors.riskLow,
-      titulo: 'Prevención General',
-      pasos: [
-        'Comparte tu ubicación con contactos de confianza cuando vayas solo/a.',
-        'Evita zonas poco iluminadas o solitarias de noche.',
-        'Mantén el teléfono cargado y el volumen al mínimo en zonas de riesgo.',
-        'Usa auriculares con un solo oído para mantener conciencia del entorno.',
-        'Configura tus contactos de emergencia en SafeCampus.',
-      ],
+      titulo: l10n.guia5Title,
+      pasos: [l10n.guia5Step1, l10n.guia5Step2, l10n.guia5Step3, l10n.guia5Step4, l10n.guia5Step5],
     ),
     _Guia(
       icono: Icons.phone_in_talk_rounded,
       color: AppColors.accent,
-      titulo: 'Números de Emergencia',
-      pasos: [
-        '123 — Policía Nacional',
-        '132 — Bomberos',
-        '125 — Defensa Civil',
-        '115 — Cruz Roja',
-        'Seguridad campus — consulta el directorio institucional',
-      ],
+      titulo: l10n.guia6Title,
+      pasos: [l10n.guia6Step1, l10n.guia6Step2, l10n.guia6Step3, l10n.guia6Step4, l10n.guia6Step5],
     ),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final guias = _guias(l10n);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(),
-            _buildHeroBanner(),
+            _buildHeader(l10n),
+            _buildHeroBanner(l10n),
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 30),
-                itemCount: _guias.length,
+                itemCount: guias.length,
                 itemBuilder: (context, i) => FadeInUp(
                   delay: Duration(milliseconds: i * 50),
                   child: _GuiaCard(
-                    guia: _guias[i],
+                    guia: guias[i],
                     expandido: _expandido == i,
                     onTap: () =>
                         setState(() => _expandido = _expandido == i ? -1 : i),
@@ -117,7 +85,7 @@ class _GuiaSeguridadScreenState extends State<GuiaSeguridadScreen> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
       child: Row(
@@ -137,16 +105,16 @@ class _GuiaSeguridadScreenState extends State<GuiaSeguridadScreen> {
             ),
           ),
           const SizedBox(width: 14),
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Guía de Seguridad',
-                  style: TextStyle(
+              Text(l10n.guiaTitle,
+                  style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.bold)),
-              Text('Protocolos de acción ante emergencias',
-                  style: TextStyle(color: Colors.white54, fontSize: 12)),
+              Text(l10n.guiaSubtitle,
+                  style: const TextStyle(color: Colors.white54, fontSize: 12)),
             ],
           ),
         ],
@@ -154,7 +122,7 @@ class _GuiaSeguridadScreenState extends State<GuiaSeguridadScreen> {
     );
   }
 
-  Widget _buildHeroBanner() {
+  Widget _buildHeroBanner(AppLocalizations l10n) {
     return FadeInDown(
       child: Container(
         margin: const EdgeInsets.fromLTRB(20, 16, 20, 16),
@@ -174,23 +142,23 @@ class _GuiaSeguridadScreenState extends State<GuiaSeguridadScreen> {
             ),
           ],
         ),
-        child: const Row(
+        child: Row(
           children: [
-            Icon(Icons.shield_rounded, color: Colors.white, size: 36),
-            SizedBox(width: 14),
+            const Icon(Icons.shield_rounded, color: Colors.white, size: 36),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Mantente preparado/a',
-                      style: TextStyle(
+                  Text(l10n.guiaHeroTitle,
+                      style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.bold)),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
-                    'Conocer los protocolos de seguridad puede salvar vidas. Toca cada situación para ver los pasos de acción.',
-                    style: TextStyle(
+                    l10n.guiaHeroDesc,
+                    style: const TextStyle(
                         color: Colors.white70, fontSize: 12, height: 1.4),
                   ),
                 ],

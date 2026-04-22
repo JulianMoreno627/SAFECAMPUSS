@@ -564,4 +564,357 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get witnessCountPlural => 'witnesses';
+
+  @override
+  String get navSos => 'SOS';
+
+  @override
+  String get dashboardTitle => 'Dashboard';
+
+  @override
+  String get sosAdvisorTitle => 'Emergency Assistant';
+
+  @override
+  String get sosAdvisorSubtitle => 'SafeBot guides you step by step';
+
+  @override
+  String get sosWhatsHappening => 'What\'s happening?';
+
+  @override
+  String get sosActionSteps => 'Action steps';
+
+  @override
+  String get sosBotPreparing => 'SafeBot preparing tips...';
+
+  @override
+  String get emergRobo => 'Robbery / Assault';
+
+  @override
+  String get emergAcoso => 'Harassment';
+
+  @override
+  String get emergAccidente => 'Accident';
+
+  @override
+  String get emergPelea => 'Fight';
+
+  @override
+  String get emergPeligro => 'I feel in danger';
+
+  @override
+  String get emergOtro => 'Other';
+
+  @override
+  String get myReportsTitle => 'My Reports';
+
+  @override
+  String get noReportsSent => 'You haven\'t sent any reports';
+
+  @override
+  String get helpCommunityReport =>
+      'Help the community by reporting incidents on campus';
+
+  @override
+  String get unknownDate => 'Unknown date';
+
+  @override
+  String get safeRouteTitle => 'Safe Route';
+
+  @override
+  String get safeRouteSubtitle => 'AI security analysis';
+
+  @override
+  String get whereAreYouGoing => 'Where are you going?';
+
+  @override
+  String get routeOrigin => 'Origin';
+
+  @override
+  String get routeDestination => 'Destination';
+
+  @override
+  String get analyzeWithAI => 'Analyze Route with AI';
+
+  @override
+  String get safebotAnalyzingRoute => 'SafeBot analyzing route...';
+
+  @override
+  String get checkingNearbyReports =>
+      'Checking nearby reports and calculating risk';
+
+  @override
+  String get enterDestinationHint => 'Enter destination';
+
+  @override
+  String get aiRouteAnalysisTitle => 'AI Route Analysis';
+
+  @override
+  String get aiRouteAnalysisDesc =>
+      'Enter origin and destination. SafeBot will analyze nearby security reports and calculate the risk level of your route.';
+
+  @override
+  String get safetyScore => 'Safety Score';
+
+  @override
+  String get riskLabel => 'Risk';
+
+  @override
+  String get safebotRecommendsAlternative =>
+      'SafeBot recommends taking an alternative route';
+
+  @override
+  String get routeTipsTitle => 'Tips for this route';
+
+  @override
+  String get newQueryLabel => 'New query';
+
+  @override
+  String get configTitle => 'Settings';
+
+  @override
+  String get configSubtitle => 'Customize your experience';
+
+  @override
+  String get configPrivacySection => 'Privacy & Location';
+
+  @override
+  String get configAlertRadiusSection => 'Alert Radius';
+
+  @override
+  String get configSoundSection => 'Sound & Vibration';
+
+  @override
+  String get configInfoSection => 'Information';
+
+  @override
+  String get configSecurityAlerts => 'Security alerts';
+
+  @override
+  String get configSecurityAlertsSub => 'Incidents near your location';
+
+  @override
+  String get configNewReports => 'New reports';
+
+  @override
+  String get configNewReportsSub => 'Reports sent by the community';
+
+  @override
+  String get configSosAlerts => 'SOS Alerts';
+
+  @override
+  String get configSosAlertsSub => 'Active emergencies on campus';
+
+  @override
+  String get configAiAnalysis => 'SafeBot Analysis';
+
+  @override
+  String get configAiAnalysisSub => 'AI recommendations and trends';
+
+  @override
+  String get configShareLocationLabel => 'Share location';
+
+  @override
+  String get configShareLocationSub => 'Required for real-time alerts';
+
+  @override
+  String get configBgLocation => 'Background location';
+
+  @override
+  String get configBgLocationSub => 'Alerts even when app is closed';
+
+  @override
+  String get configAnonReports => 'Anonymous reports';
+
+  @override
+  String get configAnonReportsSub => 'Your name won\'t appear in reports';
+
+  @override
+  String get configDetectionRadius => 'Detection radius';
+
+  @override
+  String get configDetectionRadiusSub => 'Distance for alerts';
+
+  @override
+  String get configSoundLabel => 'Sound';
+
+  @override
+  String get configSoundSub => 'Alerts with sound';
+
+  @override
+  String get configVibration => 'Vibration';
+
+  @override
+  String get configVibrationSub => 'Alerts with vibration';
+
+  @override
+  String get configVersion => 'Version';
+
+  @override
+  String get configTerms => 'Terms and conditions';
+
+  @override
+  String get configPrivacyPolicy => 'Privacy policy';
+
+  @override
+  String get guiaTitle => 'Safety Guide';
+
+  @override
+  String get guiaSubtitle => 'Emergency action protocols';
+
+  @override
+  String get guiaHeroTitle => 'Stay prepared';
+
+  @override
+  String get guiaHeroDesc =>
+      'Knowing security protocols can save lives. Tap each situation to see action steps.';
+
+  @override
+  String get guia1Title => 'Robbery or Assault';
+
+  @override
+  String get guia1Step1 =>
+      'Do not resist. Your safety is worth more than any object.';
+
+  @override
+  String get guia1Step2 =>
+      'Memorize features of the attacker: clothing, height, direction taken.';
+
+  @override
+  String get guia1Step3 =>
+      'Leave the area immediately and find a public, crowded place.';
+
+  @override
+  String get guia1Step4 =>
+      'Call emergency services (123) and report the incident in SafeCampus.';
+
+  @override
+  String get guia1Step5 =>
+      'Preserve any evidence (messages, photos) for the police report.';
+
+  @override
+  String get guia2Title => 'Harassment';
+
+  @override
+  String get guia2Step1 =>
+      'Leave the place and find people or campus safety zones.';
+
+  @override
+  String get guia2Step2 =>
+      'Document: date, time, location, description of the aggressor.';
+
+  @override
+  String get guia2Step3 => 'Report in SafeCampus to alert other students.';
+
+  @override
+  String get guia2Step4 =>
+      'Talk to the university welfare office or campus security.';
+
+  @override
+  String get guia2Step5 =>
+      'If harassment is digital, save screenshots and block the aggressor.';
+
+  @override
+  String get guia3Title => 'Accident';
+
+  @override
+  String get guia3Step1 =>
+      'Assess the situation without exposing yourself to more risks.';
+
+  @override
+  String get guia3Step2 => 'Call 123 (emergency) if there are injured people.';
+
+  @override
+  String get guia3Step3 =>
+      'Do not move injured people unless there is imminent danger.';
+
+  @override
+  String get guia3Step4 => 'Signal the area to prevent more accidents.';
+
+  @override
+  String get guia3Step5 =>
+      'Report the incident in SafeCampus to activate alerts in the area.';
+
+  @override
+  String get guia4Title => 'Fight';
+
+  @override
+  String get guia4Step1 =>
+      'Do not intervene physically — call campus security.';
+
+  @override
+  String get guia4Step2 => 'Leave the area immediately.';
+
+  @override
+  String get guia4Step3 => 'Call campus security number or 123.';
+
+  @override
+  String get guia4Step4 => 'Report in SafeCampus with the exact location.';
+
+  @override
+  String get guia4Step5 => 'If there are injured, wait for emergency services.';
+
+  @override
+  String get guia5Title => 'General Prevention';
+
+  @override
+  String get guia5Step1 =>
+      'Share your location with trusted contacts when you go alone.';
+
+  @override
+  String get guia5Step2 => 'Avoid poorly lit or solitary areas at night.';
+
+  @override
+  String get guia5Step3 =>
+      'Keep your phone charged and volume low in risk zones.';
+
+  @override
+  String get guia5Step4 =>
+      'Use earphones with one ear to stay aware of your surroundings.';
+
+  @override
+  String get guia5Step5 => 'Set up your emergency contacts in SafeCampus.';
+
+  @override
+  String get guia6Title => 'Emergency Numbers';
+
+  @override
+  String get guia6Step1 => '123 — National Police';
+
+  @override
+  String get guia6Step2 => '132 — Fire Department';
+
+  @override
+  String get guia6Step3 => '125 — Civil Defense';
+
+  @override
+  String get guia6Step4 => '115 — Red Cross';
+
+  @override
+  String get guia6Step5 =>
+      'Campus security — check the institutional directory';
+
+  @override
+  String get notifScreenTitle => 'Notifications';
+
+  @override
+  String get notifScreenSubtitle => 'Your security alerts';
+
+  @override
+  String get notifMarkAllRead => 'Mark all as read';
+
+  @override
+  String get notifClearAll => 'Clear all';
+
+  @override
+  String get notifNoNotifications => 'No notifications';
+
+  @override
+  String get dashboardAiAnalysis => 'Campus AI Analysis';
+
+  @override
+  String get analyzingTrends => 'Analyzing trends...';
+
+  @override
+  String get trendsNoData =>
+      'Trend analysis will be available when there are nearby reports.';
 }

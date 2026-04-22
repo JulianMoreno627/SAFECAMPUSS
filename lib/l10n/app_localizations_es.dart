@@ -567,4 +567,359 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get witnessCountPlural => 'testigos';
+
+  @override
+  String get navSos => 'SOS';
+
+  @override
+  String get dashboardTitle => 'Dashboard';
+
+  @override
+  String get sosAdvisorTitle => 'Asistente de Emergencia';
+
+  @override
+  String get sosAdvisorSubtitle => 'SafeBot te guía paso a paso';
+
+  @override
+  String get sosWhatsHappening => '¿Qué está pasando?';
+
+  @override
+  String get sosActionSteps => 'Pasos de acción';
+
+  @override
+  String get sosBotPreparing => 'SafeBot preparando consejos...';
+
+  @override
+  String get emergRobo => 'Robo / Asalto';
+
+  @override
+  String get emergAcoso => 'Acoso';
+
+  @override
+  String get emergAccidente => 'Accidente';
+
+  @override
+  String get emergPelea => 'Pelea';
+
+  @override
+  String get emergPeligro => 'Me siento en peligro';
+
+  @override
+  String get emergOtro => 'Otro';
+
+  @override
+  String get myReportsTitle => 'Mis Reportes';
+
+  @override
+  String get noReportsSent => 'No has enviado reportes';
+
+  @override
+  String get helpCommunityReport =>
+      'Ayuda a la comunidad reportando incidentes en el campus';
+
+  @override
+  String get unknownDate => 'Fecha desconocida';
+
+  @override
+  String get safeRouteTitle => 'Ruta Segura';
+
+  @override
+  String get safeRouteSubtitle => 'Análisis de seguridad con IA';
+
+  @override
+  String get whereAreYouGoing => '¿A dónde vas?';
+
+  @override
+  String get routeOrigin => 'Origen';
+
+  @override
+  String get routeDestination => 'Destino';
+
+  @override
+  String get analyzeWithAI => 'Analizar Ruta con IA';
+
+  @override
+  String get safebotAnalyzingRoute => 'SafeBot analizando la ruta...';
+
+  @override
+  String get checkingNearbyReports =>
+      'Revisando reportes cercanos y calculando el riesgo';
+
+  @override
+  String get enterDestinationHint => 'Ingresa el destino';
+
+  @override
+  String get aiRouteAnalysisTitle => 'Análisis de ruta con IA';
+
+  @override
+  String get aiRouteAnalysisDesc =>
+      'Ingresa origen y destino. SafeBot analizará los reportes de seguridad cercanos y calculará el nivel de riesgo de tu ruta.';
+
+  @override
+  String get safetyScore => 'Score de Seguridad';
+
+  @override
+  String get riskLabel => 'Riesgo';
+
+  @override
+  String get safebotRecommendsAlternative =>
+      'SafeBot recomienda tomar una ruta alternativa';
+
+  @override
+  String get routeTipsTitle => 'Consejos para esta ruta';
+
+  @override
+  String get newQueryLabel => 'Nueva consulta';
+
+  @override
+  String get configTitle => 'Configuración';
+
+  @override
+  String get configSubtitle => 'Personaliza tu experiencia';
+
+  @override
+  String get configPrivacySection => 'Privacidad y Ubicación';
+
+  @override
+  String get configAlertRadiusSection => 'Radio de Alertas';
+
+  @override
+  String get configSoundSection => 'Sonido y Vibración';
+
+  @override
+  String get configInfoSection => 'Información';
+
+  @override
+  String get configSecurityAlerts => 'Alertas de seguridad';
+
+  @override
+  String get configSecurityAlertsSub => 'Incidentes cerca de tu ubicación';
+
+  @override
+  String get configNewReports => 'Nuevos reportes';
+
+  @override
+  String get configNewReportsSub => 'Reportes enviados por la comunidad';
+
+  @override
+  String get configSosAlerts => 'Alertas SOS';
+
+  @override
+  String get configSosAlertsSub => 'Emergencias activas en el campus';
+
+  @override
+  String get configAiAnalysis => 'Análisis de SafeBot';
+
+  @override
+  String get configAiAnalysisSub => 'Recomendaciones y tendencias de IA';
+
+  @override
+  String get configShareLocationLabel => 'Compartir ubicación';
+
+  @override
+  String get configShareLocationSub => 'Necesario para alertas en tiempo real';
+
+  @override
+  String get configBgLocation => 'Ubicación en segundo plano';
+
+  @override
+  String get configBgLocationSub => 'Alertas aunque la app esté cerrada';
+
+  @override
+  String get configAnonReports => 'Reportes anónimos';
+
+  @override
+  String get configAnonReportsSub => 'Tu nombre no aparecerá en los reportes';
+
+  @override
+  String get configDetectionRadius => 'Radio de detección';
+
+  @override
+  String get configDetectionRadiusSub => 'Distancia para recibir alertas';
+
+  @override
+  String get configSoundLabel => 'Sonido';
+
+  @override
+  String get configSoundSub => 'Alertas con sonido';
+
+  @override
+  String get configVibration => 'Vibración';
+
+  @override
+  String get configVibrationSub => 'Alertas con vibración';
+
+  @override
+  String get configVersion => 'Versión';
+
+  @override
+  String get configTerms => 'Términos y condiciones';
+
+  @override
+  String get configPrivacyPolicy => 'Política de privacidad';
+
+  @override
+  String get guiaTitle => 'Guía de Seguridad';
+
+  @override
+  String get guiaSubtitle => 'Protocolos de acción ante emergencias';
+
+  @override
+  String get guiaHeroTitle => 'Mantente preparado/a';
+
+  @override
+  String get guiaHeroDesc =>
+      'Conocer los protocolos de seguridad puede salvar vidas. Toca cada situación para ver los pasos de acción.';
+
+  @override
+  String get guia1Title => 'Ante un Robo o Asalto';
+
+  @override
+  String get guia1Step1 =>
+      'No ofrezcas resistencia. Tu seguridad vale más que cualquier objeto.';
+
+  @override
+  String get guia1Step2 =>
+      'Memoriza características del agresor: ropa, altura, dirección que tomó.';
+
+  @override
+  String get guia1Step3 =>
+      'Aleja de la zona de inmediato y busca un lugar público y concurrido.';
+
+  @override
+  String get guia1Step4 =>
+      'Llama a emergencias (123) y reporta el incidente en SafeCampus.';
+
+  @override
+  String get guia1Step5 =>
+      'Conserva cualquier evidencia (mensajes, fotos) para el reporte policial.';
+
+  @override
+  String get guia2Title => 'Ante Acoso';
+
+  @override
+  String get guia2Step1 =>
+      'Sal del lugar y busca personas o zonas de seguridad del campus.';
+
+  @override
+  String get guia2Step2 =>
+      'Documenta: fecha, hora, lugar, descripción del agresor.';
+
+  @override
+  String get guia2Step3 =>
+      'Reporta en SafeCampus para alertar a otros estudiantes.';
+
+  @override
+  String get guia2Step4 =>
+      'Habla con la oficina de bienestar universitario o seguridad del campus.';
+
+  @override
+  String get guia2Step5 =>
+      'Si el acoso es digital, guarda capturas y bloquea al agresor.';
+
+  @override
+  String get guia3Title => 'Ante un Accidente';
+
+  @override
+  String get guia3Step1 => 'Evalúa la situación sin exponerte a más riesgos.';
+
+  @override
+  String get guia3Step2 => 'Llama al 123 (emergencias) si hay heridos.';
+
+  @override
+  String get guia3Step3 =>
+      'No muevas a personas heridas salvo peligro inminente.';
+
+  @override
+  String get guia3Step4 => 'Señaliza el área para prevenir más accidentes.';
+
+  @override
+  String get guia3Step5 =>
+      'Reporta el incidente en SafeCampus para activar alertas en la zona.';
+
+  @override
+  String get guia4Title => 'Ante una Pelea';
+
+  @override
+  String get guia4Step1 =>
+      'No intervengas físicamente — llama a seguridad del campus.';
+
+  @override
+  String get guia4Step2 => 'Aleja de la zona inmediatamente.';
+
+  @override
+  String get guia4Step3 => 'Llama al número de seguridad del campus o al 123.';
+
+  @override
+  String get guia4Step4 => 'Reporta en SafeCampus con la ubicación exacta.';
+
+  @override
+  String get guia4Step5 =>
+      'Si hay heridos, espera a los servicios de emergencia.';
+
+  @override
+  String get guia5Title => 'Prevención General';
+
+  @override
+  String get guia5Step1 =>
+      'Comparte tu ubicación con contactos de confianza cuando vayas solo/a.';
+
+  @override
+  String get guia5Step2 => 'Evita zonas poco iluminadas o solitarias de noche.';
+
+  @override
+  String get guia5Step3 =>
+      'Mantén el teléfono cargado y el volumen al mínimo en zonas de riesgo.';
+
+  @override
+  String get guia5Step4 =>
+      'Usa auriculares con un solo oído para mantener conciencia del entorno.';
+
+  @override
+  String get guia5Step5 =>
+      'Configura tus contactos de emergencia en SafeCampus.';
+
+  @override
+  String get guia6Title => 'Números de Emergencia';
+
+  @override
+  String get guia6Step1 => '123 — Policía Nacional';
+
+  @override
+  String get guia6Step2 => '132 — Bomberos';
+
+  @override
+  String get guia6Step3 => '125 — Defensa Civil';
+
+  @override
+  String get guia6Step4 => '115 — Cruz Roja';
+
+  @override
+  String get guia6Step5 =>
+      'Seguridad campus — consulta el directorio institucional';
+
+  @override
+  String get notifScreenTitle => 'Notificaciones';
+
+  @override
+  String get notifScreenSubtitle => 'Tus alertas de seguridad';
+
+  @override
+  String get notifMarkAllRead => 'Marcar todo como leído';
+
+  @override
+  String get notifClearAll => 'Limpiar todo';
+
+  @override
+  String get notifNoNotifications => 'Sin notificaciones';
+
+  @override
+  String get dashboardAiAnalysis => 'Análisis IA del Campus';
+
+  @override
+  String get analyzingTrends => 'Analizando tendencias...';
+
+  @override
+  String get trendsNoData =>
+      'El análisis de tendencias estará disponible cuando haya reportes cercanos.';
 }

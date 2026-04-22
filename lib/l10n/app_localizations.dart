@@ -1189,6 +1189,666 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'witnesses'**
   String get witnessCountPlural;
+
+  /// No description provided for @navSos.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS'**
+  String get navSos;
+
+  /// No description provided for @dashboardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get dashboardTitle;
+
+  /// No description provided for @sosAdvisorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency Assistant'**
+  String get sosAdvisorTitle;
+
+  /// No description provided for @sosAdvisorSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'SafeBot guides you step by step'**
+  String get sosAdvisorSubtitle;
+
+  /// No description provided for @sosWhatsHappening.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s happening?'**
+  String get sosWhatsHappening;
+
+  /// No description provided for @sosActionSteps.
+  ///
+  /// In en, this message translates to:
+  /// **'Action steps'**
+  String get sosActionSteps;
+
+  /// No description provided for @sosBotPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'SafeBot preparing tips...'**
+  String get sosBotPreparing;
+
+  /// No description provided for @emergRobo.
+  ///
+  /// In en, this message translates to:
+  /// **'Robbery / Assault'**
+  String get emergRobo;
+
+  /// No description provided for @emergAcoso.
+  ///
+  /// In en, this message translates to:
+  /// **'Harassment'**
+  String get emergAcoso;
+
+  /// No description provided for @emergAccidente.
+  ///
+  /// In en, this message translates to:
+  /// **'Accident'**
+  String get emergAccidente;
+
+  /// No description provided for @emergPelea.
+  ///
+  /// In en, this message translates to:
+  /// **'Fight'**
+  String get emergPelea;
+
+  /// No description provided for @emergPeligro.
+  ///
+  /// In en, this message translates to:
+  /// **'I feel in danger'**
+  String get emergPeligro;
+
+  /// No description provided for @emergOtro.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get emergOtro;
+
+  /// No description provided for @myReportsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Reports'**
+  String get myReportsTitle;
+
+  /// No description provided for @noReportsSent.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t sent any reports'**
+  String get noReportsSent;
+
+  /// No description provided for @helpCommunityReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Help the community by reporting incidents on campus'**
+  String get helpCommunityReport;
+
+  /// No description provided for @unknownDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown date'**
+  String get unknownDate;
+
+  /// No description provided for @safeRouteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Safe Route'**
+  String get safeRouteTitle;
+
+  /// No description provided for @safeRouteSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI security analysis'**
+  String get safeRouteSubtitle;
+
+  /// No description provided for @whereAreYouGoing.
+  ///
+  /// In en, this message translates to:
+  /// **'Where are you going?'**
+  String get whereAreYouGoing;
+
+  /// No description provided for @routeOrigin.
+  ///
+  /// In en, this message translates to:
+  /// **'Origin'**
+  String get routeOrigin;
+
+  /// No description provided for @routeDestination.
+  ///
+  /// In en, this message translates to:
+  /// **'Destination'**
+  String get routeDestination;
+
+  /// No description provided for @analyzeWithAI.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze Route with AI'**
+  String get analyzeWithAI;
+
+  /// No description provided for @safebotAnalyzingRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'SafeBot analyzing route...'**
+  String get safebotAnalyzingRoute;
+
+  /// No description provided for @checkingNearbyReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking nearby reports and calculating risk'**
+  String get checkingNearbyReports;
+
+  /// No description provided for @enterDestinationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter destination'**
+  String get enterDestinationHint;
+
+  /// No description provided for @aiRouteAnalysisTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Route Analysis'**
+  String get aiRouteAnalysisTitle;
+
+  /// No description provided for @aiRouteAnalysisDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter origin and destination. SafeBot will analyze nearby security reports and calculate the risk level of your route.'**
+  String get aiRouteAnalysisDesc;
+
+  /// No description provided for @safetyScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Safety Score'**
+  String get safetyScore;
+
+  /// No description provided for @riskLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Risk'**
+  String get riskLabel;
+
+  /// No description provided for @safebotRecommendsAlternative.
+  ///
+  /// In en, this message translates to:
+  /// **'SafeBot recommends taking an alternative route'**
+  String get safebotRecommendsAlternative;
+
+  /// No description provided for @routeTipsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tips for this route'**
+  String get routeTipsTitle;
+
+  /// No description provided for @newQueryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New query'**
+  String get newQueryLabel;
+
+  /// No description provided for @configTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get configTitle;
+
+  /// No description provided for @configSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Customize your experience'**
+  String get configSubtitle;
+
+  /// No description provided for @configPrivacySection.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy & Location'**
+  String get configPrivacySection;
+
+  /// No description provided for @configAlertRadiusSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert Radius'**
+  String get configAlertRadiusSection;
+
+  /// No description provided for @configSoundSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound & Vibration'**
+  String get configSoundSection;
+
+  /// No description provided for @configInfoSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Information'**
+  String get configInfoSection;
+
+  /// No description provided for @configSecurityAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Security alerts'**
+  String get configSecurityAlerts;
+
+  /// No description provided for @configSecurityAlertsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Incidents near your location'**
+  String get configSecurityAlertsSub;
+
+  /// No description provided for @configNewReports.
+  ///
+  /// In en, this message translates to:
+  /// **'New reports'**
+  String get configNewReports;
+
+  /// No description provided for @configNewReportsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports sent by the community'**
+  String get configNewReportsSub;
+
+  /// No description provided for @configSosAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'SOS Alerts'**
+  String get configSosAlerts;
+
+  /// No description provided for @configSosAlertsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Active emergencies on campus'**
+  String get configSosAlertsSub;
+
+  /// No description provided for @configAiAnalysis.
+  ///
+  /// In en, this message translates to:
+  /// **'SafeBot Analysis'**
+  String get configAiAnalysis;
+
+  /// No description provided for @configAiAnalysisSub.
+  ///
+  /// In en, this message translates to:
+  /// **'AI recommendations and trends'**
+  String get configAiAnalysisSub;
+
+  /// No description provided for @configShareLocationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Share location'**
+  String get configShareLocationLabel;
+
+  /// No description provided for @configShareLocationSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Required for real-time alerts'**
+  String get configShareLocationSub;
+
+  /// No description provided for @configBgLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Background location'**
+  String get configBgLocation;
+
+  /// No description provided for @configBgLocationSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts even when app is closed'**
+  String get configBgLocationSub;
+
+  /// No description provided for @configAnonReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Anonymous reports'**
+  String get configAnonReports;
+
+  /// No description provided for @configAnonReportsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name won\'t appear in reports'**
+  String get configAnonReportsSub;
+
+  /// No description provided for @configDetectionRadius.
+  ///
+  /// In en, this message translates to:
+  /// **'Detection radius'**
+  String get configDetectionRadius;
+
+  /// No description provided for @configDetectionRadiusSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance for alerts'**
+  String get configDetectionRadiusSub;
+
+  /// No description provided for @configSoundLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound'**
+  String get configSoundLabel;
+
+  /// No description provided for @configSoundSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts with sound'**
+  String get configSoundSub;
+
+  /// No description provided for @configVibration.
+  ///
+  /// In en, this message translates to:
+  /// **'Vibration'**
+  String get configVibration;
+
+  /// No description provided for @configVibrationSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Alerts with vibration'**
+  String get configVibrationSub;
+
+  /// No description provided for @configVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get configVersion;
+
+  /// No description provided for @configTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms and conditions'**
+  String get configTerms;
+
+  /// No description provided for @configPrivacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy'**
+  String get configPrivacyPolicy;
+
+  /// No description provided for @guiaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Safety Guide'**
+  String get guiaTitle;
+
+  /// No description provided for @guiaSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency action protocols'**
+  String get guiaSubtitle;
+
+  /// No description provided for @guiaHeroTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay prepared'**
+  String get guiaHeroTitle;
+
+  /// No description provided for @guiaHeroDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Knowing security protocols can save lives. Tap each situation to see action steps.'**
+  String get guiaHeroDesc;
+
+  /// No description provided for @guia1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Robbery or Assault'**
+  String get guia1Title;
+
+  /// No description provided for @guia1Step1.
+  ///
+  /// In en, this message translates to:
+  /// **'Do not resist. Your safety is worth more than any object.'**
+  String get guia1Step1;
+
+  /// No description provided for @guia1Step2.
+  ///
+  /// In en, this message translates to:
+  /// **'Memorize features of the attacker: clothing, height, direction taken.'**
+  String get guia1Step2;
+
+  /// No description provided for @guia1Step3.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave the area immediately and find a public, crowded place.'**
+  String get guia1Step3;
+
+  /// No description provided for @guia1Step4.
+  ///
+  /// In en, this message translates to:
+  /// **'Call emergency services (123) and report the incident in SafeCampus.'**
+  String get guia1Step4;
+
+  /// No description provided for @guia1Step5.
+  ///
+  /// In en, this message translates to:
+  /// **'Preserve any evidence (messages, photos) for the police report.'**
+  String get guia1Step5;
+
+  /// No description provided for @guia2Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Harassment'**
+  String get guia2Title;
+
+  /// No description provided for @guia2Step1.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave the place and find people or campus safety zones.'**
+  String get guia2Step1;
+
+  /// No description provided for @guia2Step2.
+  ///
+  /// In en, this message translates to:
+  /// **'Document: date, time, location, description of the aggressor.'**
+  String get guia2Step2;
+
+  /// No description provided for @guia2Step3.
+  ///
+  /// In en, this message translates to:
+  /// **'Report in SafeCampus to alert other students.'**
+  String get guia2Step3;
+
+  /// No description provided for @guia2Step4.
+  ///
+  /// In en, this message translates to:
+  /// **'Talk to the university welfare office or campus security.'**
+  String get guia2Step4;
+
+  /// No description provided for @guia2Step5.
+  ///
+  /// In en, this message translates to:
+  /// **'If harassment is digital, save screenshots and block the aggressor.'**
+  String get guia2Step5;
+
+  /// No description provided for @guia3Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Accident'**
+  String get guia3Title;
+
+  /// No description provided for @guia3Step1.
+  ///
+  /// In en, this message translates to:
+  /// **'Assess the situation without exposing yourself to more risks.'**
+  String get guia3Step1;
+
+  /// No description provided for @guia3Step2.
+  ///
+  /// In en, this message translates to:
+  /// **'Call 123 (emergency) if there are injured people.'**
+  String get guia3Step2;
+
+  /// No description provided for @guia3Step3.
+  ///
+  /// In en, this message translates to:
+  /// **'Do not move injured people unless there is imminent danger.'**
+  String get guia3Step3;
+
+  /// No description provided for @guia3Step4.
+  ///
+  /// In en, this message translates to:
+  /// **'Signal the area to prevent more accidents.'**
+  String get guia3Step4;
+
+  /// No description provided for @guia3Step5.
+  ///
+  /// In en, this message translates to:
+  /// **'Report the incident in SafeCampus to activate alerts in the area.'**
+  String get guia3Step5;
+
+  /// No description provided for @guia4Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Fight'**
+  String get guia4Title;
+
+  /// No description provided for @guia4Step1.
+  ///
+  /// In en, this message translates to:
+  /// **'Do not intervene physically — call campus security.'**
+  String get guia4Step1;
+
+  /// No description provided for @guia4Step2.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave the area immediately.'**
+  String get guia4Step2;
+
+  /// No description provided for @guia4Step3.
+  ///
+  /// In en, this message translates to:
+  /// **'Call campus security number or 123.'**
+  String get guia4Step3;
+
+  /// No description provided for @guia4Step4.
+  ///
+  /// In en, this message translates to:
+  /// **'Report in SafeCampus with the exact location.'**
+  String get guia4Step4;
+
+  /// No description provided for @guia4Step5.
+  ///
+  /// In en, this message translates to:
+  /// **'If there are injured, wait for emergency services.'**
+  String get guia4Step5;
+
+  /// No description provided for @guia5Title.
+  ///
+  /// In en, this message translates to:
+  /// **'General Prevention'**
+  String get guia5Title;
+
+  /// No description provided for @guia5Step1.
+  ///
+  /// In en, this message translates to:
+  /// **'Share your location with trusted contacts when you go alone.'**
+  String get guia5Step1;
+
+  /// No description provided for @guia5Step2.
+  ///
+  /// In en, this message translates to:
+  /// **'Avoid poorly lit or solitary areas at night.'**
+  String get guia5Step2;
+
+  /// No description provided for @guia5Step3.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep your phone charged and volume low in risk zones.'**
+  String get guia5Step3;
+
+  /// No description provided for @guia5Step4.
+  ///
+  /// In en, this message translates to:
+  /// **'Use earphones with one ear to stay aware of your surroundings.'**
+  String get guia5Step4;
+
+  /// No description provided for @guia5Step5.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up your emergency contacts in SafeCampus.'**
+  String get guia5Step5;
+
+  /// No description provided for @guia6Title.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency Numbers'**
+  String get guia6Title;
+
+  /// No description provided for @guia6Step1.
+  ///
+  /// In en, this message translates to:
+  /// **'123 — National Police'**
+  String get guia6Step1;
+
+  /// No description provided for @guia6Step2.
+  ///
+  /// In en, this message translates to:
+  /// **'132 — Fire Department'**
+  String get guia6Step2;
+
+  /// No description provided for @guia6Step3.
+  ///
+  /// In en, this message translates to:
+  /// **'125 — Civil Defense'**
+  String get guia6Step3;
+
+  /// No description provided for @guia6Step4.
+  ///
+  /// In en, this message translates to:
+  /// **'115 — Red Cross'**
+  String get guia6Step4;
+
+  /// No description provided for @guia6Step5.
+  ///
+  /// In en, this message translates to:
+  /// **'Campus security — check the institutional directory'**
+  String get guia6Step5;
+
+  /// No description provided for @notifScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notifScreenTitle;
+
+  /// No description provided for @notifScreenSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your security alerts'**
+  String get notifScreenSubtitle;
+
+  /// No description provided for @notifMarkAllRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all as read'**
+  String get notifMarkAllRead;
+
+  /// No description provided for @notifClearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get notifClearAll;
+
+  /// No description provided for @notifNoNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications'**
+  String get notifNoNotifications;
+
+  /// No description provided for @dashboardAiAnalysis.
+  ///
+  /// In en, this message translates to:
+  /// **'Campus AI Analysis'**
+  String get dashboardAiAnalysis;
+
+  /// No description provided for @analyzingTrends.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyzing trends...'**
+  String get analyzingTrends;
+
+  /// No description provided for @trendsNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'Trend analysis will be available when there are nearby reports.'**
+  String get trendsNoData;
 }
 
 class _AppLocalizationsDelegate

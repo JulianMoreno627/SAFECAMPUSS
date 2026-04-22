@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 
 class ConfiguracionScreen extends StatefulWidget {
   const ConfiguracionScreen({super.key});
@@ -10,56 +11,55 @@ class ConfiguracionScreen extends StatefulWidget {
 }
 
 class _ConfiguracionScreenState extends State<ConfiguracionScreen> {
-  // Notificaciones
   bool _notifAlertas = true;
   bool _notifReportes = true;
   bool _notifSos = true;
   bool _notifIa = false;
 
-  // Privacidad
   bool _compartirUbicacion = true;
   bool _ubicacionSegundoPlano = false;
   bool _reportesAnonimos = false;
 
-  // App
   bool _sonido = true;
   bool _vibracion = true;
   String _radioAlertas = '500m';
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(),
+            _buildHeader(l10n),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 30),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    FadeInUp(child: _buildSeccion('Notificaciones', _notifItems())),
+                    FadeInUp(child: _buildSeccion(l10n.notificationsLabel, _notifItems(l10n))),
                     const SizedBox(height: 20),
                     FadeInUp(
                       delay: const Duration(milliseconds: 80),
-                      child: _buildSeccion('Privacidad y Ubicación', _privItems()),
+                      child: _buildSeccion(l10n.configPrivacySection, _privItems(l10n)),
                     ),
                     const SizedBox(height: 20),
                     FadeInUp(
                       delay: const Duration(milliseconds: 160),
-                      child: _buildSeccion('Radio de Alertas', _radioItems()),
+                      child: _buildSeccion(l10n.configAlertRadiusSection, _radioItems(l10n)),
                     ),
                     const SizedBox(height: 20),
                     FadeInUp(
                       delay: const Duration(milliseconds: 240),
-                      child: _buildSeccion('Sonido y Vibración', _sonidoItems()),
+                      child: _buildSeccion(l10n.configSoundSection, _sonidoItems(l10n)),
                     ),
                     const SizedBox(height: 20),
                     FadeInUp(
                       delay: const Duration(milliseconds: 320),
-                      child: _buildSeccion('Información', _infoItems()),
+                      child: _buildSeccion(l10n.configInfoSection, _infoItems(l10n)),
                     ),
                   ],
                 ),
@@ -71,7 +71,7 @@ class _ConfiguracionScreenState extends State<ConfiguracionScreen> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
       child: Row(
@@ -91,16 +91,16 @@ class _ConfiguracionScreenState extends State<ConfiguracionScreen> {
             ),
           ),
           const SizedBox(width: 14),
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Configuración',
-                  style: TextStyle(
+              Text(l10n.configTitle,
+                  style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.bold)),
-              Text('Personaliza tu experiencia',
-                  style: TextStyle(color: Colors.white54, fontSize: 12)),
+              Text(l10n.configSubtitle,
+                  style: const TextStyle(color: Colors.white54, fontSize: 12)),
             ],
           ),
         ],
@@ -131,11 +131,11 @@ class _ConfiguracionScreenState extends State<ConfiguracionScreen> {
     );
   }
 
-  List<Widget> _notifItems() => [
+  List<Widget> _notifItems(AppLocalizations l10n) => [
         _ToggleTile(
           icon: Icons.warning_amber_rounded,
-          label: 'Alertas de seguridad',
-          subtitle: 'Incidentes cerca de tu ubicación',
+          label: l10n.configSecurityAlerts,
+          subtitle: l10n.configSecurityAlertsSub,
           color: AppColors.riskHigh,
           value: _notifAlertas,
           onChanged: (v) => setState(() => _notifAlertas = v),
@@ -143,24 +143,24 @@ class _ConfiguracionScreenState extends State<ConfiguracionScreen> {
         ),
         _ToggleTile(
           icon: Icons.report_rounded,
-          label: 'Nuevos reportes',
-          subtitle: 'Reportes enviados por la comunidad',
+          label: l10n.configNewReports,
+          subtitle: l10n.configNewReportsSub,
           color: AppColors.riskMedium,
           value: _notifReportes,
           onChanged: (v) => setState(() => _notifReportes = v),
         ),
         _ToggleTile(
           icon: Icons.emergency_rounded,
-          label: 'Alertas SOS',
-          subtitle: 'Emergencias activas en el campus',
+          label: l10n.configSosAlerts,
+          subtitle: l10n.configSosAlertsSub,
           color: AppColors.sosRed,
           value: _notifSos,
           onChanged: (v) => setState(() => _notifSos = v),
         ),
         _ToggleTile(
           icon: Icons.psychology_rounded,
-          label: 'Análisis de SafeBot',
-          subtitle: 'Recomendaciones y tendencias de IA',
+          label: l10n.configAiAnalysis,
+          subtitle: l10n.configAiAnalysisSub,
           color: AppColors.accent,
           value: _notifIa,
           onChanged: (v) => setState(() => _notifIa = v),
@@ -168,11 +168,11 @@ class _ConfiguracionScreenState extends State<ConfiguracionScreen> {
         ),
       ];
 
-  List<Widget> _privItems() => [
+  List<Widget> _privItems(AppLocalizations l10n) => [
         _ToggleTile(
           icon: Icons.share_location_rounded,
-          label: 'Compartir ubicación',
-          subtitle: 'Necesario para alertas en tiempo real',
+          label: l10n.configShareLocationLabel,
+          subtitle: l10n.configShareLocationSub,
           color: AppColors.accent,
           value: _compartirUbicacion,
           onChanged: (v) => setState(() => _compartirUbicacion = v),
@@ -180,16 +180,16 @@ class _ConfiguracionScreenState extends State<ConfiguracionScreen> {
         ),
         _ToggleTile(
           icon: Icons.location_on_rounded,
-          label: 'Ubicación en segundo plano',
-          subtitle: 'Alertas aunque la app esté cerrada',
+          label: l10n.configBgLocation,
+          subtitle: l10n.configBgLocationSub,
           color: AppColors.riskMedium,
           value: _ubicacionSegundoPlano,
           onChanged: (v) => setState(() => _ubicacionSegundoPlano = v),
         ),
         _ToggleTile(
           icon: Icons.visibility_off_rounded,
-          label: 'Reportes anónimos',
-          subtitle: 'Tu nombre no aparecerá en los reportes',
+          label: l10n.configAnonReports,
+          subtitle: l10n.configAnonReportsSub,
           color: AppColors.riskLow,
           value: _reportesAnonimos,
           onChanged: (v) => setState(() => _reportesAnonimos = v),
@@ -197,7 +197,7 @@ class _ConfiguracionScreenState extends State<ConfiguracionScreen> {
         ),
       ];
 
-  List<Widget> _radioItems() {
+  List<Widget> _radioItems(AppLocalizations l10n) {
     final opciones = ['200m', '500m', '1km', '2km'];
     return [
       Padding(
@@ -217,14 +217,14 @@ class _ConfiguracionScreenState extends State<ConfiguracionScreen> {
                       color: AppColors.accent, size: 18),
                 ),
                 const SizedBox(width: 12),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Radio de detección',
-                          style: TextStyle(color: Colors.white, fontSize: 14)),
-                      Text('Distancia para recibir alertas',
-                          style: TextStyle(
+                      Text(l10n.configDetectionRadius,
+                          style: const TextStyle(color: Colors.white, fontSize: 14)),
+                      Text(l10n.configDetectionRadiusSub,
+                          style: const TextStyle(
                               color: Colors.white54, fontSize: 12)),
                     ],
                   ),
@@ -275,11 +275,11 @@ class _ConfiguracionScreenState extends State<ConfiguracionScreen> {
     ];
   }
 
-  List<Widget> _sonidoItems() => [
+  List<Widget> _sonidoItems(AppLocalizations l10n) => [
         _ToggleTile(
           icon: Icons.volume_up_rounded,
-          label: 'Sonido',
-          subtitle: 'Alertas con sonido',
+          label: l10n.configSoundLabel,
+          subtitle: l10n.configSoundSub,
           color: AppColors.riskMedium,
           value: _sonido,
           onChanged: (v) => setState(() => _sonido = v),
@@ -287,8 +287,8 @@ class _ConfiguracionScreenState extends State<ConfiguracionScreen> {
         ),
         _ToggleTile(
           icon: Icons.vibration_rounded,
-          label: 'Vibración',
-          subtitle: 'Alertas con vibración',
+          label: l10n.configVibration,
+          subtitle: l10n.configVibrationSub,
           color: AppColors.riskLow,
           value: _vibracion,
           onChanged: (v) => setState(() => _vibracion = v),
@@ -296,21 +296,21 @@ class _ConfiguracionScreenState extends State<ConfiguracionScreen> {
         ),
       ];
 
-  List<Widget> _infoItems() => [
-        const _InfoTile(
+  List<Widget> _infoItems(AppLocalizations l10n) => [
+        _InfoTile(
           icon: Icons.info_outline_rounded,
-          label: 'Versión',
+          label: l10n.configVersion,
           trailing: 'v1.0.0',
           isFirst: true,
         ),
         _InfoTile(
           icon: Icons.description_outlined,
-          label: 'Términos y condiciones',
+          label: l10n.configTerms,
           onTap: () {},
         ),
         _InfoTile(
           icon: Icons.privacy_tip_outlined,
-          label: 'Política de privacidad',
+          label: l10n.configPrivacyPolicy,
           onTap: () {},
           isLast: true,
         ),

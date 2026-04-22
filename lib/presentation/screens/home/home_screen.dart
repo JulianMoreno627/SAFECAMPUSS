@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 
 class HomeScreen extends StatelessWidget {
   final StatefulNavigationShell navigationShell;
@@ -35,6 +36,7 @@ class _BottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Container(
       decoration: BoxDecoration(
@@ -57,32 +59,33 @@ class _BottomNavBar extends StatelessWidget {
             children: [
               _NavItem(
                 icon: Icons.map_rounded,
-                label: 'Mapa',
+                label: l10n.navMap,
                 index: 0,
                 currentIndex: currentIndex,
                 onTap: onTap,
               ),
               _NavItem(
                 icon: Icons.list_alt_rounded,
-                label: 'Reportes',
+                label: l10n.navReports,
                 index: 1,
                 currentIndex: currentIndex,
                 onTap: onTap,
               ),
               _SosNavItem(
+                label: l10n.navSos,
                 isSelected: currentIndex == 2,
                 onTap: () => onTap(2),
               ),
               _NavItem(
                 icon: Icons.bar_chart_rounded,
-                label: 'Stats',
+                label: l10n.navStats,
                 index: 3,
                 currentIndex: currentIndex,
                 onTap: onTap,
               ),
               _NavItem(
                 icon: Icons.person_rounded,
-                label: 'Perfil',
+                label: l10n.navProfile,
                 index: 4,
                 currentIndex: currentIndex,
                 onTap: onTap,
@@ -160,10 +163,15 @@ class _NavItem extends StatelessWidget {
 }
 
 class _SosNavItem extends StatelessWidget {
+  final String label;
   final bool isSelected;
   final VoidCallback onTap;
 
-  const _SosNavItem({required this.isSelected, required this.onTap});
+  const _SosNavItem({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -197,9 +205,9 @@ class _SosNavItem extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 2),
-            const Text(
-              'SOS',
-              style: TextStyle(
+            Text(
+              label,
+              style: const TextStyle(
                 color: AppColors.sosRed,
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
