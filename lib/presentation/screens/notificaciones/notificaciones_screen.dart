@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../core/models/notificacion.dart';
 import '../../../core/providers/notificaciones_provider.dart';
 
@@ -12,6 +13,7 @@ class NotificacionesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(notificacionesProvider);
     final notifier = ref.read(notificacionesProvider.notifier);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -22,6 +24,7 @@ class NotificacionesScreen extends ConsumerWidget {
               noLeidas: state.noLeidas,
               onMarcarTodas: notifier.marcarTodasLeidas,
               onBack: () => Navigator.pop(context),
+              l10n: l10n,
             ),
             Expanded(
               child: state.isLoading
@@ -29,7 +32,7 @@ class NotificacionesScreen extends ConsumerWidget {
                       child: CircularProgressIndicator(
                           color: AppColors.accent, strokeWidth: 2))
                   : state.notificaciones.isEmpty
-                      ? _buildEmpty(state.error)
+                      ? _buildEmpty(state.error, l10n)
                       : RefreshIndicator(
                           onRefresh: notifier.fetchNotificaciones,
                           color: AppColors.accent,
@@ -57,7 +60,7 @@ class NotificacionesScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildEmpty(String? error) {
+  Widget _buildEmpty(String? error, AppLocalizations l10n) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -73,7 +76,7 @@ class NotificacionesScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            error != null ? 'Sin conexión al servidor' : 'Sin notificaciones',
+            error != null ? 'Sin conexión al servidor' : l10n.notifNoNotifications,
             style: const TextStyle(color: Colors.white54, fontSize: 16),
           ),
           const SizedBox(height: 6),
@@ -94,11 +97,13 @@ class _Header extends StatelessWidget {
   final int noLeidas;
   final VoidCallback onMarcarTodas;
   final VoidCallback onBack;
+  final AppLocalizations l10n;
 
   const _Header({
     required this.noLeidas,
     required this.onMarcarTodas,
     required this.onBack,
+    required this.l10n,
   });
 
   @override
@@ -125,13 +130,13 @@ class _Header extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Notificaciones',
-                  style: TextStyle(
+              Text(l10n.notifScreenTitle,
+                  style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.bold)),
               if (noLeidas > 0)
-                Text('$noLeidas sin leer',
+                Text('$noLeidas ${l10n.notifScreenSubtitle}',
                     style: const TextStyle(
                         color: AppColors.accent, fontSize: 12)),
             ],
@@ -140,8 +145,8 @@ class _Header extends StatelessWidget {
           if (noLeidas > 0)
             TextButton(
               onPressed: onMarcarTodas,
-              child: const Text('Leer todas',
-                  style: TextStyle(color: AppColors.accent, fontSize: 12)),
+              child: Text(l10n.notifMarkAllRead,
+                  style: const TextStyle(color: AppColors.accent, fontSize: 12)),
             ),
         ],
       ),

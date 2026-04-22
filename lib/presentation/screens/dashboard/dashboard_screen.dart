@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/services/ai_service.dart';
 import '../../../core/providers/reports_provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../core/models/reporte.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -18,13 +19,13 @@ class DashboardScreen extends ConsumerStatefulWidget {
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   String? _aiTrends;
   bool _loadingTrends = false;
-  List<dynamic> _lastReports = [];
+  List<Reporte> _lastReports = [];
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(reportsProvider);
+    final l10n = AppLocalizations.of(context)!;
 
-    // Lanzar análisis cuando cambien los reportes
     if (state.reportesCercanos.isNotEmpty &&
         state.reportesCercanos != _lastReports &&
         !_loadingTrends) {
@@ -40,19 +41,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
-              _buildHeader(context),
+              _buildHeader(context, l10n),
               const SizedBox(height: 20),
-              _buildRiskBanner(context, state),
+              _buildRiskBanner(context, state, l10n),
               const SizedBox(height: 16),
-              _buildStatsRow(context, state),
+              _buildStatsRow(context, state, l10n),
               const SizedBox(height: 20),
-              _buildPieChart(context, state),
+              _buildPieChart(context, state, l10n),
               const SizedBox(height: 20),
-              _buildBarChart(context, state),
+              _buildBarChart(context, state, l10n),
               const SizedBox(height: 20),
-              _buildAITrendsCard(),
+              _buildAITrendsCard(l10n),
               const SizedBox(height: 20),
-              _buildSafeBotCard(context),
+              _buildSafeBotCard(context, l10n),
               const SizedBox(height: 24),
             ],
           ),
@@ -61,9 +62,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  // ── Header ────────────────────────────────────────────────────────────────
-
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, AppLocalizations l10n) {
     final cs = Theme.of(context).colorScheme;
 
     return FadeInDown(
@@ -72,12 +71,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Dashboard',
+              Text(l10n.dashboardTitle,
                   style: TextStyle(
                       color: cs.onSurface,
                       fontSize: 26,
                       fontWeight: FontWeight.bold)),
-              Text('Estadísticas del campus',
+              Text(l10n.campusStats,
                   style: TextStyle(
                       color: cs.onSurface.withValues(alpha: 0.54),
                       fontSize: 13)),
@@ -91,9 +90,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  // ── Risk Banner ───────────────────────────────────────────────────────────
-
-  Widget _buildRiskBanner(BuildContext context, ReportsState state) {
+  Widget _buildRiskBanner(BuildContext context, ReportsState state, AppLocalizations l10n) {
     final cs = Theme.of(context).colorScheme;
     final color = _riskColor(state.nivelRiesgoLabel);
 
@@ -125,7 +122,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Nivel de Riesgo Actual',
+                Text(l10n.currentRiskLevel,
                     style: TextStyle(
                         color: cs.onSurface.withValues(alpha: 0.6),
                         fontSize: 12)),
@@ -146,7 +143,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         color: cs.onSurface,
                         fontSize: 28,
                         fontWeight: FontWeight.bold)),
-                Text('reportes cercanos',
+                Text(l10n.nearbyReportsLabel,
                     style: TextStyle(
                         color: cs.onSurface.withValues(alpha: 0.54),
                         fontSize: 11)),
@@ -158,9 +155,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  // ── Stats Row ─────────────────────────────────────────────────────────────
-
-  Widget _buildStatsRow(BuildContext context, ReportsState state) {
+  Widget _buildStatsRow(BuildContext context, ReportsState state, AppLocalizations l10n) {
     final reports = state.reportesCercanos;
     final criticos =
         reports.where((r) => r.nivelUrgencia == NivelUrgencia.critico).length;
@@ -174,15 +169,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       child: Row(
         children: [
           _StatTile(
-              label: 'Críticos',
+              label: l10n.criticals,
               value: criticos,
               color: AppColors.riskCritical),
           const SizedBox(width: 10),
           _StatTile(
-              label: 'Altos', value: altos, color: AppColors.riskHigh),
+              label: l10n.highs, value: altos, color: AppColors.riskHigh),
           const SizedBox(width: 10),
           _StatTile(
-              label: 'Medios',
+              label: l10n.mediums,
               value: medios,
               color: AppColors.riskMedium),
         ],
@@ -190,9 +185,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  // ── Pie Chart ─────────────────────────────────────────────────────────────
-
-  Widget _buildPieChart(BuildContext context, ReportsState state) {
+  Widget _buildPieChart(BuildContext context, ReportsState state, AppLocalizations l10n) {
     final cs = Theme.of(context).colorScheme;
     final reports = state.reportesCercanos;
     if (reports.isEmpty) return const SizedBox.shrink();
@@ -252,7 +245,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Reportes por tipo',
+            Text(l10n.reportsByType,
                 style: TextStyle(
                     color: cs.onSurface,
                     fontSize: 15,
@@ -324,9 +317,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  // ── Bar Chart (urgency) ───────────────────────────────────────────────────
-
-  Widget _buildBarChart(BuildContext context, ReportsState state) {
+  Widget _buildBarChart(BuildContext context, ReportsState state, AppLocalizations l10n) {
     final cs = Theme.of(context).colorScheme;
     final reports = state.reportesCercanos;
 
@@ -334,10 +325,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         reports.where((r) => r.nivelUrgencia == nivel).length;
 
     final data = [
-      ('Bajo',    count(NivelUrgencia.bajo).toDouble(),    AppColors.riskLow),
-      ('Medio',   count(NivelUrgencia.medio).toDouble(),   AppColors.riskMedium),
-      ('Alto',    count(NivelUrgencia.alto).toDouble(),    AppColors.riskHigh),
-      ('Crítico', count(NivelUrgencia.critico).toDouble(), AppColors.riskCritical),
+      (l10n.low,      count(NivelUrgencia.bajo).toDouble(),    AppColors.riskLow),
+      (l10n.medium,   count(NivelUrgencia.medio).toDouble(),   AppColors.riskMedium),
+      (l10n.high,     count(NivelUrgencia.alto).toDouble(),    AppColors.riskHigh),
+      (l10n.critical, count(NivelUrgencia.critico).toDouble(), AppColors.riskCritical),
     ];
 
     final maxY =
@@ -356,7 +347,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Distribución por urgencia',
+            Text(l10n.urgencyDistribution,
                 style: TextStyle(
                     color: cs.onSurface,
                     fontSize: 15,
@@ -430,15 +421,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  // ── AI Trends ─────────────────────────────────────────────────────────────
-
   Future<void> _fetchTrends(List<Reporte> reports) async {
     setState(() => _loadingTrends = true);
     final result = await AiService().analyzeTrends(reports);
     if (mounted) setState(() { _aiTrends = result; _loadingTrends = false; });
   }
 
-  Widget _buildAITrendsCard() {
+  Widget _buildAITrendsCard(AppLocalizations l10n) {
     return FadeInUp(
       delay: const Duration(milliseconds: 300),
       child: Container(
@@ -463,8 +452,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       color: AppColors.accent, size: 18),
                 ),
                 const SizedBox(width: 10),
-                const Text('Análisis IA del Campus',
-                    style: TextStyle(
+                Text(l10n.dashboardAiAnalysis,
+                    style: const TextStyle(
                         color: Colors.white,
                         fontSize: 15,
                         fontWeight: FontWeight.bold)),
@@ -483,7 +472,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                               strokeWidth: 1.5, color: AppColors.accent),
                         ),
                         const SizedBox(width: 10),
-                        Text('Analizando tendencias...',
+                        Text(l10n.analyzingTrends,
                             style: TextStyle(
                                 color: AppColors.accent.withValues(alpha: 0.8),
                                 fontSize: 13)),
@@ -498,10 +487,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                               fontSize: 13,
                               height: 1.6),
                         )
-                      : const Text(
-                          'El análisis de tendencias estará disponible cuando haya reportes cercanos.',
-                          key: ValueKey('empty'),
-                          style: TextStyle(
+                      : Text(
+                          l10n.trendsNoData,
+                          key: const ValueKey('empty'),
+                          style: const TextStyle(
                               color: Colors.white38, fontSize: 13, height: 1.5),
                         ),
             ),
@@ -511,9 +500,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     );
   }
 
-  // ── SafeBot Card ──────────────────────────────────────────────────────────
-
-  Widget _buildSafeBotCard(BuildContext context) {
+  Widget _buildSafeBotCard(BuildContext context, AppLocalizations l10n) {
     return FadeInUp(
       delay: const Duration(milliseconds: 320),
       child: GestureDetector(
@@ -548,20 +535,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     color: Colors.white, size: 28),
               ),
               const SizedBox(width: 16),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Habla con SafeBot',
-                        style: TextStyle(
+                    Text(l10n.chatWithSafeBot,
+                        style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.bold)),
-                    SizedBox(height: 4),
-                    Text(
-                        'Tu asistente de seguridad con IA. Pregúntale lo que quieras.',
-                        style:
-                            TextStyle(color: Colors.white70, fontSize: 12)),
+                    const SizedBox(height: 4),
+                    Text(l10n.safeBotDesc,
+                        style: const TextStyle(
+                            color: Colors.white70, fontSize: 12)),
                   ],
                 ),
               ),

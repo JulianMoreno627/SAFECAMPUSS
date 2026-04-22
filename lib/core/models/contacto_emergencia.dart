@@ -1,4 +1,10 @@
 class ContactoEmergencia {
+  static const String relationFamily = 'family';
+  static const String relationFriend = 'friend';
+  static const String relationPartner = 'partner';
+  static const String relationClassmate = 'classmate';
+  static const String relationOther = 'other';
+
   final String id;
   final String nombre;
   final String telefono;
@@ -26,6 +32,40 @@ class ContactoEmergencia {
         'telefono': telefono,
         if (relacion != null) 'relacion': relacion,
       };
+
+  static String? normalizeRelationCode(String? value) {
+    final normalized = value?.trim().toLowerCase();
+    switch (normalized) {
+      case relationFamily:
+      case 'familiar':
+        return relationFamily;
+      case relationFriend:
+      case 'amigo/a':
+      case 'amigo':
+      case 'amiga':
+        return relationFriend;
+      case relationPartner:
+      case 'pareja':
+        return relationPartner;
+      case relationClassmate:
+      case 'companero/a':
+      case 'compañero/a':
+      case 'companero':
+      case 'compañero':
+      case 'companera':
+      case 'compañera':
+        return relationClassmate;
+      case relationOther:
+      case 'otro':
+      case 'otra':
+        return relationOther;
+      case null:
+      case '':
+        return null;
+      default:
+        return relationOther;
+    }
+  }
 
   String get iniciales {
     final parts = nombre.trim().split(' ');

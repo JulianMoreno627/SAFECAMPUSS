@@ -4,20 +4,9 @@ import 'package:shimmer/shimmer.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/providers/reports_provider.dart';
 import '../../../core/providers/location_provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../core/models/reporte.dart';
 import '../../widgets/reporte_detalle_sheet.dart';
-
-const _tipos = [
-  'Todos',
-  'Robo',
-  'Acoso',
-  'Pelea',
-  'Vandalismo',
-  'Accidente',
-  'Persona sospechosa',
-  'Iluminación',
-  'Otro'
-];
 
 class ListaReportesScreen extends ConsumerStatefulWidget {
   const ListaReportesScreen({super.key});
@@ -31,7 +20,7 @@ class _ListaReportesScreenState
     extends ConsumerState<ListaReportesScreen> {
   final _searchController = TextEditingController();
   String _searchQuery = '';
-  String _selectedTipo = 'Todos';
+  String _selectedKey = '';
 
   @override
   void dispose() {
@@ -39,14 +28,25 @@ class _ListaReportesScreenState
     super.dispose();
   }
 
+  List<(String, String)> _tipos(AppLocalizations l10n) => [
+    ('', l10n.filterAll),
+    ('robo', l10n.filterTheft),
+    ('acoso', l10n.filterHarassment),
+    ('pelea', l10n.filterFight),
+    ('vandalismo', l10n.filterVandalism),
+    ('accidente', l10n.filterAccident),
+    ('persona sospechosa', l10n.filterSuspicious),
+    ('iluminación', l10n.filterLighting),
+    ('otro', l10n.filterOther),
+  ];
+
   List<Reporte> _filtered(List<Reporte> all) {
     return all.where((r) {
       final tipo = r.tipo.label.toLowerCase();
       final desc = r.descripcion.toLowerCase();
       final query = _searchQuery.toLowerCase();
 
-      final matchesTipo = _selectedTipo == 'Todos' ||
-          tipo == _selectedTipo.toLowerCase();
+      final matchesTipo = _selectedKey.isEmpty || tipo == _selectedKey;
       final matchesSearch = query.isEmpty ||
           tipo.contains(query) ||
           desc.contains(query);
@@ -69,14 +69,15 @@ class _ListaReportesScreenState
     final reportsState = ref.watch(reportsProvider);
     final filtered = _filtered(reportsState.reportesCercanos);
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(reportsState, cs),
-            _buildSearchBar(cs),
-            _buildFilterChips(cs),
+            _buildHeader(reportsState, cs, l10n),
+            _buildSearchBar(cs, l10n),
+            _buildFilterChips(cs, l10n),
             Expanded(
               child: reportsState.isLoading
                   ? _buildShimmer()
@@ -85,7 +86,7 @@ class _ListaReportesScreenState
                       color: AppColors.accent,
                       backgroundColor: Theme.of(context).cardColor,
                       child: filtered.isEmpty
-                          ? _buildEmpty(cs)
+                          ? _buildEmpty(cs, l10n)
                           : _buildList(filtered),
                     ),
             ),
@@ -95,7 +96,7 @@ class _ListaReportesScreenState
     );
   }
 
-  Widget _buildHeader(ReportsState state, ColorScheme cs) {
+  Widget _buildHeader(ReportsState state, ColorScheme cs, AppLocalizations l10n) {
     final color = _riskColor(state.nivelRiesgoLabel);
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
@@ -105,14 +106,14 @@ class _ListaReportesScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Reportes',
+                l10n.reportsTitle,
                 style: TextStyle(
                     color: cs.onSurface,
                     fontSize: 26,
                     fontWeight: FontWeight.bold),
               ),
               Text(
-                '${state.reportesCercanos.length} incidentes cercanos',
+                '${state.reportesCercanos.length} ${l10n.nearbyReportsLabel}',
                 style: TextStyle(
                     color: cs.onSurface.withValues(alpha: 0.54),
                     fontSize: 13),
@@ -147,7 +148,7 @@ class _ListaReportesScreenState
     );
   }
 
-  Widget _buildSearchBar(ColorScheme cs) {
+  Widget _buildSearchBar(ColorScheme cs, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       child: TextField(
@@ -155,7 +156,7 @@ class _ListaReportesScreenState
         style: TextStyle(color: cs.onSurface),
         onChanged: (v) => setState(() => _searchQuery = v),
         decoration: InputDecoration(
-          hintText: 'Buscar por tipo o descripción...',
+          hintText: l10n.searchHint,
           hintStyle:
               TextStyle(color: cs.onSurface.withValues(alpha: 0.3)),
           prefixIcon: Icon(Icons.search_rounded,
@@ -187,20 +188,21 @@ class _ListaReportesScreenState
     );
   }
 
-  Widget _buildFilterChips(ColorScheme cs) {
+  Widget _buildFilterChips(ColorScheme cs, AppLocalizations l10n) {
+    final tipos = _tipos(l10n);
     return SizedBox(
       height: 44,
       child: ListView.separated(
         padding:
             const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
         scrollDirection: Axis.horizontal,
-        itemCount: _tipos.length,
+        itemCount: tipos.length,
         separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (_, i) {
-          final tipo = _tipos[i];
-          final selected = tipo == _selectedTipo;
+          final (key, label) = tipos[i];
+          final selected = key == _selectedKey;
           return GestureDetector(
-            onTap: () => setState(() => _selectedTipo = tipo),
+            onTap: () => setState(() => _selectedKey = key),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 180),
               padding: const EdgeInsets.symmetric(
@@ -215,7 +217,7 @@ class _ListaReportesScreenState
                 ),
               ),
               child: Text(
-                tipo,
+                label,
                 style: TextStyle(
                   color: selected
                       ? Colors.black
@@ -266,9 +268,9 @@ class _ListaReportesScreenState
     );
   }
 
-  Widget _buildEmpty(ColorScheme cs) {
+  Widget _buildEmpty(ColorScheme cs, AppLocalizations l10n) {
     final noResults =
-        _searchQuery.isNotEmpty || _selectedTipo != 'Todos';
+        _searchQuery.isNotEmpty || _selectedKey.isNotEmpty;
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       children: [
@@ -287,7 +289,7 @@ class _ListaReportesScreenState
               ),
               const SizedBox(height: 16),
               Text(
-                noResults ? 'Sin resultados' : 'Zona tranquila',
+                noResults ? l10n.noResults : l10n.quietZone,
                 style: TextStyle(
                     color: cs.onSurface,
                     fontSize: 18,
@@ -296,8 +298,8 @@ class _ListaReportesScreenState
               const SizedBox(height: 8),
               Text(
                 noResults
-                    ? 'Prueba con otro filtro o búsqueda'
-                    : 'No hay incidentes cercanos reportados',
+                    ? l10n.tryOtherFilter
+                    : l10n.noNearbyIncidents,
                 style: TextStyle(
                     color: cs.onSurface.withValues(alpha: 0.54),
                     fontSize: 14),
@@ -343,6 +345,7 @@ class _ReportCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = _color;
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return GestureDetector(
       onTap: onTap,
@@ -425,7 +428,7 @@ class _ReportCard extends StatelessWidget {
                             color: cs.onSurface.withValues(alpha: 0.38)),
                         const SizedBox(width: 4),
                         Text(
-                          '${reporte.testigos} testigo${reporte.testigos == 1 ? '' : 's'}',
+                          '${reporte.testigos} ${reporte.testigos == 1 ? l10n.witnessCount : l10n.witnessCountPlural}',
                           style: TextStyle(
                               color: cs.onSurface.withValues(alpha: 0.38),
                               fontSize: 11),

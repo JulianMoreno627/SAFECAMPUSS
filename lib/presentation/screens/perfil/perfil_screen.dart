@@ -10,6 +10,7 @@ import '../../../core/providers/auth_provider.dart';
 import '../../../core/models/usuario.dart';
 import '../../../core/providers/theme_provider.dart';
 import '../../../core/providers/locale_provider.dart';
+import '../../../l10n/app_localizations.dart';
 
 class PerfilScreen extends ConsumerStatefulWidget {
   const PerfilScreen({super.key});
@@ -121,6 +122,7 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final usuario = authState.usuario;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: SafeArea(
@@ -129,11 +131,11 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
           child: Column(
             children: [
               const SizedBox(height: 20),
-              _buildHeader(context, usuario),
+              _buildHeader(context, usuario, l10n),
               const SizedBox(height: 32),
-              _buildStatsRow(context),
+              _buildStatsRow(context, l10n),
               const SizedBox(height: 28),
-              _buildOptions(context),
+              _buildOptions(context, l10n),
               const SizedBox(height: 20),
             ],
           ),
@@ -142,7 +144,7 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
     );
   }
 
-  Widget _buildHeader(BuildContext context, Usuario? user) {
+  Widget _buildHeader(BuildContext context, Usuario? user, AppLocalizations l10n) {
     final cs = Theme.of(context).colorScheme;
     final nombre = user?.nombre ?? 'Usuario';
     final apellido = user?.apellido ?? '';
@@ -222,16 +224,19 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
               border:
                   Border.all(color: AppColors.riskLow.withValues(alpha: 0.4)),
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.verified_rounded, color: AppColors.riskLow, size: 14),
-                SizedBox(width: 6),
-                Text('Estudiante Verificado',
-                    style: TextStyle(
-                        color: AppColors.riskLow,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600)),
+                const Icon(Icons.verified_rounded,
+                    color: AppColors.riskLow, size: 14),
+                const SizedBox(width: 6),
+                Text(
+                  l10n.verifiedStudent,
+                  style: const TextStyle(
+                      color: AppColors.riskLow,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600),
+                ),
               ],
             ),
           ),
@@ -240,15 +245,15 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
     );
   }
 
-  Widget _buildStatsRow(BuildContext context) {
+  Widget _buildStatsRow(BuildContext context, AppLocalizations l10n) {
     return FadeInUp(
       child: Row(
         children: [
-          const _StatItem(value: '0', label: 'Reportes'),
+          _StatItem(value: '0', label: l10n.statsReports),
           _divider(context),
-          const _StatItem(value: '0', label: 'Alertas'),
+          _StatItem(value: '0', label: l10n.statsAlerts),
           _divider(context),
-          const _StatItem(value: '0', label: 'Rutas'),
+          _StatItem(value: '0', label: l10n.statsRoutes),
         ],
       ),
     );
@@ -261,8 +266,7 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
         color: Theme.of(context).colorScheme.outlineVariant);
   }
 
-  Widget _buildOptions(BuildContext context) {
-    final ref = this.ref;
+  Widget _buildOptions(BuildContext context, AppLocalizations l10n) {
     final isDark = ref.watch(themeModeProvider) == ThemeMode.dark;
     final cs = Theme.of(context).colorScheme;
 
@@ -272,7 +276,7 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Cuenta',
+            l10n.sectionAccount,
             style: TextStyle(
                 color: cs.onSurface.withValues(alpha: 0.54),
                 fontSize: 12,
@@ -281,22 +285,22 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
           const SizedBox(height: 8),
           _OptionTile(
             icon: Icons.person_outline_rounded,
-            label: 'Editar Perfil',
+            label: l10n.editProfile,
             onTap: () {},
           ),
           _OptionTile(
             icon: Icons.notifications_outlined,
-            label: 'Notificaciones',
+            label: l10n.notificationsLabel,
             onTap: () => context.push('/perfil/notificaciones'),
           ),
           _OptionTile(
             icon: Icons.lock_outline_rounded,
-            label: 'Cambiar Contraseña',
+            label: l10n.changePassword,
             onTap: () {},
           ),
           const SizedBox(height: 20),
           Text(
-            'Seguridad',
+            l10n.sectionSecurity,
             style: TextStyle(
                 color: cs.onSurface.withValues(alpha: 0.54),
                 fontSize: 12,
@@ -305,51 +309,49 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
           const SizedBox(height: 8),
           _OptionTile(
             icon: Icons.contacts_rounded,
-            label: 'Contactos de Emergencia',
+            label: l10n.emergencyContactsMenu,
             onTap: () => context.push('/sos/contactos-emergencia'),
           ),
           _OptionTile(
             icon: Icons.history_rounded,
-            label: 'Historial de Reportes',
+            label: l10n.reportHistory,
             onTap: () {},
           ),
           _OptionTile(
             icon: Icons.route_rounded,
-            label: 'Rutas Guardadas',
+            label: l10n.savedRoutes,
             onTap: () {},
           ),
           const SizedBox(height: 20),
           Text(
-            'App',
+            l10n.sectionApp,
             style: TextStyle(
                 color: cs.onSurface.withValues(alpha: 0.54),
                 fontSize: 12,
                 fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
-          // ── Toggle Dark/Light ─────────────────────────────────────────
-          _ThemeToggleTile(isDark: isDark, ref: ref),
-          // ── Toggle Idioma ─────────────────────────────────────────────
-          _LangToggleTile(ref: ref),
+          _ThemeToggleTile(isDark: isDark, ref: ref, l10n: l10n),
+          _LangToggleTile(ref: ref, l10n: l10n),
           _OptionTile(
             icon: Icons.settings_outlined,
-            label: 'Configuración',
+            label: l10n.settingsMenu,
             onTap: () => context.push('/perfil/configuracion'),
           ),
           _OptionTile(
             icon: Icons.help_outline_rounded,
-            label: 'Guía de Seguridad',
+            label: l10n.safetyGuide,
             onTap: () => context.push('/perfil/guia-seguridad'),
           ),
           _OptionTile(
             icon: Icons.info_outline_rounded,
-            label: 'Acerca de',
+            label: l10n.aboutApp,
             onTap: () {},
           ),
           const SizedBox(height: 12),
           _OptionTile(
             icon: Icons.logout_rounded,
-            label: 'Cerrar Sesión',
+            label: l10n.logoutLabel,
             color: AppColors.riskHigh,
             onTap: () {
               ref.read(authProvider.notifier).logout();
@@ -365,8 +367,9 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
 
 class _LangToggleTile extends ConsumerWidget {
   final WidgetRef ref;
+  final AppLocalizations l10n;
 
-  const _LangToggleTile({required this.ref});
+  const _LangToggleTile({required this.ref, required this.l10n});
 
   @override
   Widget build(BuildContext context, WidgetRef widgetRef) {
@@ -389,7 +392,7 @@ class _LangToggleTile extends ConsumerWidget {
           ),
           const SizedBox(width: 14),
           Text(
-            isEs ? 'Español' : 'English',
+            isEs ? l10n.languageSpanish : l10n.languageEnglish,
             style: TextStyle(color: cs.onSurface, fontSize: 14),
           ),
           const Spacer(),
@@ -411,8 +414,9 @@ class _LangToggleTile extends ConsumerWidget {
 class _ThemeToggleTile extends ConsumerWidget {
   final bool isDark;
   final WidgetRef ref;
+  final AppLocalizations l10n;
 
-  const _ThemeToggleTile({required this.isDark, required this.ref});
+  const _ThemeToggleTile({required this.isDark, required this.ref, required this.l10n});
 
   @override
   Widget build(BuildContext context, WidgetRef widgetRef) {
@@ -434,7 +438,7 @@ class _ThemeToggleTile extends ConsumerWidget {
           ),
           const SizedBox(width: 14),
           Text(
-            isDark ? 'Modo Oscuro' : 'Modo Claro',
+            isDark ? l10n.darkMode : l10n.lightMode,
             style: TextStyle(color: cs.onSurface, fontSize: 14),
           ),
           const Spacer(),
@@ -520,9 +524,8 @@ class _OptionTile extends StatelessWidget {
             const SizedBox(width: 14),
             Text(label, style: TextStyle(color: c, fontSize: 14)),
             const Spacer(),
-            if (color == null)
-              Icon(Icons.chevron_right_rounded,
-                  color: cs.onSurface.withValues(alpha: 0.24), size: 20),
+            Icon(Icons.chevron_right_rounded,
+                color: cs.onSurface.withValues(alpha: 0.24), size: 20),
           ],
         ),
       ),

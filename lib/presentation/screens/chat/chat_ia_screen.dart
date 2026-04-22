@@ -4,6 +4,7 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/services/ai_service.dart';
 import '../../../core/providers/reports_provider.dart';
+import '../../../l10n/app_localizations.dart';
 
 class ChatIaScreen extends ConsumerStatefulWidget {
   const ChatIaScreen({super.key});
@@ -19,28 +20,32 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
   ChatSession? _session;
   bool _isTyping = false;
   bool _ready = false;
+  AppLocalizations? _l10n;
 
-  static const _suggestions = [
-    '¿Qué zonas son más seguras ahora?',
-    '¿Cómo reporto un incidente?',
-    '¿Qué hago en caso de robo?',
-    'Rutas seguras para esta hora',
-    '¿Cómo activar el SOS?',
-  ];
+  List<String> get _suggestions => [
+        _l10n!.suggestion1,
+        _l10n!.suggestion2,
+        _l10n!.suggestion3,
+        _l10n!.suggestion4,
+        _l10n!.suggestion5,
+      ];
 
   @override
-  void initState() {
-    super.initState();
-    _initChat();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_l10n == null) {
+      _l10n = AppLocalizations.of(context)!;
+      _initChat();
+    }
   }
 
   void _initChat() {
+    final l10n = _l10n!;
     final service = AiService();
     if (!service.isReady) {
       setState(() {
-        _messages.add(const _Msg(
-          text: 'SafeBot no está disponible sin una clave de API configurada. '
-              'Agrega GEMINI_API_KEY al archivo .env para activarlo.',
+        _messages.add(_Msg(
+          text: l10n.safebotUnavailableMsg,
           isUser: false,
           isError: true,
         ));
@@ -53,10 +58,8 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
       _session = service.startChatSession(reportesCercanos: reports);
       setState(() {
         _ready = true;
-        _messages.add(const _Msg(
-          text: '¡Hola! Soy SafeBot 🤖, tu asistente de seguridad en el campus. '
-              'Estoy al tanto de los incidentes cercanos y listo para ayudarte. '
-              '¿En qué puedo asistirte hoy?',
+        _messages.add(_Msg(
+          text: l10n.safebotWelcome,
           isUser: false,
         ));
       });
@@ -79,6 +82,7 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
   }
 
   Future<void> _send(String text) async {
+    final l10n = _l10n!;
     final query = text.trim();
     if (query.isEmpty || _session == null || _isTyping) return;
 
@@ -91,7 +95,7 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
 
     try {
       final response = await _session!.sendMessage(Content.text(query));
-      final reply = response.text?.trim() ?? 'No pude procesar tu consulta.';
+      final reply = response.text?.trim() ?? '';
       if (mounted) {
         setState(() {
           _isTyping = false;
@@ -101,6 +105,7 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
       }
     } catch (e) {
       if (mounted) {
+<<<<<<< HEAD
         final raw = e.toString();
         final String friendly;
         if (raw.contains('quota') || raw.contains('RESOURCE_EXHAUSTED') || raw.contains('429')) {
@@ -115,6 +120,15 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
         setState(() {
           _isTyping = false;
           _messages.add(_Msg(text: friendly, isUser: false, isError: true));
+=======
+        setState(() {
+          _isTyping = false;
+          _messages.add(_Msg(
+            text: l10n.safebotConnectionError,
+            isUser: false,
+            isError: true,
+          ));
+>>>>>>> 6b3b4710a50713a991342b4a1caa548c04c688d6
         });
       }
     }
@@ -134,23 +148,24 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(),
+            _buildHeader(l10n),
             if (_messages.length <= 1 && _ready) _buildSuggestions(),
             Expanded(child: _buildMessages()),
             if (_isTyping) _buildTypingIndicator(),
-            _buildInput(),
+            _buildInput(l10n),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -180,11 +195,11 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
                 color: Colors.white, size: 20),
           ),
           const SizedBox(width: 10),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'SafeBot',
                   style: TextStyle(
                       color: Colors.white,
@@ -192,8 +207,8 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
                       fontSize: 15),
                 ),
                 Text(
-                  'Asistente de seguridad IA',
-                  style: TextStyle(color: AppColors.accent, fontSize: 11),
+                  l10n.chatSubtitle,
+                  style: const TextStyle(color: AppColors.accent, fontSize: 11),
                 ),
               ],
             ),
@@ -204,12 +219,12 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
               color: AppColors.riskLow.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.circle, size: 7, color: AppColors.riskLow),
-                SizedBox(width: 5),
-                Text('En línea',
-                    style: TextStyle(color: AppColors.riskLow, fontSize: 11)),
+                const Icon(Icons.circle, size: 7, color: AppColors.riskLow),
+                const SizedBox(width: 5),
+                Text(l10n.onlineStatus,
+                    style: const TextStyle(color: AppColors.riskLow, fontSize: 11)),
               ],
             ),
           ),
@@ -219,6 +234,7 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
   }
 
   Widget _buildSuggestions() {
+    if (_l10n == null) return const SizedBox.shrink();
     return SizedBox(
       height: 44,
       child: ListView.separated(
@@ -286,7 +302,7 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
     );
   }
 
-  Widget _buildInput() {
+  Widget _buildInput(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       decoration: BoxDecoration(
@@ -304,9 +320,7 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
               textInputAction: TextInputAction.send,
               onSubmitted: _send,
               decoration: InputDecoration(
-                hintText: _ready
-                    ? 'Pregúntale a SafeBot...'
-                    : 'SafeBot no disponible',
+                hintText: _ready ? l10n.chatHint : l10n.chatHintUnavailable,
                 hintStyle: const TextStyle(color: Colors.white30, fontSize: 14),
                 filled: true,
                 fillColor: AppColors.cardColor,

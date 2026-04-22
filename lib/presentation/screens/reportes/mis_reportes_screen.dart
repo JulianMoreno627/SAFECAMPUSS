@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/models/reporte.dart';
 import '../../../core/services/api_service.dart';
 import '../../../core/providers/auth_provider.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../widgets/reporte_detalle_sheet.dart';
 
 final _misReportesProvider =
@@ -22,18 +23,25 @@ class MisReportesScreen extends ConsumerStatefulWidget {
 }
 
 class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
-  String _filtro = 'Todos';
-  static const _filtros = ['Todos', 'Crítico', 'Alto', 'Medio', 'Bajo'];
+  String _filtroKey = '';
+
+  List<(String, String)> _filtros(AppLocalizations l10n) => [
+    ('', l10n.filterAll),
+    ('critico', l10n.criticalRisk),
+    ('alto', l10n.highRisk),
+    ('medio', l10n.mediumRisk),
+    ('bajo', l10n.lowRisk),
+  ];
 
   List<Reporte> _filtrados(List<Reporte> todos) {
-    if (_filtro == 'Todos') return todos;
-    final nivel = NivelRiesgoHelper.fromLabel(_filtro);
-    return todos.where((r) => r.nivelUrgencia.label == nivel).toList();
+    if (_filtroKey.isEmpty) return todos;
+    return todos.where((r) => r.nivelUrgencia.name == _filtroKey).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     final asyncReportes = ref.watch(_misReportesProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -41,8 +49,8 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
         child: asyncReportes.when(
           loading: () => Column(
             children: [
-              _buildHeader(null),
-              _buildFiltros(),
+              _buildHeader(null, l10n),
+              _buildFiltros(l10n),
               const Expanded(
                 child: Center(
                   child: CircularProgressIndicator(
@@ -53,7 +61,7 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
           ),
           error: (e, _) => Column(
             children: [
-              _buildHeader(null),
+              _buildHeader(null, l10n),
               Expanded(
                 child: Center(
                   child: Column(
@@ -85,8 +93,8 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
             final misReportes = _filtrados(todos);
             return Column(
               children: [
-                _buildHeader(todos.length),
-                _buildFiltros(),
+                _buildHeader(todos.length, l10n),
+                _buildFiltros(l10n),
                 Expanded(
                   child: RefreshIndicator(
                     onRefresh: () async =>
@@ -94,7 +102,7 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
                     color: AppColors.accent,
                     backgroundColor: AppColors.cardColor,
                     child: misReportes.isEmpty
-                        ? _buildEmpty()
+                        ? _buildEmpty(l10n)
                         : _buildLista(misReportes),
                   ),
                 ),
@@ -106,7 +114,7 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
     );
   }
 
-  Widget _buildHeader(int? total) {
+  Widget _buildHeader(int? total, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
       child: Row(
@@ -129,17 +137,17 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Mis Reportes',
-                  style: TextStyle(
+              Text(l10n.myReportsTitle,
+                  style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.bold)),
               Text(
                 total != null
-                    ? '$total reporte${total != 1 ? 's' : ''} enviados'
+                    ? '$total ${l10n.statsReports.toLowerCase()}'
                     : 'Cargando...',
-                style:
-                    const TextStyle(color: Colors.white54, fontSize: 12)),
+                style: const TextStyle(color: Colors.white54, fontSize: 12),
+              ),
             ],
           ),
         ],
@@ -147,19 +155,20 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
     );
   }
 
-  Widget _buildFiltros() {
+  Widget _buildFiltros(AppLocalizations l10n) {
+    final filtros = _filtros(l10n);
     return SizedBox(
       height: 48,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-        itemCount: _filtros.length,
+        itemCount: filtros.length,
         separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (_, i) {
-          final f = _filtros[i];
-          final sel = _filtro == f;
+          final (key, label) = filtros[i];
+          final sel = _filtroKey == key;
           return GestureDetector(
-            onTap: () => setState(() => _filtro = f),
+            onTap: () => setState(() => _filtroKey = key),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 180),
               padding:
@@ -171,7 +180,7 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
                     color: sel ? AppColors.accent : Colors.white12),
               ),
               child: Text(
-                f,
+                label,
                 style: TextStyle(
                   color: sel ? Colors.black : Colors.white54,
                   fontSize: 12,
@@ -186,7 +195,7 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
     );
   }
 
-  Widget _buildEmpty() {
+  Widget _buildEmpty(AppLocalizations l10n) {
     return ListView(
       children: [
         SizedBox(
@@ -207,19 +216,19 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
               ),
               const SizedBox(height: 18),
               Text(
-                _filtro == 'Todos'
-                    ? 'No has enviado reportes aún'
-                    : 'Sin reportes de nivel $_filtro',
+                _filtroKey.isEmpty
+                    ? l10n.noReportsSent
+                    : l10n.noResults,
                 style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Ayuda a la comunidad reportando\nincidentes en el campus',
+              Text(
+                l10n.helpCommunityReport,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                     color: Colors.white54, fontSize: 13, height: 1.5),
               ),
             ],
@@ -358,18 +367,5 @@ class _NivelBadge extends StatelessWidget {
               fontSize: 10,
               fontWeight: FontWeight.bold)),
     );
-  }
-}
-
-// Helper para convertir label de filtro a nivel de urgencia
-class NivelRiesgoHelper {
-  static String fromLabel(String label) {
-    switch (label) {
-      case 'Crítico': return 'critico';
-      case 'Alto':    return 'alto';
-      case 'Medio':   return 'medio';
-      case 'Bajo':    return 'bajo';
-      default:        return 'bajo';
-    }
   }
 }
