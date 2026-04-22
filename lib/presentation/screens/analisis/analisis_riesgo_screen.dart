@@ -7,6 +7,7 @@ import '../../../core/services/gemini_service.dart';
 import '../../../core/providers/reports_provider.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/models/reporte.dart';
+import '../../../l10n/app_localizations.dart';
 
 class AnalisisRiesgoScreen extends ConsumerStatefulWidget {
   const AnalisisRiesgoScreen({super.key});
@@ -22,41 +23,41 @@ class _AnalisisRiesgoScreenState extends ConsumerState<AnalisisRiesgoScreen> {
   bool _analizado = false;
 
   Future<void> _analizar() async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() {
       _loading = true;
       _resultado = null;
     });
 
     final reportes = ref.read(reportsProvider).reportesCercanos;
-    final userId =
-        ref.read(authProvider).usuario?.id ?? '';
+    final userId = ref.read(authProvider).usuario?.id ?? '';
 
     // Derivar parámetros de los reportes del usuario
-    final misReportes = reportes
-        .where((r) => r.perteneceA(userId))
-        .toList();
+    final misReportes = reportes.where((r) => r.perteneceA(userId)).toList();
 
     final zonas = misReportes
-        .map((r) => r.tipo.label)
+        .map((r) => r.tipo.localizedLabel(l10n))
         .toSet()
         .take(5)
         .toList();
 
     final hora = TimeOfDay.now();
     final horario = hora.hour < 12
-        ? 'Mañana'
+        ? l10n.morningLabel
         : hora.hour < 18
-            ? 'Tarde'
-            : 'Noche';
+            ? l10n.afternoonLabel
+            : l10n.nightLabel;
 
     final rutaFrecuente = misReportes.isNotEmpty
-        ? 'Zona con incidentes de ${misReportes.first.tipo.label}'
-        : 'Campus universitario general';
+        ? l10n.incidentZonePrefix(misReportes.first.tipo.localizedLabel(l10n))
+        : l10n.generalCampusArea;
 
     final result = await GeminiService().analizarRiesgoPersonal(
       rutaFrecuente: rutaFrecuente,
       horarioHabitual: horario,
-      zonasVisitadas: zonas.isEmpty ? ['Campus principal', 'Biblioteca', 'Cafetería'] : zonas,
+      zonasVisitadas: zonas.isEmpty
+          ? [l10n.mainCampus, l10n.libraryLabel, l10n.cafeteriaLabel]
+          : zonas,
     );
 
     if (mounted) {
@@ -70,25 +71,25 @@ class _AnalisisRiesgoScreenState extends ConsumerState<AnalisisRiesgoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(),
+            _buildHeader(l10n),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 30),
                 child: Column(
                   children: [
-                    FadeInUp(child: _buildInfoCard()),
+                    FadeInUp(child: _buildInfoCard(l10n)),
                     const SizedBox(height: 20),
                     if (!_analizado && !_loading)
-                      FadeIn(child: _buildPlaceholder()),
-                    if (_loading)
-                      FadeIn(child: _buildLoading()),
+                      FadeIn(child: _buildPlaceholder(l10n)),
+                    if (_loading) FadeIn(child: _buildLoading(l10n)),
                     if (_resultado != null && !_loading)
-                      FadeInUp(child: _buildResultado()),
+                      FadeInUp(child: _buildResultado(l10n)),
                   ],
                 ),
               ),
@@ -101,7 +102,7 @@ class _AnalisisRiesgoScreenState extends ConsumerState<AnalisisRiesgoScreen> {
 
   // ── Header ────────────────────────────────────────────────────────────────
 
-  Widget _buildHeader() {
+  Widget _buildHeader(AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
       child: Row(
@@ -109,7 +110,8 @@ class _AnalisisRiesgoScreenState extends ConsumerState<AnalisisRiesgoScreen> {
           GestureDetector(
             onTap: () => Navigator.pop(context),
             child: Container(
-              width: 44, height: 44,
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
                 color: AppColors.surface,
                 borderRadius: BorderRadius.circular(12),
@@ -120,16 +122,16 @@ class _AnalisisRiesgoScreenState extends ConsumerState<AnalisisRiesgoScreen> {
             ),
           ),
           const SizedBox(width: 14),
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Análisis de Riesgo',
-                  style: TextStyle(
+              Text(l10n.riskAnalysisTitle,
+                  style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.bold)),
-              Text('Evaluación personal con IA',
-                  style: TextStyle(color: Colors.white54, fontSize: 12)),
+              Text(l10n.riskAnalysisSubtitle,
+                  style: const TextStyle(color: Colors.white54, fontSize: 12)),
             ],
           ),
           const Spacer(),
@@ -141,13 +143,13 @@ class _AnalisisRiesgoScreenState extends ConsumerState<AnalisisRiesgoScreen> {
               border: Border.all(
                   color: AppColors.riskMedium.withValues(alpha: 0.3)),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.person_search_rounded,
+                const Icon(Icons.person_search_rounded,
                     color: AppColors.riskMedium, size: 14),
-                SizedBox(width: 4),
-                Text('Personal',
-                    style: TextStyle(
+                const SizedBox(width: 4),
+                Text(l10n.personalLabel,
+                    style: const TextStyle(
                         color: AppColors.riskMedium,
                         fontSize: 11,
                         fontWeight: FontWeight.bold)),
@@ -161,7 +163,7 @@ class _AnalisisRiesgoScreenState extends ConsumerState<AnalisisRiesgoScreen> {
 
   // ── Info card ─────────────────────────────────────────────────────────────
 
-  Widget _buildInfoCard() {
+  Widget _buildInfoCard(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -188,19 +190,19 @@ class _AnalisisRiesgoScreenState extends ConsumerState<AnalisisRiesgoScreen> {
                 color: Colors.white, size: 26),
           ),
           const SizedBox(width: 14),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('¿Qué tan expuesto/a estás?',
-                    style: TextStyle(
+                Text(l10n.riskExposureQuestion,
+                    style: const TextStyle(
                         color: Colors.white,
                         fontSize: 14,
                         fontWeight: FontWeight.bold)),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  'SafeBot analiza tu historial de incidentes, zonas frecuentadas y horario para calcular tu perfil de riesgo personal.',
-                  style: TextStyle(
+                  l10n.riskExposureInfo,
+                  style: const TextStyle(
                       color: Colors.white70, fontSize: 12, height: 1.4),
                 ),
               ],
@@ -213,7 +215,7 @@ class _AnalisisRiesgoScreenState extends ConsumerState<AnalisisRiesgoScreen> {
 
   // ── Placeholder ───────────────────────────────────────────────────────────
 
-  Widget _buildPlaceholder() {
+  Widget _buildPlaceholder(AppLocalizations l10n) {
     return Column(
       children: [
         Container(
@@ -235,16 +237,16 @@ class _AnalisisRiesgoScreenState extends ConsumerState<AnalisisRiesgoScreen> {
                     color: AppColors.riskMedium, size: 44),
               ),
               const SizedBox(height: 16),
-              const Text('Analiza tu perfil de riesgo',
-                  style: TextStyle(
+              Text(l10n.analyzeRiskTitle,
+                  style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
-              const Text(
-                'SafeBot evaluará tu exposición a riesgos basándose en los incidentes reportados en tu zona y tu horario habitual.',
+              Text(
+                l10n.analyzeRiskDescription,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                     color: Colors.white54, fontSize: 13, height: 1.5),
               ),
             ],
@@ -264,8 +266,9 @@ class _AnalisisRiesgoScreenState extends ConsumerState<AnalisisRiesgoScreen> {
               elevation: 4,
             ),
             icon: const Icon(Icons.analytics_rounded, size: 20),
-            label: const Text('Analizar mi riesgo personal',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+            label: Text(l10n.analyzePersonalRiskButton,
+                style:
+                    const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
           ),
         ),
       ],
@@ -274,31 +277,31 @@ class _AnalisisRiesgoScreenState extends ConsumerState<AnalisisRiesgoScreen> {
 
   // ── Loading ───────────────────────────────────────────────────────────────
 
-  Widget _buildLoading() {
+  Widget _buildLoading(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
         color: AppColors.cardColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-            color: AppColors.riskMedium.withValues(alpha: 0.3)),
+        border: Border.all(color: AppColors.riskMedium.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
           const SizedBox(
-            width: 52, height: 52,
+            width: 52,
+            height: 52,
             child: CircularProgressIndicator(
                 color: AppColors.riskMedium, strokeWidth: 3),
           ),
           const SizedBox(height: 18),
-          const Text('SafeBot evaluando tu perfil...',
-              style: TextStyle(
+          Text(l10n.analyzingRiskProfile,
+              style: const TextStyle(
                   color: Colors.white,
                   fontSize: 15,
                   fontWeight: FontWeight.bold)),
           const SizedBox(height: 6),
           Text(
-            'Analizando incidentes cercanos, zonas y horario',
+            l10n.analyzingRiskContext,
             textAlign: TextAlign.center,
             style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.4), fontSize: 12),
@@ -310,14 +313,13 @@ class _AnalisisRiesgoScreenState extends ConsumerState<AnalisisRiesgoScreen> {
 
   // ── Resultado ─────────────────────────────────────────────────────────────
 
-  Widget _buildResultado() {
+  Widget _buildResultado(AppLocalizations l10n) {
     final r = _resultado!;
     final score = (r['score_riesgo'] as num?)?.toInt() ?? 50;
     final nivel = r['nivel_exposicion']?.toString() ?? 'moderado';
-    final zona = r['zona_mas_riesgosa']?.toString() ?? 'No identificada';
-    final dia = r['dia_vulnerable']?.toString() ?? 'No identificado';
-    final recomendacion =
-        r['recomendacion_principal']?.toString() ?? '';
+    final zona = r['zona_mas_riesgosa']?.toString() ?? l10n.notIdentifiedFemale;
+    final dia = r['dia_vulnerable']?.toString() ?? l10n.notIdentified;
+    final recomendacion = r['recomendacion_principal']?.toString() ?? '';
     final acciones =
         (r['acciones'] as List?)?.map((a) => a.toString()).toList() ?? [];
 
@@ -329,8 +331,8 @@ class _AnalisisRiesgoScreenState extends ConsumerState<AnalisisRiesgoScreen> {
           decoration: BoxDecoration(
             color: AppColors.cardColor,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-                color: _nivelColor(nivel).withValues(alpha: 0.35)),
+            border:
+                Border.all(color: _nivelColor(nivel).withValues(alpha: 0.35)),
           ),
           child: Column(
             children: [
@@ -342,8 +344,8 @@ class _AnalisisRiesgoScreenState extends ConsumerState<AnalisisRiesgoScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Nivel de Exposición',
-                            style: TextStyle(
+                        Text(l10n.exposureLevelLabel,
+                            style: const TextStyle(
                                 color: Colors.white54, fontSize: 12)),
                         const SizedBox(height: 6),
                         _NivelBadge(nivel: nivel),
@@ -368,14 +370,14 @@ class _AnalisisRiesgoScreenState extends ConsumerState<AnalisisRiesgoScreen> {
                 children: [
                   _InfoChip(
                     icon: Icons.location_on_rounded,
-                    label: 'Zona más riesgosa',
+                    label: l10n.riskiestZoneLabel,
                     value: zona,
                     color: AppColors.riskHigh,
                   ),
                   const SizedBox(width: 10),
                   _InfoChip(
                     icon: Icons.calendar_today_rounded,
-                    label: 'Día vulnerable',
+                    label: l10n.vulnerableDayLabel,
                     value: dia,
                     color: AppColors.riskMedium,
                   ),
@@ -399,13 +401,13 @@ class _AnalisisRiesgoScreenState extends ConsumerState<AnalisisRiesgoScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   children: [
-                    Icon(Icons.task_alt_rounded,
+                    const Icon(Icons.task_alt_rounded,
                         color: AppColors.riskLow, size: 18),
-                    SizedBox(width: 8),
-                    Text('Acciones recomendadas',
-                        style: TextStyle(
+                    const SizedBox(width: 8),
+                    Text(l10n.recommendedActionsLabel,
+                        style: const TextStyle(
                             color: Colors.white,
                             fontSize: 14,
                             fontWeight: FontWeight.bold)),
@@ -418,11 +420,11 @@ class _AnalisisRiesgoScreenState extends ConsumerState<AnalisisRiesgoScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            width: 22, height: 22,
+                            width: 22,
+                            height: 22,
                             margin: const EdgeInsets.only(top: 1),
                             decoration: BoxDecoration(
-                              color: AppColors.riskLow
-                                  .withValues(alpha: 0.15),
+                              color: AppColors.riskLow.withValues(alpha: 0.15),
                               shape: BoxShape.circle,
                             ),
                             child: Center(
@@ -458,14 +460,13 @@ class _AnalisisRiesgoScreenState extends ConsumerState<AnalisisRiesgoScreen> {
             onPressed: _loading ? null : _analizar,
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.riskMedium,
-              side: const BorderSide(
-                  color: AppColors.riskMedium, width: 1.5),
+              side: const BorderSide(color: AppColors.riskMedium, width: 1.5),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14)),
             ),
             icon: const Icon(Icons.refresh_rounded, size: 18),
-            label: const Text('Actualizar análisis',
-                style: TextStyle(fontSize: 14)),
+            label: Text(l10n.refreshAnalysis,
+                style: const TextStyle(fontSize: 14)),
           ),
         ),
       ],
@@ -474,9 +475,12 @@ class _AnalisisRiesgoScreenState extends ConsumerState<AnalisisRiesgoScreen> {
 
   Color _nivelColor(String nivel) {
     switch (nivel.toLowerCase()) {
-      case 'alto':   return AppColors.riskHigh;
-      case 'bajo':   return AppColors.riskLow;
-      default:       return AppColors.riskMedium;
+      case 'alto':
+        return AppColors.riskHigh;
+      case 'bajo':
+        return AppColors.riskLow;
+      default:
+        return AppColors.riskMedium;
     }
   }
 }
@@ -498,7 +502,8 @@ class _RiskGauge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 90, height: 90,
+      width: 90,
+      height: 90,
       child: CustomPaint(
         painter: _GaugePainter(value: score / 100, color: _color),
         child: Center(
@@ -512,8 +517,7 @@ class _RiskGauge extends StatelessWidget {
                       fontWeight: FontWeight.w900)),
               Text('/100',
                   style: TextStyle(
-                      color: _color.withValues(alpha: 0.6),
-                      fontSize: 10)),
+                      color: _color.withValues(alpha: 0.6), fontSize: 10)),
             ],
           ),
         ),
@@ -560,17 +564,21 @@ class _NivelBadge extends StatelessWidget {
 
   Color get _color {
     switch (nivel.toLowerCase()) {
-      case 'alto':   return AppColors.riskHigh;
-      case 'bajo':   return AppColors.riskLow;
-      default:       return AppColors.riskMedium;
+      case 'alto':
+        return AppColors.riskHigh;
+      case 'bajo':
+        return AppColors.riskLow;
+      default:
+        return AppColors.riskMedium;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final label = nivel.isEmpty
-        ? 'Moderado'
-        : nivel[0].toUpperCase() + nivel.substring(1);
+        ? l10n.exposureModerate
+        : _localizedExposureLabel(l10n, nivel);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
       decoration: BoxDecoration(
@@ -578,12 +586,26 @@ class _NivelBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: _color.withValues(alpha: 0.4)),
       ),
-      child: Text('Exposición $label',
+      child: Text('${l10n.exposurePrefix} $label',
           style: TextStyle(
-              color: _color,
-              fontSize: 12,
-              fontWeight: FontWeight.bold)),
+              color: _color, fontSize: 12, fontWeight: FontWeight.bold)),
     );
+  }
+
+  String _localizedExposureLabel(AppLocalizations l10n, String rawNivel) {
+    switch (rawNivel.toLowerCase()) {
+      case 'alto':
+      case 'high':
+        return l10n.highRisk;
+      case 'bajo':
+      case 'low':
+        return l10n.lowRisk;
+      case 'moderado':
+      case 'medio':
+      case 'medium':
+      default:
+        return l10n.exposureModerate;
+    }
   }
 }
 
@@ -617,8 +639,7 @@ class _InfoChip extends StatelessWidget {
             const SizedBox(height: 6),
             Text(label,
                 style: TextStyle(
-                    color: color.withValues(alpha: 0.7),
-                    fontSize: 10)),
+                    color: color.withValues(alpha: 0.7), fontSize: 10)),
             const SizedBox(height: 2),
             Text(value,
                 style: const TextStyle(

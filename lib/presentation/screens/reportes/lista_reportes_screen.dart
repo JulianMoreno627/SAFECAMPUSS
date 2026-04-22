@@ -16,8 +16,7 @@ class ListaReportesScreen extends ConsumerStatefulWidget {
       _ListaReportesScreenState();
 }
 
-class _ListaReportesScreenState
-    extends ConsumerState<ListaReportesScreen> {
+class _ListaReportesScreenState extends ConsumerState<ListaReportesScreen> {
   final _searchController = TextEditingController();
   String _searchQuery = '';
   String _selectedKey = '';
@@ -29,27 +28,27 @@ class _ListaReportesScreenState
   }
 
   List<(String, String)> _tipos(AppLocalizations l10n) => [
-    ('', l10n.filterAll),
-    ('robo', l10n.filterTheft),
-    ('acoso', l10n.filterHarassment),
-    ('pelea', l10n.filterFight),
-    ('vandalismo', l10n.filterVandalism),
-    ('accidente', l10n.filterAccident),
-    ('persona sospechosa', l10n.filterSuspicious),
-    ('iluminación', l10n.filterLighting),
-    ('otro', l10n.filterOther),
-  ];
+        ('', l10n.filterAll),
+        ('robo', l10n.filterTheft),
+        ('acoso', l10n.filterHarassment),
+        ('pelea', l10n.filterFight),
+        ('vandalismo', l10n.filterVandalism),
+        ('accidente', l10n.filterAccident),
+        ('persona_sospechosa', l10n.filterSuspicious),
+        ('iluminacion', l10n.filterLighting),
+        ('otro', l10n.filterOther),
+      ];
 
-  List<Reporte> _filtered(List<Reporte> all) {
+  List<Reporte> _filtered(List<Reporte> all, AppLocalizations l10n) {
     return all.where((r) {
-      final tipo = r.tipo.label.toLowerCase();
+      final tipoKey = r.tipo.key;
+      final tipoLabel = r.tipo.localizedLabel(l10n).toLowerCase();
       final desc = r.descripcion.toLowerCase();
       final query = _searchQuery.toLowerCase();
 
-      final matchesTipo = _selectedKey.isEmpty || tipo == _selectedKey;
-      final matchesSearch = query.isEmpty ||
-          tipo.contains(query) ||
-          desc.contains(query);
+      final matchesTipo = _selectedKey.isEmpty || tipoKey == _selectedKey;
+      final matchesSearch =
+          query.isEmpty || tipoLabel.contains(query) || desc.contains(query);
 
       return matchesTipo && matchesSearch;
     }).toList();
@@ -67,9 +66,9 @@ class _ListaReportesScreenState
   @override
   Widget build(BuildContext context) {
     final reportsState = ref.watch(reportsProvider);
-    final filtered = _filtered(reportsState.reportesCercanos);
-    final cs = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    final filtered = _filtered(reportsState.reportesCercanos, l10n);
+    final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
       body: SafeArea(
@@ -96,7 +95,8 @@ class _ListaReportesScreenState
     );
   }
 
-  Widget _buildHeader(ReportsState state, ColorScheme cs, AppLocalizations l10n) {
+  Widget _buildHeader(
+      ReportsState state, ColorScheme cs, AppLocalizations l10n) {
     final color = _riskColor(state.nivelRiesgoLabel);
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
@@ -115,15 +115,13 @@ class _ListaReportesScreenState
               Text(
                 '${state.reportesCercanos.length} ${l10n.nearbyReportsLabel}',
                 style: TextStyle(
-                    color: cs.onSurface.withValues(alpha: 0.54),
-                    fontSize: 13),
+                    color: cs.onSurface.withValues(alpha: 0.54), fontSize: 13),
               ),
             ],
           ),
           const Spacer(),
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(20),
@@ -136,9 +134,7 @@ class _ListaReportesScreenState
                 Text(
                   state.nivelRiesgoLabel,
                   style: TextStyle(
-                      color: color,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold),
+                      color: color, fontSize: 12, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -157,8 +153,7 @@ class _ListaReportesScreenState
         onChanged: (v) => setState(() => _searchQuery = v),
         decoration: InputDecoration(
           hintText: l10n.searchHint,
-          hintStyle:
-              TextStyle(color: cs.onSurface.withValues(alpha: 0.3)),
+          hintStyle: TextStyle(color: cs.onSurface.withValues(alpha: 0.3)),
           prefixIcon: Icon(Icons.search_rounded,
               color: cs.onSurface.withValues(alpha: 0.38)),
           suffixIcon: _searchQuery.isNotEmpty
@@ -180,8 +175,7 @@ class _ListaReportesScreenState
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide:
-                const BorderSide(color: AppColors.accent, width: 1),
+            borderSide: const BorderSide(color: AppColors.accent, width: 1),
           ),
         ),
       ),
@@ -193,8 +187,7 @@ class _ListaReportesScreenState
     return SizedBox(
       height: 44,
       child: ListView.separated(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
         scrollDirection: Axis.horizontal,
         itemCount: tipos.length,
         separatorBuilder: (_, __) => const SizedBox(width: 8),
@@ -205,12 +198,10 @@ class _ListaReportesScreenState
             onTap: () => setState(() => _selectedKey = key),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 180),
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 14, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
               decoration: BoxDecoration(
-                color: selected
-                    ? AppColors.accent
-                    : Theme.of(context).cardColor,
+                color:
+                    selected ? AppColors.accent : Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: selected ? AppColors.accent : cs.outlineVariant,
@@ -223,9 +214,7 @@ class _ListaReportesScreenState
                       ? Colors.black
                       : cs.onSurface.withValues(alpha: 0.54),
                   fontSize: 12,
-                  fontWeight: selected
-                      ? FontWeight.bold
-                      : FontWeight.normal,
+                  fontWeight: selected ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
             ),
@@ -253,8 +242,7 @@ class _ListaReportesScreenState
       baseColor: Theme.of(context).cardColor,
       highlightColor: cs.surface,
       child: ListView.builder(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         itemCount: 6,
         itemBuilder: (_, __) => Container(
           margin: const EdgeInsets.only(bottom: 12),
@@ -269,8 +257,7 @@ class _ListaReportesScreenState
   }
 
   Widget _buildEmpty(ColorScheme cs, AppLocalizations l10n) {
-    final noResults =
-        _searchQuery.isNotEmpty || _selectedKey.isNotEmpty;
+    final noResults = _searchQuery.isNotEmpty || _selectedKey.isNotEmpty;
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       children: [
@@ -297,12 +284,9 @@ class _ListaReportesScreenState
               ),
               const SizedBox(height: 8),
               Text(
-                noResults
-                    ? l10n.tryOtherFilter
-                    : l10n.noNearbyIncidents,
+                noResults ? l10n.tryOtherFilter : l10n.noNearbyIncidents,
                 style: TextStyle(
-                    color: cs.onSurface.withValues(alpha: 0.54),
-                    fontSize: 14),
+                    color: cs.onSurface.withValues(alpha: 0.54), fontSize: 14),
               ),
             ],
           ),
@@ -334,10 +318,14 @@ class _ReportCard extends StatelessWidget {
 
   Color get _color {
     switch (reporte.nivelUrgencia) {
-      case NivelUrgencia.critico: return AppColors.riskCritical;
-      case NivelUrgencia.alto:    return AppColors.riskHigh;
-      case NivelUrgencia.medio:   return AppColors.riskMedium;
-      case NivelUrgencia.bajo:    return AppColors.riskLow;
+      case NivelUrgencia.critico:
+        return AppColors.riskCritical;
+      case NivelUrgencia.alto:
+        return AppColors.riskHigh;
+      case NivelUrgencia.medio:
+        return AppColors.riskMedium;
+      case NivelUrgencia.bajo:
+        return AppColors.riskLow;
     }
   }
 
@@ -377,7 +365,7 @@ class _ReportCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          reporte.tipo.label,
+                          reporte.tipo.localizedLabel(l10n),
                           style: TextStyle(
                             color: cs.onSurface,
                             fontWeight: FontWeight.w600,
@@ -386,7 +374,7 @@ class _ReportCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        reporte.tiempoTranscurrido,
+                        reporte.localizedTiempoTranscurrido(l10n),
                         style: TextStyle(
                             color: cs.onSurface.withValues(alpha: 0.38),
                             fontSize: 11),
@@ -414,7 +402,9 @@ class _ReportCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          reporte.nivelUrgencia.label.toUpperCase(),
+                          reporte.nivelUrgencia
+                              .localizedLabel(l10n)
+                              .toUpperCase(),
                           style: TextStyle(
                               color: color,
                               fontSize: 10,
@@ -441,8 +431,7 @@ class _ReportCard extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Icon(Icons.chevron_right_rounded,
-                color: cs.onSurface.withValues(alpha: 0.24),
-                size: 20),
+                color: cs.onSurface.withValues(alpha: 0.24), size: 20),
           ],
         ),
       ),

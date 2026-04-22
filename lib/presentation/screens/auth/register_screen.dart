@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/services/api_service.dart';
+import '../../../l10n/app_localizations.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -31,18 +32,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   // Form keys por paso
   final _formKey1 = GlobalKey<FormState>();
   final _formKey2 = GlobalKey<FormState>();
-
-  final List<String> _stepTitles = [
-    'Datos Personales',
-    'Cuenta Segura',
-    'Confirmación',
-  ];
-
-  final List<String> _stepSubtitles = [
-    'Cuéntanos quién eres',
-    'Crea tus credenciales',
-    'Casi listo 🎉',
-  ];
 
   final List<IconData> _stepIcons = [
     Icons.person_rounded,
@@ -94,10 +83,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _register() async {
+    final l10n = AppLocalizations.of(context)!;
     if (!_acceptTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Debes aceptar los términos y condiciones'),
+          content: Text(l10n.mustAcceptTerms),
           backgroundColor: AppColors.riskHigh,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -121,8 +111,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('¡Registro exitoso! Ya puedes iniciar sesión.'),
+          SnackBar(
+            content: Text(l10n.registerSuccessMsg),
             backgroundColor: AppColors.riskLow,
           ),
         );
@@ -144,6 +134,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Stack(
@@ -171,15 +162,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _pageController,
                     physics: const NeverScrollableScrollPhysics(),
                     children: [
-                      _buildStep1(),
-                      _buildStep2(),
-                      _buildStep3(),
+                      _buildStep1(l10n),
+                      _buildStep2(l10n),
+                      _buildStep3(l10n),
                     ],
                   ),
                 ),
 
                 // Botones de navegación
-                _buildNavButtons(),
+                _buildNavButtons(l10n),
               ],
             ),
           ),
@@ -234,6 +225,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
   // ─── Header ───────────────────────────────────────────────────────────────
 
   Widget _buildHeader() {
+    final l10n = AppLocalizations.of(context)!;
+    final stepTitles = [
+      l10n.step1Title,
+      l10n.step2Title,
+      l10n.step3Title,
+    ];
+    final stepSubtitles = [
+      l10n.step1Subtitle,
+      l10n.step2Subtitle,
+      l10n.step3Subtitle,
+    ];
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
       child: Row(
@@ -266,7 +268,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
                 child: Text(
-                  _stepTitles[_currentStep],
+                  stepTitles[_currentStep],
                   key: ValueKey(_currentStep),
                   style: const TextStyle(
                     color: Colors.white,
@@ -278,7 +280,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
                 child: Text(
-                  _stepSubtitles[_currentStep],
+                  stepSubtitles[_currentStep],
                   key: ValueKey('sub_$_currentStep'),
                   style: const TextStyle(
                     color: AppColors.textSecondary,
@@ -403,7 +405,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   // ─── PASO 1 — Datos Personales ────────────────────────────────────────────
 
-  Widget _buildStep1() {
+  Widget _buildStep1(AppLocalizations l10n) {
     return FadeInRight(
       duration: const Duration(milliseconds: 400),
       child: SingleChildScrollView(
@@ -459,30 +461,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
               // Nombre
               _buildField(
                 controller: _nombreController,
-                hint: 'Nombre',
+                hint: l10n.firstName,
                 icon: Icons.badge_rounded,
-                validator: (v) => v!.isEmpty ? 'Ingresa tu nombre' : null,
+                validator: (v) => v!.isEmpty ? l10n.enterFirstName : null,
               ),
               const SizedBox(height: 14),
 
               // Apellido
               _buildField(
                 controller: _apellidoController,
-                hint: 'Apellido',
+                hint: l10n.lastName,
                 icon: Icons.badge_outlined,
-                validator: (v) => v!.isEmpty ? 'Ingresa tu apellido' : null,
+                validator: (v) => v!.isEmpty ? l10n.enterLastName : null,
               ),
               const SizedBox(height: 14),
 
               // Teléfono
               _buildField(
                 controller: _telefonoController,
-                hint: 'Teléfono',
+                hint: l10n.phone,
                 icon: Icons.phone_rounded,
                 keyboardType: TextInputType.phone,
                 validator: (v) {
-                  if (v!.isEmpty) return 'Ingresa tu teléfono';
-                  if (v.length < 10) return 'Teléfono inválido';
+                  if (v!.isEmpty) return l10n.enterPhone;
+                  if (v.length < 10) return l10n.invalidPhone;
                   return null;
                 },
               ),
@@ -495,7 +497,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   // ─── PASO 2 — Cuenta ──────────────────────────────────────────────────────
 
-  Widget _buildStep2() {
+  Widget _buildStep2(AppLocalizations l10n) {
     return FadeInRight(
       duration: const Duration(milliseconds: 400),
       child: SingleChildScrollView(
@@ -537,12 +539,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
               // Email
               _buildField(
                 controller: _emailController,
-                hint: 'Correo electrónico',
+                hint: l10n.emailLabel,
                 icon: Icons.email_outlined,
                 keyboardType: TextInputType.emailAddress,
                 validator: (v) {
-                  if (v!.isEmpty) return 'Ingresa tu correo';
-                  if (!v.contains('@')) return 'Correo inválido';
+                  if (v!.isEmpty) return l10n.enterEmail;
+                  if (!v.contains('@')) return l10n.invalidEmail;
                   return null;
                 },
               ),
@@ -551,13 +553,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
               // Password
               _buildPasswordFieldForm(
                 controller: _passwordController,
-                hint: 'Contraseña',
+                hint: l10n.passwordLabel,
                 obscure: _obscurePassword,
                 onToggle: () =>
                     setState(() => _obscurePassword = !_obscurePassword),
                 validator: (v) {
-                  if (v!.isEmpty) return 'Ingresa tu contraseña';
-                  if (v.length < 6) return 'Mínimo 6 caracteres';
+                  if (v!.isEmpty) return l10n.enterPassword;
+                  if (v.length < 6) return l10n.minSixChars;
                   return null;
                 },
               ),
@@ -566,14 +568,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
               // Confirmar password
               _buildPasswordFieldForm(
                 controller: _confirmPasswordController,
-                hint: 'Confirmar contraseña',
+                hint: l10n.confirmPasswordLabel,
                 obscure: _obscureConfirm,
                 onToggle: () =>
                     setState(() => _obscureConfirm = !_obscureConfirm),
                 validator: (v) {
-                  if (v!.isEmpty) return 'Confirma tu contraseña';
+                  if (v!.isEmpty) return l10n.confirmYourPassword;
                   if (v != _passwordController.text) {
-                    return 'Las contraseñas no coinciden';
+                    return l10n.passwordsDontMatch;
                   }
                   return null;
                 },
@@ -582,7 +584,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: 16),
 
               // Indicador de seguridad de contraseña
-              _buildPasswordStrength(),
+              _buildPasswordStrength(l10n),
             ],
           ),
         ),
@@ -592,7 +594,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   // ─── PASO 3 — Confirmación ────────────────────────────────────────────────
 
-  Widget _buildStep3() {
+  Widget _buildStep3(AppLocalizations l10n) {
     return FadeInRight(
       duration: const Duration(milliseconds: 400),
       child: SingleChildScrollView(
@@ -639,8 +641,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Resumen de tu cuenta',
+                  Text(
+                    l10n.accountSummary,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -650,19 +652,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 16),
                   _buildSummaryRow(
                     Icons.person_rounded,
-                    'Nombre',
+                    l10n.firstName,
                     '${_nombreController.text} ${_apellidoController.text}',
                   ),
                   const Divider(color: Colors.white12, height: 20),
                   _buildSummaryRow(
                     Icons.phone_rounded,
-                    'Teléfono',
+                    l10n.phone,
                     _telefonoController.text,
                   ),
                   const Divider(color: Colors.white12, height: 20),
                   _buildSummaryRow(
                     Icons.email_outlined,
-                    'Correo',
+                    l10n.emailLabel,
                     _emailController.text,
                   ),
                 ],
@@ -714,30 +716,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: RichText(
-                      text: const TextSpan(
-                        style: TextStyle(
+                      text: TextSpan(
+                        style: const TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 13,
                           height: 1.4,
                         ),
                         children: [
-                          TextSpan(text: 'Acepto los '),
+                          TextSpan(text: l10n.acceptTermsPrefix),
                           TextSpan(
-                            text: 'Términos y Condiciones',
-                            style: TextStyle(
+                            text: l10n.configTerms,
+                            style: const TextStyle(
                               color: AppColors.accent,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          TextSpan(text: ' y la '),
+                          TextSpan(text: l10n.acceptTermsMiddle),
                           TextSpan(
-                            text: 'Política de Privacidad',
-                            style: TextStyle(
+                            text: l10n.configPrivacyPolicy,
+                            style: const TextStyle(
                               color: AppColors.accent,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          TextSpan(text: ' de SafeCampus AI'),
+                          TextSpan(text: l10n.acceptTermsSuffix),
                         ],
                       ),
                     ),
@@ -824,7 +826,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Widget _buildPasswordStrength() {
+  Widget _buildPasswordStrength(AppLocalizations l10n) {
     final password = _passwordController.text;
     int strength = 0;
     if (password.length >= 6) strength++;
@@ -839,7 +841,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       AppColors.accent,
     ];
 
-    final labels = ['Débil', 'Regular', 'Buena', 'Fuerte'];
+    final labels = [l10n.passWeak, l10n.passFair, l10n.passGood, l10n.passStrong];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -861,7 +863,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         if (password.isNotEmpty) ...[
           const SizedBox(height: 6),
           Text(
-            'Contraseña ${labels[strength > 0 ? strength - 1 : 0]}',
+            '${l10n.passwordIs} ${labels[strength > 0 ? strength - 1 : 0]}',
             style: TextStyle(
               color: strength > 0 ? colors[strength - 1] : Colors.white38,
               fontSize: 12,
@@ -903,7 +905,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   // ─── Botones de navegación ────────────────────────────────────────────────
 
-  Widget _buildNavButtons() {
+  Widget _buildNavButtons(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
       child: Column(
@@ -932,7 +934,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     )
                   : Text(
-                      _currentStep < 2 ? 'Continuar' : 'Crear mi cuenta',
+                      _currentStep < 2
+                          ? l10n.continueButton
+                          : l10n.createAccountButton,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -948,16 +952,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
             GestureDetector(
               onTap: () => context.go('/login'),
               child: RichText(
-                text: const TextSpan(
-                  text: '¿Ya tienes cuenta? ',
-                  style: TextStyle(
+                text: TextSpan(
+                  text: '${l10n.alreadyHaveAccountQ} ',
+                  style: const TextStyle(
                     color: AppColors.textSecondary,
                     fontSize: 14,
                   ),
                   children: [
                     TextSpan(
-                      text: 'Inicia sesión',
-                      style: TextStyle(
+                      text: l10n.loginLink,
+                      style: const TextStyle(
                         color: AppColors.accent,
                         fontWeight: FontWeight.bold,
                       ),

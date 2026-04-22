@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/models/reporte.dart';
+import '../../l10n/app_localizations.dart';
 
 class ReporteDetalleSheet extends StatelessWidget {
   final Reporte reporte;
@@ -30,6 +31,7 @@ class ReporteDetalleSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = _riskColor;
     final cs = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context)!;
 
     return DraggableScrollableSheet(
       initialChildSize: 0.52,
@@ -83,7 +85,7 @@ class ReporteDetalleSheet extends StatelessWidget {
                         Icon(Icons.circle, size: 8, color: color),
                         const SizedBox(width: 6),
                         Text(
-                          reporte.nivelUrgencia.label.toUpperCase(),
+                          reporte.nivelUrgencia.localizedLabel(l10n).toUpperCase(),
                           style: TextStyle(
                             color: color,
                             fontSize: 11,
@@ -96,7 +98,7 @@ class ReporteDetalleSheet extends StatelessWidget {
                   ),
                   const Spacer(),
                   Text(
-                    reporte.tiempoTranscurrido,
+                    reporte.localizedTiempoTranscurrido(l10n),
                     style: TextStyle(
                         color: cs.onSurface.withValues(alpha: 0.38),
                         fontSize: 12),
@@ -125,7 +127,7 @@ class ReporteDetalleSheet extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          reporte.tipo.label,
+                          reporte.tipo.localizedLabel(l10n),
                           style: TextStyle(
                             color: cs.onSurface,
                             fontSize: 20,
@@ -134,7 +136,7 @@ class ReporteDetalleSheet extends StatelessWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          'Incidente reportado',
+                          l10n.reportedIncident,
                           style: TextStyle(color: color, fontSize: 13),
                         ),
                       ],
@@ -147,11 +149,11 @@ class ReporteDetalleSheet extends StatelessWidget {
 
               // Descripción
               _Section(
-                title: 'DESCRIPCIÓN',
+                title: l10n.descriptionTitleUpper,
                 child: Text(
                   reporte.descripcion.isNotEmpty
                       ? reporte.descripcion
-                      : 'Sin descripción disponible.',
+                      : l10n.noDescriptionAvailable,
                   style: TextStyle(
                     color: cs.onSurface.withValues(alpha: 0.7),
                     fontSize: 14,
@@ -164,19 +166,19 @@ class ReporteDetalleSheet extends StatelessWidget {
 
               // Detalles
               _Section(
-                title: 'DETALLES',
+                title: l10n.detailsTitleUpper,
                 child: Column(
                   children: [
                     _DetailRow(
                       icon: Icons.group_rounded,
-                      label: 'Testigos',
+                      label: l10n.witnessesLabel,
                       value: '${reporte.testigos}',
                       color: color,
                     ),
                     const SizedBox(height: 10),
                     _DetailRow(
                       icon: Icons.location_on_rounded,
-                      label: 'Coordenadas',
+                      label: l10n.coordinatesLabel,
                       value:
                           '${reporte.lat.toStringAsFixed(4)}, ${reporte.lng.toStringAsFixed(4)}',
                       color: color,
@@ -193,12 +195,12 @@ class ReporteDetalleSheet extends StatelessWidget {
                   Expanded(
                     child: _ActionButton(
                       icon: Icons.share_rounded,
-                      label: 'Compartir',
+                      label: l10n.shareLabel,
                       color: AppColors.accent,
                       onTap: () {
                         Share.share(
-                          'SafeCampus AI — Reporte: ${reporte.tipo.label} '
-                          '(${reporte.nivelUrgencia.label})\n${reporte.descripcion}',
+                          'SafeCampus AI - ${l10n.createReport}: ${reporte.tipo.localizedLabel(l10n)} '
+                          '(${reporte.nivelUrgencia.localizedLabel(l10n)})\n${reporte.descripcion}',
                         );
                       },
                     ),
@@ -207,7 +209,7 @@ class ReporteDetalleSheet extends StatelessWidget {
                   Expanded(
                     child: _ActionButton(
                       icon: Icons.map_rounded,
-                      label: 'Ver en mapa',
+                      label: l10n.viewOnMapLabel,
                       color: color,
                       onTap: () => Navigator.pop(context),
                     ),

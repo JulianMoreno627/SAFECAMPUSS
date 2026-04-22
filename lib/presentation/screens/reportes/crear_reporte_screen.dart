@@ -61,44 +61,53 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
   }
 
   List<Map<String, dynamic>> _getTiposIncidente(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return [
       {
-        'tipo': 'Robo',
+        'code': 'Robo',
+        'label': l10n.incidentTheft,
         'icon': Icons.phone_android_rounded,
         'color': AppColors.riskHigh
       },
       {
-        'tipo': 'Acoso',
+        'code': 'Acoso',
+        'label': l10n.incidentHarassment,
         'icon': Icons.warning_rounded,
         'color': AppColors.riskHigh
       },
       {
-        'tipo': 'Persona sospechosa',
+        'code': 'Persona sospechosa',
+        'label': l10n.incidentSuspiciousPerson,
         'icon': Icons.person_off_rounded,
         'color': AppColors.riskMedium
       },
       {
-        'tipo': 'Iluminación',
+        'code': 'Iluminación',
+        'label': l10n.incidentLighting,
         'icon': Icons.light_mode_rounded,
         'color': AppColors.riskLow
       },
       {
-        'tipo': 'Pelea',
+        'code': 'Pelea',
+        'label': l10n.incidentFight,
         'icon': Icons.sports_mma_rounded,
         'color': AppColors.riskCritical
       },
       {
-        'tipo': 'Vandalismo',
+        'code': 'Vandalismo',
+        'label': l10n.incidentVandalism,
         'icon': Icons.broken_image_rounded,
         'color': AppColors.riskMedium
       },
       {
-        'tipo': 'Accidente',
+        'code': 'Accidente',
+        'label': l10n.incidentAccident,
         'icon': Icons.car_crash_rounded,
         'color': AppColors.riskHigh
       },
       {
-        'tipo': 'Otro',
+        'code': 'Otro',
+        'label': l10n.incidentOther,
         'icon': Icons.more_horiz_rounded,
         'color': AppColors.textSecondary
       },
@@ -160,10 +169,10 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
     setState(() {
       _aiSuggesting = false;
       if (result != null) {
-        _aiSuggestedTipo = result['tipo'];
+        _aiSuggestedTipo = _normalizeIncidentType(result['tipo']?.toString());
         _aiSuggestedUrgencia = result['urgencia'];
         _aiRazon = result['razon'];
-        _tipoSeleccionado ??= result['tipo'];
+        _tipoSeleccionado ??= _aiSuggestedTipo;
         _nivelUrgencia = result['urgencia'] ?? _nivelUrgencia;
       }
     });
@@ -203,7 +212,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
       if (mounted) {
         setState(() {
           _ubicacionObtenida = false;
-          _ubicacionTexto = 'No se pudo obtener la ubicación';
+          _ubicacionTexto = AppLocalizations.of(context)!.errorLocation;
         });
       }
     }
@@ -278,9 +287,9 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
               ),
               const SizedBox(height: 8),
               if (_isAnalyzing)
-                const Row(
+                Row(
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       width: 12,
                       height: 12,
                       child: CircularProgressIndicator(
@@ -288,11 +297,11 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                         color: AppColors.accent,
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Text(
-                      'AI analizando...',
-                      style:
-                          TextStyle(color: AppColors.accent, fontSize: 12),
+                      l10n.aiAnalyzing,
+                      style: const TextStyle(
+                          color: AppColors.accent, fontSize: 12),
                     ),
                   ],
                 ),
@@ -377,8 +386,8 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
     }
     if (_lat == null || _lng == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Esperando ubicación GPS...'),
+        SnackBar(
+          content: Text(l10n.waitingGps),
           backgroundColor: AppColors.riskMedium,
         ),
       );
@@ -398,9 +407,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
         userId: userId,
       );
 
-      await ref
-          .read(reportsProvider.notifier)
-          .fetchNearbyReports(_lat!, _lng!);
+      await ref.read(reportsProvider.notifier).fetchNearbyReports(_lat!, _lng!);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -470,38 +477,41 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildSeccion(
-                            '📸 Foto del Incidente',
-                            'Opcional pero ayuda a la IA a clasificar mejor',
+                            AppLocalizations.of(context)!.photoSectionTitle,
+                            AppLocalizations.of(context)!.photoSectionSub,
                             _buildFotoSection(),
                           ),
                           const SizedBox(height: 20),
                           _buildSeccion(
-                            '🚨 Tipo de Incidente',
-                            'Selecciona la categoría que mejor describe',
+                            AppLocalizations.of(context)!
+                                .incidentTypeSectionTitle,
+                            AppLocalizations.of(context)!
+                                .incidentTypeSectionSub,
                             _buildTiposGrid(),
                           ),
                           const SizedBox(height: 20),
                           _buildSeccion(
-                            '📝 Descripción',
-                            'Cuéntanos qué pasó con el mayor detalle posible',
+                            AppLocalizations.of(context)!
+                                .descriptionSectionTitle,
+                            AppLocalizations.of(context)!.descriptionSectionSub,
                             _buildDescripcionField(),
                           ),
                           const SizedBox(height: 20),
                           _buildSeccion(
-                            '⚡ Nivel de Urgencia',
-                            'La IA también calculará su propio nivel',
+                            AppLocalizations.of(context)!.urgencySectionTitle,
+                            AppLocalizations.of(context)!.urgencySectionSub,
                             _buildUrgenciaSelector(),
                           ),
                           const SizedBox(height: 20),
                           _buildSeccion(
-                            '👥 Testigos',
-                            'Número aproximado de personas que vieron el incidente',
+                            AppLocalizations.of(context)!.witnessesSectionTitle,
+                            AppLocalizations.of(context)!.witnessesSectionSub,
                             _buildTestigosField(),
                           ),
                           const SizedBox(height: 20),
                           _buildSeccion(
-                            '📍 Ubicación',
-                            'Se obtiene automáticamente',
+                            AppLocalizations.of(context)!.locationSectionTitle,
+                            AppLocalizations.of(context)!.locationSectionSub,
                             _buildUbicacionCard(),
                           ),
                           const SizedBox(height: 20),
@@ -526,6 +536,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
   }
 
   Widget _buildHeader() {
+    final l10n = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     return FadeInDown(
       child: Padding(
@@ -554,7 +565,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Crear Reporte',
+                  l10n.createReport,
                   style: TextStyle(
                     color: cs.onSurface,
                     fontSize: 20,
@@ -562,7 +573,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                   ),
                 ),
                 Text(
-                  'Ayuda a mantener el campus seguro',
+                  l10n.helpKeepCampusSafe,
                   style: TextStyle(
                     color: cs.onSurfaceVariant,
                     fontSize: 12,
@@ -572,8 +583,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
             ),
             const Spacer(),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: AppColors.riskHigh.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(20),
@@ -581,14 +591,14 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                   color: AppColors.riskHigh.withValues(alpha: 0.3),
                 ),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.psychology_rounded,
+                  const Icon(Icons.psychology_rounded,
                       color: AppColors.accent, size: 14),
-                  SizedBox(width: 4),
+                  const SizedBox(width: 4),
                   Text(
-                    'IA Activa',
-                    style: TextStyle(
+                    l10n.aiActive,
+                    style: const TextStyle(
                       color: AppColors.accent,
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
@@ -633,6 +643,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
   }
 
   Widget _buildFotoSection() {
+    final l10n = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: _mostrarOpcionesImagen,
@@ -666,8 +677,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                     top: 10,
                     right: 10,
                     child: GestureDetector(
-                      onTap: () =>
-                          setState(() => _imagenSeleccionada = null),
+                      onTap: () => setState(() => _imagenSeleccionada = null),
                       child: Container(
                         width: 32,
                         height: 32,
@@ -693,15 +703,15 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                         color: AppColors.accent.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.psychology_rounded,
+                          const Icon(Icons.psychology_rounded,
                               color: Colors.white, size: 12),
-                          SizedBox(width: 4),
+                          const SizedBox(width: 4),
                           Text(
-                            'IA analizará esta foto',
-                            style: TextStyle(
+                            l10n.aiWillAnalyzePhoto,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
@@ -730,7 +740,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'Toca para agregar foto',
+                    l10n.tapToAddPhoto,
                     style: TextStyle(
                       color: cs.onSurface,
                       fontSize: 14,
@@ -739,7 +749,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Cámara o galería',
+                    l10n.cameraOrGallery,
                     style: TextStyle(
                       color: cs.onSurfaceVariant,
                       fontSize: 12,
@@ -765,10 +775,10 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
       itemCount: _tiposIncidente.length,
       itemBuilder: (context, index) {
         final tipo = _tiposIncidente[index];
-        final isSelected = _tipoSeleccionado == tipo['tipo'];
-        final isAiSuggested = _aiSuggestedTipo == tipo['tipo'];
+        final isSelected = _tipoSeleccionado == tipo['code'];
+        final isAiSuggested = _aiSuggestedTipo == tipo['code'];
         return GestureDetector(
-          onTap: () => setState(() => _tipoSeleccionado = tipo['tipo']),
+          onTap: () => setState(() => _tipoSeleccionado = tipo['code']),
           child: Stack(
             fit: StackFit.expand,
             children: [
@@ -790,8 +800,8 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                   boxShadow: isSelected
                       ? [
                           BoxShadow(
-                            color: (tipo['color'] as Color)
-                                .withValues(alpha: 0.3),
+                            color:
+                                (tipo['color'] as Color).withValues(alpha: 0.3),
                             blurRadius: 8,
                             spreadRadius: 1,
                           )
@@ -810,15 +820,13 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      tipo['tipo'],
+                      tipo['label'],
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color:
-                            isSelected ? cs.onSurface : cs.onSurfaceVariant,
+                        color: isSelected ? cs.onSurface : cs.onSurfaceVariant,
                         fontSize: 10,
-                        fontWeight: isSelected
-                            ? FontWeight.bold
-                            : FontWeight.normal,
+                        fontWeight:
+                            isSelected ? FontWeight.bold : FontWeight.normal,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -831,14 +839,14 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                   top: 4,
                   right: 4,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 4, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                     decoration: BoxDecoration(
                       color: AppColors.accent,
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: const Text('IA',
-                        style: TextStyle(
+                    child: Text(AppLocalizations.of(context)!.aiShortLabel,
+                        style: const TextStyle(
                             color: Colors.black,
                             fontSize: 8,
                             fontWeight: FontWeight.bold)),
@@ -852,6 +860,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
   }
 
   Widget _buildDescripcionField() {
+    final l10n = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -863,8 +872,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
           style: TextStyle(color: cs.onSurface, fontSize: 14),
           onChanged: _onDescripcionChanged,
           decoration: InputDecoration(
-            hintText:
-                'Ej: Vi a una persona sospechosa merodeando el parqueadero norte alrededor de las 10 PM...',
+            hintText: l10n.incidentExampleHint,
             hintStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
             filled: true,
             fillColor: Theme.of(context).cardColor,
@@ -874,15 +882,14 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
-              borderSide:
-                  const BorderSide(color: AppColors.accent, width: 1.5),
+              borderSide: const BorderSide(color: AppColors.accent, width: 1.5),
             ),
             counterStyle: TextStyle(color: cs.onSurfaceVariant),
             errorStyle: const TextStyle(color: AppColors.riskHigh),
           ),
           validator: (v) {
-            if (v == null || v.isEmpty) return 'Describe el incidente';
-            if (v.length < 20) return 'Mínimo 20 caracteres';
+            if (v == null || v.isEmpty) return l10n.describeIncident;
+            if (v.length < 20) return l10n.minTwentyChars;
             return null;
           },
         ),
@@ -901,7 +908,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                             strokeWidth: 1.5, color: AppColors.accent),
                       ),
                       const SizedBox(width: 8),
-                      Text('IA clasificando...',
+                      Text(l10n.aiClassifying,
                           style: TextStyle(
                               color: AppColors.accent.withValues(alpha: 0.8),
                               fontSize: 12)),
@@ -919,7 +926,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              'IA: $_aiRazon',
+                              '${l10n.aiReasonPrefix}: $_aiRazon',
                               style: const TextStyle(
                                   color: AppColors.accent, fontSize: 12),
                             ),
@@ -986,8 +993,9 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                               color: AppColors.accent,
                               borderRadius: BorderRadius.circular(6),
                             ),
-                            child: const Text('IA',
-                                style: TextStyle(
+                            child: Text(
+                                AppLocalizations.of(context)!.aiShortLabel,
+                                style: const TextStyle(
                                     color: Colors.black,
                                     fontSize: 8,
                                     fontWeight: FontWeight.bold)),
@@ -1084,6 +1092,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
   }
 
   Widget _buildUbicacionCard() {
+    final l10n = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(16),
@@ -1123,7 +1132,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _ubicacionObtenida ? 'Ubicación detectada' : 'Buscando...',
+                  _ubicacionObtenida ? l10n.locationDetected : l10n.searching,
                   style: TextStyle(
                     color: _ubicacionObtenida
                         ? AppColors.riskLow
@@ -1164,6 +1173,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
   }
 
   Widget _buildAvisoIA() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -1185,7 +1195,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'La IA de SafeCampus analizará tu reporte, clasificará el incidente y notificará automáticamente a los estudiantes en un radio de 500m.',
+              l10n.aiAnalysisNotice,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 12,
@@ -1199,6 +1209,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
   }
 
   Widget _buildBotonEnviar() {
+    final l10n = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
@@ -1231,7 +1242,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                 )
               : const Icon(Icons.send_rounded, size: 20),
           label: Text(
-            _isLoading ? 'Enviando...' : 'Enviar Reporte',
+            _isLoading ? l10n.sending : l10n.sendReport,
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -1240,5 +1251,46 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
         ),
       ),
     );
+  }
+
+  String? _normalizeIncidentType(String? raw) {
+    if (raw == null) return null;
+    final normalized = raw
+        .toLowerCase()
+        .replaceAll('á', 'a')
+        .replaceAll('é', 'e')
+        .replaceAll('í', 'i')
+        .replaceAll('ó', 'o')
+        .replaceAll('ú', 'u')
+        .trim();
+
+    switch (normalized) {
+      case 'robo':
+      case 'theft':
+        return 'Robo';
+      case 'acoso':
+      case 'harassment':
+        return 'Acoso';
+      case 'persona sospechosa':
+      case 'suspicious person':
+        return 'Persona sospechosa';
+      case 'iluminacion':
+      case 'lighting':
+        return 'Iluminación';
+      case 'pelea':
+      case 'fight':
+        return 'Pelea';
+      case 'vandalismo':
+      case 'vandalism':
+        return 'Vandalismo';
+      case 'accidente':
+      case 'accident':
+        return 'Accidente';
+      case 'otro':
+      case 'other':
+        return 'Otro';
+      default:
+        return raw;
+    }
   }
 }

@@ -326,5 +326,89 @@
   "relationshipFriend": "Friend",
   "relationshipPartner": "Partner",
   "relationshipClassmate": "Classmate",
-  "relationshipOther": "Other"
+  "relationshipOther": "Other",
+  "changeProfilePhoto": "Change profile photo",
+  "deletePhoto": "Delete photo",
+  "retryLabel": "Retry",
+  "loadingLabel": "Loading...",
+  "errorLoadingReports": "Error loading reports",
+  "reportedIncident": "Reported incident",
+  "descriptionTitleUpper": "DESCRIPTION",
+  "detailsTitleUpper": "DETAILS",
+  "noDescriptionAvailable": "No description available.",
+  "coordinatesLabel": "Coordinates",
+  "shareLabel": "Share",
+  "viewOnMapLabel": "View on map",
+  "loginError": "Login failed",
+  "googleLoginFailed": "Could not sign in with Google",
+  "googleErrorPrefix": "Google error",
+  "biometricSetupRequired": "First sign in with email to enable fingerprint login",
+  "biometricPrompt": "Confirm your identity to enter SafeCampus",
+  "biometricUnavailable": "Biometrics unavailable",
+  "acceptTermsPrefix": "I accept the ",
+  "acceptTermsMiddle": " and the ",
+  "acceptTermsSuffix": " of SafeCampus AI",
+  "incidentTheft": "Theft",
+  "incidentHarassment": "Harassment",
+  "incidentSuspiciousPerson": "Suspicious person",
+  "incidentLighting": "Lighting",
+  "incidentFight": "Fight",
+  "incidentVandalism": "Vandalism",
+  "incidentAccident": "Accident",
+  "incidentOther": "Other",
+  "aiShortLabel": "AI",
+  "aiAnalyzing": "AI analyzing...",
+  "aiClassifying": "AI classifying...",
+  "aiReasonPrefix": "AI",
+  "incidentExampleHint": "Example: I saw a suspicious person wandering near the north parking lot around 10 PM...",
+  "riskAnalysisTitle": "Risk Analysis",
+  "riskAnalysisSubtitle": "Personal AI assessment",
+  "personalLabel": "Personal",
+  "riskExposureQuestion": "How exposed are you?",
+  "riskExposureInfo": "SafeBot analyzes your incident history, frequent areas, and schedule to calculate your personal risk profile.",
+  "analyzeRiskTitle": "Analyze your risk profile",
+  "analyzeRiskDescription": "SafeBot will evaluate your exposure to risks based on incidents reported in your area and your usual schedule.",
+  "analyzePersonalRiskButton": "Analyze my personal risk",
+  "analyzingRiskProfile": "SafeBot is evaluating your profile...",
+  "analyzingRiskContext": "Analyzing nearby incidents, areas, and schedule",
+  "exposureLevelLabel": "Exposure Level",
+  "riskiestZoneLabel": "Riskiest area",
+  "vulnerableDayLabel": "Vulnerable day",
+  "recommendedActionsLabel": "Recommended actions",
+  "refreshAnalysis": "Refresh analysis",
+  "exposureModerate": "Moderate",
+  "exposurePrefix": "Exposure",
+  "notIdentified": "Not identified",
+  "notIdentifiedFemale": "Not identified",
+  "morningLabel": "Morning",
+  "afternoonLabel": "Afternoon",
+  "nightLabel": "Night",
+  "generalCampusArea": "General campus area",
+  "mainCampus": "Main campus",
+  "libraryLabel": "Library",
+  "cafeteriaLabel": "Cafeteria",
+  "incidentZonePrefix": "Area with {type} incidents",
+  "@incidentZonePrefix": {
+    "placeholders": {
+      "type": {}
+    }
+  },
+  "timeAgoMinutes": "{count} min ago",
+  "@timeAgoMinutes": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "timeAgoHours": "{count} h ago",
+  "@timeAgoHours": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "timeAgoDays": "{count} days ago",
+  "@timeAgoDays": {
+    "placeholders": {
+      "count": {}
+    }
+  }
 }

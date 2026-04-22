@@ -26,12 +26,12 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
   String _filtroKey = '';
 
   List<(String, String)> _filtros(AppLocalizations l10n) => [
-    ('', l10n.filterAll),
-    ('critico', l10n.criticalRisk),
-    ('alto', l10n.highRisk),
-    ('medio', l10n.mediumRisk),
-    ('bajo', l10n.lowRisk),
-  ];
+        ('', l10n.filterAll),
+        ('critico', l10n.criticalRisk),
+        ('alto', l10n.highRisk),
+        ('medio', l10n.mediumRisk),
+        ('bajo', l10n.lowRisk),
+      ];
 
   List<Reporte> _filtrados(List<Reporte> todos) {
     if (_filtroKey.isEmpty) return todos;
@@ -70,8 +70,8 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
                       const Icon(Icons.cloud_off_rounded,
                           color: Colors.white30, size: 48),
                       const SizedBox(height: 12),
-                      const Text('Error al cargar reportes',
-                          style: TextStyle(
+                      Text(l10n.errorLoadingReports,
+                          style: const TextStyle(
                               color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.bold)),
@@ -80,8 +80,8 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
                         onPressed: () => ref.invalidate(_misReportesProvider),
                         icon: const Icon(Icons.refresh_rounded,
                             color: AppColors.accent),
-                        label: const Text('Reintentar',
-                            style: TextStyle(color: AppColors.accent)),
+                        label: Text(l10n.retryLabel,
+                            style: const TextStyle(color: AppColors.accent)),
                       ),
                     ],
                   ),
@@ -97,8 +97,7 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
                 _buildFiltros(l10n),
                 Expanded(
                   child: RefreshIndicator(
-                    onRefresh: () async =>
-                        ref.invalidate(_misReportesProvider),
+                    onRefresh: () async => ref.invalidate(_misReportesProvider),
                     color: AppColors.accent,
                     backgroundColor: AppColors.cardColor,
                     child: misReportes.isEmpty
@@ -145,7 +144,7 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
               Text(
                 total != null
                     ? '$total ${l10n.statsReports.toLowerCase()}'
-                    : 'Cargando...',
+                    : l10n.loadingLabel,
                 style: const TextStyle(color: Colors.white54, fontSize: 12),
               ),
             ],
@@ -171,21 +170,19 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
             onTap: () => setState(() => _filtroKey = key),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 180),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
                 color: sel ? AppColors.accent : AppColors.cardColor,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                    color: sel ? AppColors.accent : Colors.white12),
+                border:
+                    Border.all(color: sel ? AppColors.accent : Colors.white12),
               ),
               child: Text(
                 label,
                 style: TextStyle(
                   color: sel ? Colors.black : Colors.white54,
                   fontSize: 12,
-                  fontWeight:
-                      sel ? FontWeight.bold : FontWeight.normal,
+                  fontWeight: sel ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
             ),
@@ -216,9 +213,7 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
               ),
               const SizedBox(height: 18),
               Text(
-                _filtroKey.isEmpty
-                    ? l10n.noReportsSent
-                    : l10n.noResults,
+                _filtroKey.isEmpty ? l10n.noReportsSent : l10n.noResults,
                 style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -263,11 +258,12 @@ class _ReporteCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final color = switch (reporte.nivelUrgencia) {
       NivelUrgencia.critico => AppColors.riskCritical,
-      NivelUrgencia.alto    => AppColors.riskHigh,
-      NivelUrgencia.medio   => AppColors.riskMedium,
-      NivelUrgencia.bajo    => AppColors.riskLow,
+      NivelUrgencia.alto => AppColors.riskHigh,
+      NivelUrgencia.medio => AppColors.riskMedium,
+      NivelUrgencia.bajo => AppColors.riskLow,
     };
 
     return GestureDetector(
@@ -299,14 +295,14 @@ class _ReporteCard extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: Text(reporte.tipo.label,
+                        child: Text(reporte.tipo.localizedLabel(l10n),
                             style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold)),
                       ),
                       _NivelBadge(
-                          label: reporte.nivelUrgencia.labelCapitalized,
+                          label: reporte.nivelUrgencia.localizedLabel(l10n),
                           color: color),
                     ],
                   ),
@@ -317,9 +313,7 @@ class _ReporteCard extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                          color: Colors.white54,
-                          fontSize: 12,
-                          height: 1.4),
+                          color: Colors.white54, fontSize: 12, height: 1.4),
                     ),
                   ],
                   const SizedBox(height: 6),
@@ -328,7 +322,7 @@ class _ReporteCard extends StatelessWidget {
                       const Icon(Icons.access_time_rounded,
                           color: Colors.white30, size: 12),
                       const SizedBox(width: 4),
-                      Text(reporte.tiempoTranscurrido,
+                      Text(reporte.localizedTiempoTranscurrido(l10n),
                           style: const TextStyle(
                               color: Colors.white30, fontSize: 11)),
                       const Spacer(),
@@ -363,9 +357,7 @@ class _NivelBadge extends StatelessWidget {
       ),
       child: Text(label,
           style: TextStyle(
-              color: color,
-              fontSize: 10,
-              fontWeight: FontWeight.bold)),
+              color: color, fontSize: 10, fontWeight: FontWeight.bold)),
     );
   }
 }

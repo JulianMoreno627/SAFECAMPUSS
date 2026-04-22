@@ -326,5 +326,89 @@
   "relationshipFriend": "Amigo/a",
   "relationshipPartner": "Pareja",
   "relationshipClassmate": "Compañero/a",
-  "relationshipOther": "Otro"
+  "relationshipOther": "Otro",
+  "changeProfilePhoto": "Cambiar foto de perfil",
+  "deletePhoto": "Eliminar foto",
+  "retryLabel": "Reintentar",
+  "loadingLabel": "Cargando...",
+  "errorLoadingReports": "Error al cargar reportes",
+  "reportedIncident": "Incidente reportado",
+  "descriptionTitleUpper": "DESCRIPCION",
+  "detailsTitleUpper": "DETALLES",
+  "noDescriptionAvailable": "Sin descripcion disponible.",
+  "coordinatesLabel": "Coordenadas",
+  "shareLabel": "Compartir",
+  "viewOnMapLabel": "Ver en mapa",
+  "loginError": "Error al iniciar sesión",
+  "googleLoginFailed": "No se pudo iniciar sesión con Google",
+  "googleErrorPrefix": "Error con Google",
+  "biometricSetupRequired": "Primero inicia sesión con email para activar la huella",
+  "biometricPrompt": "Confirma tu identidad para ingresar a SafeCampus",
+  "biometricUnavailable": "Biométrico no disponible",
+  "acceptTermsPrefix": "Acepto los ",
+  "acceptTermsMiddle": " y la ",
+  "acceptTermsSuffix": " de SafeCampus AI",
+  "incidentTheft": "Robo",
+  "incidentHarassment": "Acoso",
+  "incidentSuspiciousPerson": "Persona sospechosa",
+  "incidentLighting": "Iluminación",
+  "incidentFight": "Pelea",
+  "incidentVandalism": "Vandalismo",
+  "incidentAccident": "Accidente",
+  "incidentOther": "Otro",
+  "aiShortLabel": "IA",
+  "aiAnalyzing": "IA analizando...",
+  "aiClassifying": "IA clasificando...",
+  "aiReasonPrefix": "IA",
+  "incidentExampleHint": "Ej: Vi a una persona sospechosa merodeando el parqueadero norte alrededor de las 10 PM...",
+  "riskAnalysisTitle": "Análisis de Riesgo",
+  "riskAnalysisSubtitle": "Evaluación personal con IA",
+  "personalLabel": "Personal",
+  "riskExposureQuestion": "¿Qué tan expuesto/a estás?",
+  "riskExposureInfo": "SafeBot analiza tu historial de incidentes, zonas frecuentadas y horario para calcular tu perfil de riesgo personal.",
+  "analyzeRiskTitle": "Analiza tu perfil de riesgo",
+  "analyzeRiskDescription": "SafeBot evaluará tu exposición a riesgos basándose en los incidentes reportados en tu zona y tu horario habitual.",
+  "analyzePersonalRiskButton": "Analizar mi riesgo personal",
+  "analyzingRiskProfile": "SafeBot evaluando tu perfil...",
+  "analyzingRiskContext": "Analizando incidentes cercanos, zonas y horario",
+  "exposureLevelLabel": "Nivel de Exposición",
+  "riskiestZoneLabel": "Zona más riesgosa",
+  "vulnerableDayLabel": "Día vulnerable",
+  "recommendedActionsLabel": "Acciones recomendadas",
+  "refreshAnalysis": "Actualizar análisis",
+  "exposureModerate": "Moderado",
+  "exposurePrefix": "Exposición",
+  "notIdentified": "No identificado",
+  "notIdentifiedFemale": "No identificada",
+  "morningLabel": "Mañana",
+  "afternoonLabel": "Tarde",
+  "nightLabel": "Noche",
+  "generalCampusArea": "Campus universitario general",
+  "mainCampus": "Campus principal",
+  "libraryLabel": "Biblioteca",
+  "cafeteriaLabel": "Cafetería",
+  "incidentZonePrefix": "Zona con incidentes de {type}",
+  "@incidentZonePrefix": {
+    "placeholders": {
+      "type": {}
+    }
+  },
+  "timeAgoMinutes": "Hace {count} min",
+  "@timeAgoMinutes": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "timeAgoHours": "Hace {count} h",
+  "@timeAgoHours": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "timeAgoDays": "Hace {count} días",
+  "@timeAgoDays": {
+    "placeholders": {
+      "count": {}
+    }
+  }
 }

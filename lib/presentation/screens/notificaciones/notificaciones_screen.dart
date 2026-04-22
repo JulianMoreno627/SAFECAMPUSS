@@ -183,6 +183,7 @@ class _NotifCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = _color;
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -251,7 +252,7 @@ class _NotifCard extends StatelessWidget {
                           fontSize: 12,
                           height: 1.4)),
                   const SizedBox(height: 6),
-                  Text(notif.tiempoTranscurrido,
+                  Text(notif.localizedTiempoTranscurrido(l10n),
                       style: const TextStyle(
                           color: Colors.white30, fontSize: 11)),
                 ],

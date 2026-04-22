@@ -58,13 +58,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
     try {
+      final l10n = AppLocalizations.of(context)!;
       final ok = await ref.read(authProvider.notifier).login(
             _emailController.text.trim(),
             _passwordController.text.trim(),
           );
       if (!ok) {
         if (mounted) {
-          _showError(ref.read(authProvider).error ?? 'Error al iniciar sesión');
+          _showError(ref.read(authProvider).error ?? l10n.loginError);
         }
         return;
       }
@@ -82,6 +83,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _googleLogin() async {
     setState(() => _isLoading = true);
     try {
+      final l10n = AppLocalizations.of(context)!;
       final account = await _googleSignIn.signIn();
       if (account == null) {
         setState(() => _isLoading = false);
@@ -98,28 +100,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (response && mounted) {
         context.go('/map');
       } else if (mounted) {
-        _showError('No se pudo iniciar sesión con Google');
+        _showError(l10n.googleLoginFailed);
       }
     } catch (e) {
-      if (mounted) _showError('Error con Google: ${e.toString().replaceAll('Exception: ', '')}');
+      final l10n = AppLocalizations.of(context)!;
+      if (mounted) {
+        _showError(
+          '${l10n.googleErrorPrefix}: ${e.toString().replaceAll('Exception: ', '')}',
+        );
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
   Future<void> _biometricLogin() async {
+    final l10n = AppLocalizations.of(context)!;
     // Verificar si hay sesión guardada
     final box = Hive.box('settings');
     final savedToken = box.get('session_token') as String?;
     if (savedToken == null || savedToken.isEmpty) {
-      _showError('Primero inicia sesión con email para activar la huella');
+      _showError(l10n.biometricSetupRequired);
       return;
     }
 
     setState(() => _isLoading = true);
     try {
       final authenticated = await _localAuth.authenticate(
-        localizedReason: 'Confirma tu identidad para ingresar a SafeCampus',
+        localizedReason: l10n.biometricPrompt,
         options: const AuthenticationOptions(
           biometricOnly: false,
           stickyAuth: true,
@@ -130,7 +138,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         context.go('/map');
       }
     } on PlatformException catch (e) {
-      if (mounted) _showError('Biométrico no disponible: ${e.message}');
+      if (mounted) _showError('${l10n.biometricUnavailable}: ${e.message}');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -321,8 +329,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   onPressed: () {},
                   style: TextButton.styleFrom(
                       padding: EdgeInsets.zero, minimumSize: Size.zero),
-                  child: const Text('¿Olvidaste tu contraseña?',
-                      style: TextStyle(color: AppColors.accent, fontSize: 13)),
+                  child: Text(l10n.forgotPassword,
+                      style: const TextStyle(color: AppColors.accent, fontSize: 13)),
                 ),
               ),
               const SizedBox(height: 20),
@@ -385,8 +393,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         errorStyle: const TextStyle(color: AppColors.riskHigh),
       ),
       validator: (v) {
-        if (v == null || v.isEmpty) return 'Campo requerido';
-        if (!v.contains('@')) return 'Email inválido';
+        if (v == null || v.isEmpty) return l10n.fieldRequired;
+        if (!v.contains('@')) return l10n.invalidEmail;
         return null;
       },
     );
@@ -421,8 +429,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         errorStyle: const TextStyle(color: AppColors.riskHigh),
       ),
       validator: (v) {
-        if (v == null || v.isEmpty) return 'Campo requerido';
-        if (v.length < 6) return 'Mínimo 6 caracteres';
+        if (v == null || v.isEmpty) return l10n.fieldRequired;
+        if (v.length < 6) return l10n.minSixChars;
         return null;
       },
     );
@@ -457,14 +465,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Widget _buildDivider() {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
         Expanded(
             child: Divider(color: Colors.white.withValues(alpha: 0.1))),
-        const Padding(
+        Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Text('O',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+          child: Text(l10n.orDivider,
+              style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
         ),
         Expanded(
             child: Divider(color: Colors.white.withValues(alpha: 0.1))),
@@ -473,6 +482,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Widget _buildGoogleButton() {
+    final l10n = AppLocalizations.of(context)!;
     return OutlinedButton.icon(
       onPressed: _isLoading ? null : _googleLogin,
       style: OutlinedButton.styleFrom(
@@ -488,13 +498,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             Icons.g_mobiledata_rounded,
             color: Colors.white, size: 24),
       ),
-      label: const Text('Google',
-          style: TextStyle(color: Colors.white, fontSize: 14),
+      label: Text(l10n.googleErrorPrefix == 'Google error' ? 'Google' : 'Google',
+          style: const TextStyle(color: Colors.white, fontSize: 14),
           overflow: TextOverflow.ellipsis),
     );
   }
 
   Widget _buildBiometricButton() {
+    final l10n = AppLocalizations.of(context)!;
     return OutlinedButton.icon(
       onPressed: _isLoading ? null : _biometricLogin,
       style: OutlinedButton.styleFrom(
@@ -513,7 +524,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         size: 22,
       ),
       label: Text(
-        'Huella',
+        l10n.biometricLabel,
         style: TextStyle(
             color: _biometricAvailable
                 ? AppColors.accent

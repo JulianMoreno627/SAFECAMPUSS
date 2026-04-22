@@ -1,3 +1,5 @@
+import '../../l10n/app_localizations.dart';
+
 enum TipoNotificacion { alerta, reporte, ia, sistema }
 
 extension TipoNotificacionX on TipoNotificacion {
@@ -79,6 +81,15 @@ class Notificacion {
     if (diff.inMinutes < 60) return 'Hace ${diff.inMinutes} min';
     if (diff.inHours < 24) return 'Hace ${diff.inHours} h';
     if (diff.inDays < 7) return 'Hace ${diff.inDays} días';
+    return '${createdAt.day}/${createdAt.month}/${createdAt.year}';
+  }
+
+  String localizedTiempoTranscurrido(AppLocalizations l10n) {
+    final diff = DateTime.now().difference(createdAt);
+    if (diff.inMinutes < 1) return l10n.timeAgoNow;
+    if (diff.inMinutes < 60) return l10n.timeAgoMinutes(diff.inMinutes);
+    if (diff.inHours < 24) return l10n.timeAgoHours(diff.inHours);
+    if (diff.inDays < 7) return l10n.timeAgoDays(diff.inDays);
     return '${createdAt.day}/${createdAt.month}/${createdAt.year}';
   }
 }

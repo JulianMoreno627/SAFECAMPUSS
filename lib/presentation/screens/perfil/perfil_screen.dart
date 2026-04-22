@@ -39,6 +39,7 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
   }
 
   Future<void> _pickPhoto() async {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -51,22 +52,29 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 36, height: 4,
+              width: 36,
+              height: 4,
               decoration: BoxDecoration(
-                color: Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.2),
+                color:
+                    Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
             const SizedBox(height: 20),
-            Text('Cambiar foto de perfil',
+            Text(l10n.changeProfilePhoto,
                 style: TextStyle(
                     color: Theme.of(ctx).colorScheme.onSurface,
-                    fontSize: 16, fontWeight: FontWeight.bold)),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             Row(children: [
-              Expanded(child: _photoOption(ctx, Icons.camera_alt_rounded, 'Cámara', ImageSource.camera)),
+              Expanded(
+                  child: _photoOption(ctx, Icons.camera_alt_rounded,
+                      l10n.camera, ImageSource.camera)),
               const SizedBox(width: 12),
-              Expanded(child: _photoOption(ctx, Icons.photo_library_rounded, 'Galería', ImageSource.gallery)),
+              Expanded(
+                  child: _photoOption(ctx, Icons.photo_library_rounded,
+                      l10n.gallery, ImageSource.gallery)),
             ]),
             if (_photoPath != null) ...[
               const SizedBox(height: 12),
@@ -75,8 +83,10 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
                   Navigator.pop(ctx);
                   _removePhoto();
                 },
-                icon: const Icon(Icons.delete_outline_rounded, color: AppColors.riskHigh),
-                label: const Text('Eliminar foto', style: TextStyle(color: AppColors.riskHigh)),
+                icon: const Icon(Icons.delete_outline_rounded,
+                    color: AppColors.riskHigh),
+                label: Text(l10n.deletePhoto,
+                    style: const TextStyle(color: AppColors.riskHigh)),
               ),
             ],
           ],
@@ -85,7 +95,8 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
     );
   }
 
-  Widget _photoOption(BuildContext ctx, IconData icon, String label, ImageSource source) {
+  Widget _photoOption(
+      BuildContext ctx, IconData icon, String label, ImageSource source) {
     return GestureDetector(
       onTap: () async {
         Navigator.pop(ctx);
@@ -144,7 +155,8 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
     );
   }
 
-  Widget _buildHeader(BuildContext context, Usuario? user, AppLocalizations l10n) {
+  Widget _buildHeader(
+      BuildContext context, Usuario? user, AppLocalizations l10n) {
     final cs = Theme.of(context).colorScheme;
     final nombre = user?.nombre ?? 'Usuario';
     final apellido = user?.apellido ?? '';
@@ -159,7 +171,8 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
             child: Stack(
               children: [
                 Container(
-                  width: 90, height: 90,
+                  width: 90,
+                  height: 90,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: _photoPath == null
@@ -172,7 +185,8 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
                     boxShadow: [
                       BoxShadow(
                         color: AppColors.accent.withValues(alpha: 0.3),
-                        blurRadius: 20, spreadRadius: 2,
+                        blurRadius: 20,
+                        spreadRadius: 2,
                       ),
                     ],
                   ),
@@ -180,7 +194,8 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
                       ? ClipOval(
                           child: Image.file(
                             File(_photoPath!),
-                            width: 90, height: 90,
+                            width: 90,
+                            height: 90,
                             fit: BoxFit.cover,
                           ),
                         )
@@ -193,7 +208,8 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
                         ),
                 ),
                 Positioned(
-                  bottom: 0, right: 0,
+                  bottom: 0,
+                  right: 0,
                   child: Container(
                     padding: const EdgeInsets.all(6),
                     decoration: const BoxDecoration(
@@ -400,8 +416,7 @@ class _LangToggleTile extends ConsumerWidget {
             value: isEs,
             activeThumbColor: AppColors.accent,
             activeTrackColor: AppColors.accent.withValues(alpha: 0.5),
-            onChanged: (_) =>
-                widgetRef.read(localeProvider.notifier).toggle(),
+            onChanged: (_) => widgetRef.read(localeProvider.notifier).toggle(),
           ),
         ],
       ),
@@ -416,7 +431,8 @@ class _ThemeToggleTile extends ConsumerWidget {
   final WidgetRef ref;
   final AppLocalizations l10n;
 
-  const _ThemeToggleTile({required this.isDark, required this.ref, required this.l10n});
+  const _ThemeToggleTile(
+      {required this.isDark, required this.ref, required this.l10n});
 
   @override
   Widget build(BuildContext context, WidgetRef widgetRef) {
@@ -481,8 +497,7 @@ class _StatItem extends StatelessWidget {
           const SizedBox(height: 2),
           Text(label,
               style: TextStyle(
-                  color: cs.onSurface.withValues(alpha: 0.54),
-                  fontSize: 12)),
+                  color: cs.onSurface.withValues(alpha: 0.54), fontSize: 12)),
         ],
       ),
     );
@@ -512,8 +527,7 @@ class _OptionTile extends StatelessWidget {
       borderRadius: BorderRadius.circular(14),
       child: Container(
         margin: const EdgeInsets.only(bottom: 4),
-        padding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(14),
