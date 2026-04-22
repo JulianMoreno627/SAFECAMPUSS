@@ -49,6 +49,36 @@ class AiService {
     }
   }
 
+  bool get isReady => _model != null;
+
+  ChatSession startChatSession({List<dynamic>? reportesCercanos}) {
+    final resumen = (reportesCercanos != null && reportesCercanos.isNotEmpty)
+        ? reportesCercanos
+            .take(6)
+            .map((r) => '${r['tipo']} (${r['nivel_urgencia']})')
+            .join(', ')
+        : 'ninguno por el momento';
+
+    return _model!.startChat(history: [
+      Content('user', [
+        TextPart(
+          'Eres SafeBot, el asistente inteligente de seguridad de SafeCampus AI. '
+          'Tu función es ayudar a estudiantes universitarios con consejos de seguridad, '
+          'información sobre incidentes en el campus y recomendaciones para mantenerse seguros. '
+          'Sé amable, empático y conciso. Responde siempre en español. '
+          'Contexto actual: reportes cercanos detectados: $resumen.',
+        ),
+      ]),
+      Content('model', [
+        TextPart(
+          '¡Hola! Soy SafeBot 🤖, tu asistente de seguridad en el campus. '
+          'Estoy al tanto de los incidentes cercanos y listo para ayudarte. '
+          '¿En qué puedo asistirte hoy?',
+        ),
+      ]),
+    ]);
+  }
+
   Future<Map<String, dynamic>?> analyzeRisk(List<Map<String, dynamic>> nearbyReports) async {
     if (_model == null) return null;
 

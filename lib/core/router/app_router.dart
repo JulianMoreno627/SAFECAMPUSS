@@ -6,8 +6,10 @@ import '../../presentation/screens/auth/register_screen.dart';
 import '../../presentation/screens/home/home_screen.dart';
 import '../../presentation/screens/map/map_screen.dart';
 import '../../presentation/screens/reportes/lista_reportes_screen.dart';
+import '../../presentation/screens/reportes/crear_reporte_screen.dart';
 import '../../presentation/screens/sos/sos_screen.dart';
 import '../../presentation/screens/dashboard/dashboard_screen.dart';
+import '../../presentation/screens/chat/chat_ia_screen.dart';
 import '../../presentation/screens/perfil/perfil_screen.dart';
 
 class AppRouter {
@@ -24,7 +26,16 @@ class AppRouter {
             HomeScreen(navigationShell: navigationShell),
         branches: [
           StatefulShellBranch(routes: [
-            GoRoute(path: '/map',       builder: (c, s) => const MapScreen()),
+            GoRoute(
+              path: '/map',
+              builder: (c, s) => const MapScreen(),
+              routes: [
+                GoRoute(
+                  path: 'crear-reporte',
+                  builder: (c, s) => const CrearReporteScreen(),
+                ),
+              ],
+            ),
           ]),
           StatefulShellBranch(routes: [
             GoRoute(path: '/reportes',  builder: (c, s) => const ListaReportesScreen()),
@@ -33,7 +44,16 @@ class AppRouter {
             GoRoute(path: '/sos',       builder: (c, s) => const SosScreen()),
           ]),
           StatefulShellBranch(routes: [
-            GoRoute(path: '/dashboard', builder: (c, s) => const DashboardScreen()),
+            GoRoute(
+              path: '/dashboard',
+              builder: (c, s) => const DashboardScreen(),
+              routes: [
+                GoRoute(
+                  path: 'chat-ia',
+                  builder: (c, s) => const ChatIaScreen(),
+                ),
+              ],
+            ),
           ]),
           StatefulShellBranch(routes: [
             GoRoute(path: '/perfil',    builder: (c, s) => const PerfilScreen()),

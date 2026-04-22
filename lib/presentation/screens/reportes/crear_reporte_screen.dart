@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/services/api_service.dart';
+import '../../../core/providers/auth_provider.dart';
+import '../../../core/providers/location_provider.dart';
+import '../../../core/providers/reports_provider.dart';
 import '../../../l10n/app_localizations.dart';
 
-class CrearReporteScreen extends StatefulWidget {
+class CrearReporteScreen extends ConsumerStatefulWidget {
   const CrearReporteScreen({super.key});
 
   @override
-  State<CrearReporteScreen> createState() => _CrearReporteScreenState();
+  ConsumerState<CrearReporteScreen> createState() => _CrearReporteScreenState();
 }
 
-class _CrearReporteScreenState extends State<CrearReporteScreen> {
+class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
   final _formKey = GlobalKey<FormState>();
   final _descripcionController = TextEditingController();
   final _testigosController = TextEditingController();
@@ -27,6 +33,8 @@ class _CrearReporteScreenState extends State<CrearReporteScreen> {
   late String _ubicacionTexto;
   late List<Map<String, dynamic>> _tiposIncidente;
   late List<Map<String, dynamic>> _nivelesUrgencia;
+  double? _lat;
+  double? _lng;
 
   @override
   void initState() {
@@ -127,12 +135,34 @@ class _CrearReporteScreenState extends State<CrearReporteScreen> {
   }
 
   Future<void> _obtenerUbicacion() async {
-    await Future.delayed(const Duration(seconds: 2));
-    if (mounted) {
-      setState(() {
-        _ubicacionObtenida = true;
-        _ubicacionTexto = 'Campus Universitario, Bloque C — Pasto';
-      });
+    final pos = ref.read(locationProvider).currentPosition;
+    if (pos == null) {
+      if (mounted) setState(() => _ubicacionTexto = 'No se pudo obtener la ubicación');
+      return;
+    }
+    _lat = pos.latitude;
+    _lng = pos.longitude;
+    try {
+      final placemarks = await placemarkFromCoordinates(pos.latitude, pos.longitude);
+      if (mounted) {
+        final p = placemarks.isNotEmpty ? placemarks.first : null;
+        final addr = [p?.street, p?.subLocality, p?.locality]
+            .where((s) => s != null && s.isNotEmpty)
+            .join(', ');
+        setState(() {
+          _ubicacionObtenida = true;
+          _ubicacionTexto = addr.isNotEmpty
+              ? addr
+              : '${pos.latitude.toStringAsFixed(5)}, ${pos.longitude.toStringAsFixed(5)}';
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _ubicacionObtenida = true;
+          _ubicacionTexto = '${pos.latitude.toStringAsFixed(5)}, ${pos.longitude.toStringAsFixed(5)}';
+        });
+      }
     }
   }
 
@@ -267,9 +297,15 @@ class _CrearReporteScreenState extends State<CrearReporteScreen> {
     if (!_formKey.currentState!.validate()) return;
     if (_tipoSeleccionado == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.selectType),
-          backgroundColor: AppColors.riskHigh,
+        SnackBar(content: Text(l10n.selectType), backgroundColor: AppColors.riskHigh),
+      );
+      return;
+    }
+    if (_lat == null || _lng == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Esperando ubicación GPS...'),
+          backgroundColor: AppColors.riskMedium,
         ),
       );
       return;
@@ -278,8 +314,18 @@ class _CrearReporteScreenState extends State<CrearReporteScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // Simular envío
-      await Future.delayed(const Duration(seconds: 2));
+      final userId = ref.read(authProvider).user?['id'] ?? '';
+      await ApiService().crearReporte(
+        tipo: _tipoSeleccionado!,
+        descripcion: _descripcionController.text.trim(),
+        nivelUrgencia: _nivelUrgencia,
+        lat: _lat!,
+        lng: _lng!,
+        userId: userId,
+      );
+
+      // Refrescar reportes en mapa y lista
+      await ref.read(reportsProvider.notifier).fetchNearbyReports(_lat!, _lng!);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -295,7 +341,7 @@ class _CrearReporteScreenState extends State<CrearReporteScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(l10n.errorGeneric),
+            content: Text('${l10n.errorGeneric}: $e'),
             backgroundColor: AppColors.riskCritical,
           ),
         );

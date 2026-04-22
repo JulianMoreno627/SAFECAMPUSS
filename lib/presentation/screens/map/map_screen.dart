@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../../l10n/app_localizations.dart';
@@ -222,7 +223,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         const SizedBox(height: 16),
         FloatingActionButton(
           heroTag: 'report',
-          onPressed: () {}, // Navigate to create report
+          onPressed: () => context.push('/map/crear-reporte'),
           backgroundColor: AppColors.accent,
           child: const Icon(AppIcons.report, color: Colors.black),
         ),
