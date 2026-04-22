@@ -48,17 +48,27 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
       return;
     }
 
-    final reports = ref.read(reportsProvider).reportesCercanos;
-    _session = service.startChatSession(reportesCercanos: reports);
-    setState(() {
-      _ready = true;
-      _messages.add(const _Msg(
-        text: '¡Hola! Soy SafeBot 🤖, tu asistente de seguridad en el campus. '
-            'Estoy al tanto de los incidentes cercanos y listo para ayudarte. '
-            '¿En qué puedo asistirte hoy?',
-        isUser: false,
-      ));
-    });
+    try {
+      final reports = ref.read(reportsProvider).reportesCercanos;
+      _session = service.startChatSession(reportesCercanos: reports);
+      setState(() {
+        _ready = true;
+        _messages.add(const _Msg(
+          text: '¡Hola! Soy SafeBot 🤖, tu asistente de seguridad en el campus. '
+              'Estoy al tanto de los incidentes cercanos y listo para ayudarte. '
+              '¿En qué puedo asistirte hoy?',
+          isUser: false,
+        ));
+      });
+    } catch (e) {
+      setState(() {
+        _messages.add(_Msg(
+          text: 'Error al iniciar SafeBot: ${e.toString().replaceAll("Exception: ", "")}',
+          isUser: false,
+          isError: true,
+        ));
+      });
+    }
   }
 
   @override
@@ -91,10 +101,11 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
       }
     } catch (e) {
       if (mounted) {
+        final detail = e.toString().replaceAll('Exception: ', '');
         setState(() {
           _isTyping = false;
-          _messages.add(const _Msg(
-            text: 'Error al contactar SafeBot. Revisa tu conexión.',
+          _messages.add(_Msg(
+            text: 'Error al contactar SafeBot: $detail',
             isUser: false,
             isError: true,
           ));

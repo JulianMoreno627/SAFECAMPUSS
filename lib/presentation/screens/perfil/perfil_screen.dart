@@ -1,18 +1,124 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/models/usuario.dart';
 import '../../../core/providers/theme_provider.dart';
 import '../../../core/providers/locale_provider.dart';
 
-class PerfilScreen extends ConsumerWidget {
+class PerfilScreen extends ConsumerStatefulWidget {
   const PerfilScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PerfilScreen> createState() => _PerfilScreenState();
+}
+
+class _PerfilScreenState extends ConsumerState<PerfilScreen> {
+  String? _photoPath;
+  final _picker = ImagePicker();
+
+  static const _photoKey = 'profile_photo_path';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPhoto();
+  }
+
+  void _loadPhoto() {
+    final path = Hive.box('settings').get(_photoKey) as String?;
+    if (path != null && File(path).existsSync()) {
+      setState(() => _photoPath = path);
+    }
+  }
+
+  Future<void> _pickPhoto() async {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 36, height: 4,
+              decoration: BoxDecoration(
+                color: Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text('Cambiar foto de perfil',
+                style: TextStyle(
+                    color: Theme.of(ctx).colorScheme.onSurface,
+                    fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            Row(children: [
+              Expanded(child: _photoOption(ctx, Icons.camera_alt_rounded, 'Cámara', ImageSource.camera)),
+              const SizedBox(width: 12),
+              Expanded(child: _photoOption(ctx, Icons.photo_library_rounded, 'Galería', ImageSource.gallery)),
+            ]),
+            if (_photoPath != null) ...[
+              const SizedBox(height: 12),
+              TextButton.icon(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  _removePhoto();
+                },
+                icon: const Icon(Icons.delete_outline_rounded, color: AppColors.riskHigh),
+                label: const Text('Eliminar foto', style: TextStyle(color: AppColors.riskHigh)),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _photoOption(BuildContext ctx, IconData icon, String label, ImageSource source) {
+    return GestureDetector(
+      onTap: () async {
+        Navigator.pop(ctx);
+        final file = await _picker.pickImage(source: source, imageQuality: 85);
+        if (file != null) {
+          await Hive.box('settings').put(_photoKey, file.path);
+          if (mounted) setState(() => _photoPath = file.path);
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        decoration: BoxDecoration(
+          color: Theme.of(ctx).cardColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
+        ),
+        child: Column(children: [
+          Icon(icon, color: AppColors.accent, size: 30),
+          const SizedBox(height: 8),
+          Text(label,
+              style: TextStyle(
+                  color: Theme.of(ctx).colorScheme.onSurface, fontSize: 13)),
+        ]),
+      ),
+    );
+  }
+
+  void _removePhoto() {
+    Hive.box('settings').delete(_photoKey);
+    setState(() => _photoPath = null);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final usuario = authState.usuario;
 
@@ -27,7 +133,7 @@ class PerfilScreen extends ConsumerWidget {
               const SizedBox(height: 32),
               _buildStatsRow(context),
               const SizedBox(height: 28),
-              _buildOptions(context, ref),
+              _buildOptions(context),
               const SizedBox(height: 20),
             ],
           ),
@@ -46,90 +152,86 @@ class PerfilScreen extends ConsumerWidget {
     return FadeInDown(
       child: Column(
         children: [
-          Stack(
-            children: [
-              Container(
-                width: 90,
-                height: 90,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: const LinearGradient(
-                    colors: [AppColors.primary, AppColors.accent],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.accent.withValues(alpha: 0.3),
-                      blurRadius: 20,
-                      spreadRadius: 2,
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: Text(
-                    initials,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 34,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: const BoxDecoration(
-                    color: AppColors.accent,
+          GestureDetector(
+            onTap: _pickPhoto,
+            child: Stack(
+              children: [
+                Container(
+                  width: 90, height: 90,
+                  decoration: BoxDecoration(
                     shape: BoxShape.circle,
+                    gradient: _photoPath == null
+                        ? const LinearGradient(
+                            colors: [AppColors.primary, AppColors.accent],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          )
+                        : null,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.accent.withValues(alpha: 0.3),
+                        blurRadius: 20, spreadRadius: 2,
+                      ),
+                    ],
                   ),
-                  child: const Icon(Icons.edit_rounded,
-                      size: 14, color: Colors.black),
+                  child: _photoPath != null
+                      ? ClipOval(
+                          child: Image.file(
+                            File(_photoPath!),
+                            width: 90, height: 90,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : Center(
+                          child: Text(initials,
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 34,
+                                  fontWeight: FontWeight.bold)),
+                        ),
                 ),
-              ),
-            ],
+                Positioned(
+                  bottom: 0, right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: const BoxDecoration(
+                        color: AppColors.accent, shape: BoxShape.circle),
+                    child: const Icon(Icons.camera_alt_rounded,
+                        size: 14, color: Colors.black),
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 14),
           Text(
             '$nombre $apellido'.trim(),
             style: TextStyle(
-              color: cs.onSurface,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
+                color: cs.onSurface, fontSize: 22, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
-          Text(
-            email,
-            style: TextStyle(
-                color: cs.onSurface.withValues(alpha: 0.54), fontSize: 13),
-          ),
+          Text(email,
+              style: TextStyle(
+                  color: cs.onSurface.withValues(alpha: 0.54), fontSize: 13)),
           const SizedBox(height: 10),
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             decoration: BoxDecoration(
               color: AppColors.riskLow.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                  color: AppColors.riskLow.withValues(alpha: 0.4)),
+              border:
+                  Border.all(color: AppColors.riskLow.withValues(alpha: 0.4)),
             ),
             child: const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.verified_rounded,
-                    color: AppColors.riskLow, size: 14),
+                Icon(Icons.verified_rounded, color: AppColors.riskLow, size: 14),
                 SizedBox(width: 6),
-                Text(
-                  'Estudiante Verificado',
-                  style: TextStyle(
-                      color: AppColors.riskLow,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600),
-                ),
+                Text('Estudiante Verificado',
+                    style: TextStyle(
+                        color: AppColors.riskLow,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600)),
               ],
             ),
           ),
@@ -159,7 +261,8 @@ class PerfilScreen extends ConsumerWidget {
         color: Theme.of(context).colorScheme.outlineVariant);
   }
 
-  Widget _buildOptions(BuildContext context, WidgetRef ref) {
+  Widget _buildOptions(BuildContext context) {
+    final ref = this.ref;
     final isDark = ref.watch(themeModeProvider) == ThemeMode.dark;
     final cs = Theme.of(context).colorScheme;
 

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
+import '../models/reporte.dart';
 
 class AiService {
   static final AiService _instance = AiService._internal();
@@ -22,11 +23,13 @@ class AiService {
 
   // ── Chat multi-turn ───────────────────────────────────────────────────────
 
-  ChatSession startChatSession({List<dynamic>? reportesCercanos}) {
+  ChatSession startChatSession({List<Reporte>? reportesCercanos}) {
+    if (_model == null) throw StateError('AiService no inicializado');
+
     final resumen = (reportesCercanos != null && reportesCercanos.isNotEmpty)
         ? reportesCercanos
             .take(6)
-            .map((r) => '${r['tipo']} (${r['nivel_urgencia']})')
+            .map((r) => '${r.tipo.label} (${r.nivelUrgencia.label})')
             .join(', ')
         : 'ninguno por el momento';
 
@@ -116,14 +119,14 @@ Responde solo con el nombre de la categoría.
 
   // ── Análisis de tendencias del campus ─────────────────────────────────────
 
-  Future<String?> analyzeTrends(List<dynamic> reports) async {
+  Future<String?> analyzeTrends(List<Reporte> reports) async {
     if (_model == null || reports.isEmpty) return null;
 
     final tipos = <String, int>{};
     final urgencias = <String, int>{};
     for (final r in reports) {
-      final tipo = r['tipo']?.toString() ?? 'Otro';
-      final urg = r['nivel_urgencia']?.toString() ?? 'bajo';
+      final tipo = r.tipo.label;
+      final urg = r.nivelUrgencia.label;
       tipos[tipo] = (tipos[tipo] ?? 0) + 1;
       urgencias[urg] = (urgencias[urg] ?? 0) + 1;
     }
@@ -150,12 +153,12 @@ Total de reportes: ${reports.length}
 
   // ── Análisis de riesgo (nivel + recomendación) ────────────────────────────
 
-  Future<Map<String, dynamic>?> analyzeRisk(List<dynamic> nearbyReports) async {
+  Future<Map<String, dynamic>?> analyzeRisk(List<Reporte> nearbyReports) async {
     if (_model == null || nearbyReports.isEmpty) return null;
 
     final resumen = nearbyReports
         .take(8)
-        .map((r) => '- ${r['tipo']}, urgencia: ${r['nivel_urgencia']}')
+        .map((r) => '- ${r.tipo.label}, urgencia: ${r.nivelUrgencia.label}')
         .join('\n');
 
     final prompt = '''

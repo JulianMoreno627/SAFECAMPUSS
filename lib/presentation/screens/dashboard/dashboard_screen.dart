@@ -432,7 +432,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   // ── AI Trends ─────────────────────────────────────────────────────────────
 
-  Future<void> _fetchTrends(List<dynamic> reports) async {
+  Future<void> _fetchTrends(List<Reporte> reports) async {
     setState(() => _loadingTrends = true);
     final result = await AiService().analyzeTrends(reports);
     if (mounted) setState(() { _aiTrends = result; _loadingTrends = false; });
