@@ -939,6 +939,49 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get reportedIncident => 'Reported incident';
+
+  @override
+  String get descriptionTitleUpper => 'DESCRIPTION';
+
+  @override
+  String get noDescriptionAvailable => 'No description available.';
+
+  @override
+  String get detailsTitleUpper => 'DETAILS';
+
+  @override
+  String get witnessesLabel => 'Witnesses';
+
+  @override
+  String get coordinatesLabel => 'Coordinates';
+
+  @override
+  String get shareLabel => 'Share';
+
+  @override
+  String get viewOnMapLabel => 'View on map';
+
+  @override
+  String get loginError => 'Login failed';
+
+  @override
+  String get googleLoginFailed => 'Could not sign in with Google';
+
+  @override
+  String get googleErrorPrefix => 'Google error';
+
+  @override
+  String get biometricSetupRequired =>
+      'First sign in with email to enable fingerprint login';
+
+  @override
+  String get biometricPrompt => 'Confirm your identity to enter SafeCampus';
+
+  @override
+  String get biometricUnavailable => 'Biometrics unavailable';
+
+  @override
   String get sosNoContactsConfigured =>
       'You have no emergency contacts configured';
 
@@ -986,4 +1029,172 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get relationshipOther => 'Other';
+
+  @override
+  String get changeProfilePhoto => 'Change profile photo';
+
+  @override
+  String get deletePhoto => 'Delete photo';
+
+  @override
+  String get retryLabel => 'Retry';
+
+  @override
+  String get loadingLabel => 'Loading...';
+
+  @override
+  String get errorLoadingReports => 'Error loading reports';
+
+  @override
+  String get acceptTermsPrefix => 'I accept the ';
+
+  @override
+  String get acceptTermsMiddle => ' and the ';
+
+  @override
+  String get acceptTermsSuffix => ' of SafeCampus AI';
+
+  @override
+  String get incidentTheft => 'Theft';
+
+  @override
+  String get incidentHarassment => 'Harassment';
+
+  @override
+  String get incidentSuspiciousPerson => 'Suspicious person';
+
+  @override
+  String get incidentLighting => 'Lighting';
+
+  @override
+  String get incidentFight => 'Fight';
+
+  @override
+  String get incidentVandalism => 'Vandalism';
+
+  @override
+  String get incidentAccident => 'Accident';
+
+  @override
+  String get incidentOther => 'Other';
+
+  @override
+  String get aiShortLabel => 'AI';
+
+  @override
+  String get aiAnalyzing => 'AI analyzing...';
+
+  @override
+  String get aiClassifying => 'AI classifying...';
+
+  @override
+  String get aiReasonPrefix => 'AI';
+
+  @override
+  String get incidentExampleHint =>
+      'Example: I saw a suspicious person wandering near the north parking lot around 10 PM...';
+
+  @override
+  String get riskAnalysisTitle => 'Risk Analysis';
+
+  @override
+  String get riskAnalysisSubtitle => 'Personal AI assessment';
+
+  @override
+  String get personalLabel => 'Personal';
+
+  @override
+  String get riskExposureQuestion => 'How exposed are you?';
+
+  @override
+  String get riskExposureInfo =>
+      'SafeBot analyzes your incident history, frequent areas, and schedule to calculate your personal risk profile.';
+
+  @override
+  String get analyzeRiskTitle => 'Analyze your risk profile';
+
+  @override
+  String get analyzeRiskDescription =>
+      'SafeBot will evaluate your exposure to risks based on incidents reported in your area and your usual schedule.';
+
+  @override
+  String get analyzePersonalRiskButton => 'Analyze my personal risk';
+
+  @override
+  String get analyzingRiskProfile => 'SafeBot is evaluating your profile...';
+
+  @override
+  String get analyzingRiskContext =>
+      'Analyzing nearby incidents, areas, and schedule';
+
+  @override
+  String get exposureLevelLabel => 'Exposure Level';
+
+  @override
+  String get riskiestZoneLabel => 'Riskiest area';
+
+  @override
+  String get vulnerableDayLabel => 'Vulnerable day';
+
+  @override
+  String get recommendedActionsLabel => 'Recommended actions';
+
+  @override
+  String get refreshAnalysis => 'Refresh analysis';
+
+  @override
+  String get exposureModerate => 'Moderate';
+
+  @override
+  String get exposurePrefix => 'Exposure';
+
+  @override
+  String get notIdentified => 'Not identified';
+
+  @override
+  String get notIdentifiedFemale => 'Not identified';
+
+  @override
+  String get morningLabel => 'Morning';
+
+  @override
+  String get afternoonLabel => 'Afternoon';
+
+  @override
+  String get nightLabel => 'Night';
+
+  @override
+  String get generalCampusArea => 'General campus area';
+
+  @override
+  String get mainCampus => 'Main campus';
+
+  @override
+  String get libraryLabel => 'Library';
+
+  @override
+  String get cafeteriaLabel => 'Cafeteria';
+
+  @override
+  String incidentZonePrefix(Object type) {
+    return 'Area with $type incidents';
+  }
+
+  @override
+  String timeAgoMinutes(Object count) {
+    return '$count min ago';
+  }
+
+  @override
+  String timeAgoHours(Object count) {
+    return '$count h ago';
+  }
+
+  @override
+  String timeAgoDays(Object count) {
+    return '$count days ago';
+  }
+
+  @override
+  String get rememberMe => 'Keep me logged in';
 }

@@ -1886,6 +1886,90 @@ abstract class AppLocalizations {
   /// **'Hi! I am sharing my SafeCampus safety location: {mapUrl}'**
   String sosShareLocationMessage(Object mapUrl);
 
+  /// No description provided for @reportedIncident.
+  ///
+  /// In en, this message translates to:
+  /// **'Reported incident'**
+  String get reportedIncident;
+
+  /// No description provided for @descriptionTitleUpper.
+  ///
+  /// In en, this message translates to:
+  /// **'DESCRIPTION'**
+  String get descriptionTitleUpper;
+
+  /// No description provided for @noDescriptionAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No description available.'**
+  String get noDescriptionAvailable;
+
+  /// No description provided for @detailsTitleUpper.
+  ///
+  /// In en, this message translates to:
+  /// **'DETAILS'**
+  String get detailsTitleUpper;
+
+  /// No description provided for @witnessesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Witnesses'**
+  String get witnessesLabel;
+
+  /// No description provided for @coordinatesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Coordinates'**
+  String get coordinatesLabel;
+
+  /// No description provided for @shareLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get shareLabel;
+
+  /// No description provided for @viewOnMapLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'View on map'**
+  String get viewOnMapLabel;
+
+  /// No description provided for @loginError.
+  ///
+  /// In en, this message translates to:
+  /// **'Login failed'**
+  String get loginError;
+
+  /// No description provided for @googleLoginFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not sign in with Google'**
+  String get googleLoginFailed;
+
+  /// No description provided for @googleErrorPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Google error'**
+  String get googleErrorPrefix;
+
+  /// No description provided for @biometricSetupRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'First sign in with email to enable fingerprint login'**
+  String get biometricSetupRequired;
+
+  /// No description provided for @biometricPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your identity to enter SafeCampus'**
+  String get biometricPrompt;
+
+  /// No description provided for @biometricUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Biometrics unavailable'**
+  String get biometricUnavailable;
+
   /// No description provided for @sosNoContactsConfigured.
   ///
   /// In en, this message translates to:
@@ -1969,6 +2053,318 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Other'**
   String get relationshipOther;
+
+  /// No description provided for @changeProfilePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Change profile photo'**
+  String get changeProfilePhoto;
+
+  /// No description provided for @deletePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete photo'**
+  String get deletePhoto;
+
+  /// No description provided for @retryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retryLabel;
+
+  /// No description provided for @loadingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading...'**
+  String get loadingLabel;
+
+  /// No description provided for @errorLoadingReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading reports'**
+  String get errorLoadingReports;
+
+  /// No description provided for @acceptTermsPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'I accept the '**
+  String get acceptTermsPrefix;
+
+  /// No description provided for @acceptTermsMiddle.
+  ///
+  /// In en, this message translates to:
+  /// **' and the '**
+  String get acceptTermsMiddle;
+
+  /// No description provided for @acceptTermsSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **' of SafeCampus AI'**
+  String get acceptTermsSuffix;
+
+  /// No description provided for @incidentTheft.
+  ///
+  /// In en, this message translates to:
+  /// **'Theft'**
+  String get incidentTheft;
+
+  /// No description provided for @incidentHarassment.
+  ///
+  /// In en, this message translates to:
+  /// **'Harassment'**
+  String get incidentHarassment;
+
+  /// No description provided for @incidentSuspiciousPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspicious person'**
+  String get incidentSuspiciousPerson;
+
+  /// No description provided for @incidentLighting.
+  ///
+  /// In en, this message translates to:
+  /// **'Lighting'**
+  String get incidentLighting;
+
+  /// No description provided for @incidentFight.
+  ///
+  /// In en, this message translates to:
+  /// **'Fight'**
+  String get incidentFight;
+
+  /// No description provided for @incidentVandalism.
+  ///
+  /// In en, this message translates to:
+  /// **'Vandalism'**
+  String get incidentVandalism;
+
+  /// No description provided for @incidentAccident.
+  ///
+  /// In en, this message translates to:
+  /// **'Accident'**
+  String get incidentAccident;
+
+  /// No description provided for @incidentOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get incidentOther;
+
+  /// No description provided for @aiShortLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'AI'**
+  String get aiShortLabel;
+
+  /// No description provided for @aiAnalyzing.
+  ///
+  /// In en, this message translates to:
+  /// **'AI analyzing...'**
+  String get aiAnalyzing;
+
+  /// No description provided for @aiClassifying.
+  ///
+  /// In en, this message translates to:
+  /// **'AI classifying...'**
+  String get aiClassifying;
+
+  /// No description provided for @aiReasonPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'AI'**
+  String get aiReasonPrefix;
+
+  /// No description provided for @incidentExampleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: I saw a suspicious person wandering near the north parking lot around 10 PM...'**
+  String get incidentExampleHint;
+
+  /// No description provided for @riskAnalysisTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Risk Analysis'**
+  String get riskAnalysisTitle;
+
+  /// No description provided for @riskAnalysisSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal AI assessment'**
+  String get riskAnalysisSubtitle;
+
+  /// No description provided for @personalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal'**
+  String get personalLabel;
+
+  /// No description provided for @riskExposureQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'How exposed are you?'**
+  String get riskExposureQuestion;
+
+  /// No description provided for @riskExposureInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'SafeBot analyzes your incident history, frequent areas, and schedule to calculate your personal risk profile.'**
+  String get riskExposureInfo;
+
+  /// No description provided for @analyzeRiskTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze your risk profile'**
+  String get analyzeRiskTitle;
+
+  /// No description provided for @analyzeRiskDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'SafeBot will evaluate your exposure to risks based on incidents reported in your area and your usual schedule.'**
+  String get analyzeRiskDescription;
+
+  /// No description provided for @analyzePersonalRiskButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze my personal risk'**
+  String get analyzePersonalRiskButton;
+
+  /// No description provided for @analyzingRiskProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'SafeBot is evaluating your profile...'**
+  String get analyzingRiskProfile;
+
+  /// No description provided for @analyzingRiskContext.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyzing nearby incidents, areas, and schedule'**
+  String get analyzingRiskContext;
+
+  /// No description provided for @exposureLevelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Exposure Level'**
+  String get exposureLevelLabel;
+
+  /// No description provided for @riskiestZoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Riskiest area'**
+  String get riskiestZoneLabel;
+
+  /// No description provided for @vulnerableDayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Vulnerable day'**
+  String get vulnerableDayLabel;
+
+  /// No description provided for @recommendedActionsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended actions'**
+  String get recommendedActionsLabel;
+
+  /// No description provided for @refreshAnalysis.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh analysis'**
+  String get refreshAnalysis;
+
+  /// No description provided for @exposureModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate'**
+  String get exposureModerate;
+
+  /// No description provided for @exposurePrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Exposure'**
+  String get exposurePrefix;
+
+  /// No description provided for @notIdentified.
+  ///
+  /// In en, this message translates to:
+  /// **'Not identified'**
+  String get notIdentified;
+
+  /// No description provided for @notIdentifiedFemale.
+  ///
+  /// In en, this message translates to:
+  /// **'Not identified'**
+  String get notIdentifiedFemale;
+
+  /// No description provided for @morningLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning'**
+  String get morningLabel;
+
+  /// No description provided for @afternoonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Afternoon'**
+  String get afternoonLabel;
+
+  /// No description provided for @nightLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Night'**
+  String get nightLabel;
+
+  /// No description provided for @generalCampusArea.
+  ///
+  /// In en, this message translates to:
+  /// **'General campus area'**
+  String get generalCampusArea;
+
+  /// No description provided for @mainCampus.
+  ///
+  /// In en, this message translates to:
+  /// **'Main campus'**
+  String get mainCampus;
+
+  /// No description provided for @libraryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Library'**
+  String get libraryLabel;
+
+  /// No description provided for @cafeteriaLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cafeteria'**
+  String get cafeteriaLabel;
+
+  /// No description provided for @incidentZonePrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Area with {type} incidents'**
+  String incidentZonePrefix(Object type);
+
+  /// No description provided for @timeAgoMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min ago'**
+  String timeAgoMinutes(Object count);
+
+  /// No description provided for @timeAgoHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} h ago'**
+  String timeAgoHours(Object count);
+
+  /// No description provided for @timeAgoDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days ago'**
+  String timeAgoDays(Object count);
+
+  /// No description provided for @rememberMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep me logged in'**
+  String get rememberMe;
 }
 
 class _AppLocalizationsDelegate

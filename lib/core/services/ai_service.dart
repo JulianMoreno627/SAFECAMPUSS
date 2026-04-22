@@ -15,9 +15,13 @@ class AiService {
   bool get isReady => _model != null;
 
   void init() {
-    final apiKey = dotenv.env['GEMINI_API_KEY'];
-    if (apiKey != null && apiKey.isNotEmpty && apiKey != 'pending') {
-      _model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
+    try {
+      final apiKey = dotenv.maybeGet('GEMINI_API_KEY');
+      if (apiKey != null && apiKey.isNotEmpty && apiKey != 'pending') {
+        _model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
+      }
+    } catch (e) {
+      _logger.e("Error inicializando AiService (dotenv no cargado): $e");
     }
   }
 

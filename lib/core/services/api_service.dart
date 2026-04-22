@@ -5,7 +5,20 @@ import '../models/usuario.dart';
 import '../models/reporte.dart';
 
 class ApiService {
-  final String baseUrl = dotenv.env['API_URL'] ?? 'http://10.0.2.2:3000/api';
+  String get baseUrl {
+    try {
+      final url = dotenv.maybeGet('API_URL');
+      if (url != null && url.isNotEmpty) return url;
+
+      // Fallback para Web vs Mobile
+      const isWeb = bool.fromEnvironment('dart.library.js_util');
+      return isWeb
+          ? 'http://localhost:3000/api'
+          : 'http://10.0.2.2:3000/api';
+    } catch (_) {
+      return 'https://safecampus-backend-xdbe.onrender.com/api';
+    }
+  }
 
   static final ApiService _instance = ApiService._internal();
   factory ApiService() => _instance;

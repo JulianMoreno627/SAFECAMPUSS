@@ -30,11 +30,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool _obscurePassword = true;
   bool _isLoading = false;
   bool _biometricAvailable = false;
+  bool _rememberMe = true;
 
   @override
   void initState() {
     super.initState();
     _checkBiometrics();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (ref.read(authProvider).isAuthenticated) {
+        context.go('/map');
+      }
+    });
   }
 
   @override
@@ -62,6 +68,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       final ok = await ref.read(authProvider.notifier).login(
             _emailController.text.trim(),
             _passwordController.text.trim(),
+            rememberMe: _rememberMe,
           );
       if (!ok) {
         if (mounted) {
@@ -69,9 +76,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         }
         return;
       }
-      final box = Hive.box('settings');
-      final token = ref.read(authProvider).token;
-      if (token != null) await box.put('session_token', token);
       if (mounted) context.go('/map');
     } catch (e) {
       if (mounted) _showError(e.toString());
@@ -86,10 +90,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       final l10n = AppLocalizations.of(context)!;
       final account = await _googleSignIn.signIn();
       if (account == null) {
-        setState(() => _isLoading = false);
+        if (mounted) setState(() => _isLoading = false);
         return;
       }
       final auth = await account.authentication;
+      if (!mounted) return;
+
       // Enviar idToken al backend para validar y obtener sesión
       final response = await ApiService().loginWithGoogle(
         idToken: auth.idToken ?? '',
@@ -97,18 +103,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         nombre: account.displayName?.split(' ').first ?? '',
         apellido: account.displayName?.split(' ').skip(1).join(' ') ?? '',
       );
-      if (response && mounted) {
+      if (!mounted) return;
+
+      if (response) {
         context.go('/map');
-      } else if (mounted) {
+      } else {
         _showError(l10n.googleLoginFailed);
       }
     } catch (e) {
+      if (!mounted) return;
       final l10n = AppLocalizations.of(context)!;
-      if (mounted) {
-        _showError(
-          '${l10n.googleErrorPrefix}: ${e.toString().replaceAll('Exception: ', '')}',
-        );
-      }
+      _showError(
+        '${l10n.googleErrorPrefix}: ${e.toString().replaceAll('Exception: ', '')}',
+      );
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -322,16 +329,49 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               _buildEmailField(l10n),
               const SizedBox(height: 14),
               _buildPasswordField(l10n),
-              const SizedBox(height: 6),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () {},
-                  style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero, minimumSize: Size.zero),
-                  child: Text(l10n.forgotPassword,
-                      style: const TextStyle(color: AppColors.accent, fontSize: 13)),
-                ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () => setState(() => _rememberMe = !_rememberMe),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          height: 24,
+                          width: 24,
+                          child: Checkbox(
+                            value: _rememberMe,
+                            onChanged: (v) => setState(() => _rememberMe = v ?? true),
+                            activeColor: AppColors.accent,
+                            checkColor: Colors.white,
+                            side: const BorderSide(color: AppColors.textSecondary),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          l10n.rememberMe,
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {},
+                    style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero, minimumSize: Size.zero),
+                    child: Text(l10n.forgotPassword,
+                        style: const TextStyle(
+                            color: AppColors.accent, fontSize: 13)),
+                  ),
+                ],
               ),
               const SizedBox(height: 20),
               _buildLoginButton(l10n),
@@ -471,7 +511,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         Expanded(
             child: Divider(color: Colors.white.withValues(alpha: 0.1))),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(l10n.orDivider,
               style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
         ),

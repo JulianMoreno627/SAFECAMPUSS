@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/services/api_service.dart';
+import '../../../core/providers/auth_provider.dart';
 import '../../../l10n/app_localizations.dart';
 
-class RegisterScreen extends StatefulWidget {
+class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  State<RegisterScreen> createState() => _RegisterScreenState();
+  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final PageController _pageController = PageController();
-  final _apiService = ApiService();
   int _currentStep = 0;
   bool _isLoading = false;
 
@@ -101,22 +101,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() => _isLoading = true);
 
     try {
-      await _apiService.register(
+      final ok = await ref.read(authProvider.notifier).register(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
         nombre: _nombreController.text.trim(),
         apellido: _apellidoController.text.trim(),
         telefono: _telefonoController.text.trim(),
+        rememberMe: true, // Por defecto en registro lo mantenemos activo
       );
 
-      if (mounted) {
+      if (ok && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.registerSuccessMsg),
             backgroundColor: AppColors.riskLow,
           ),
         );
-        context.go('/login');
+        context.go('/map');
+      } else if (mounted) {
+        final error = ref.read(authProvider).error ?? l10n.errorGeneric;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error),
+            backgroundColor: AppColors.riskHigh,
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -643,7 +652,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 children: [
                   Text(
                     l10n.accountSummary,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

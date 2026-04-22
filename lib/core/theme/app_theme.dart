@@ -68,7 +68,6 @@ class AppTheme {
   // ── Light ─────────────────────────────────────────────────────────────────
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
-    fontFamily: 'Montserrat',
     brightness: Brightness.light,
     scaffoldBackgroundColor: const Color(0xFFF0F4FF),
     primaryColor: AppColors.primary,

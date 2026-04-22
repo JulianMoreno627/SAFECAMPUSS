@@ -297,6 +297,20 @@
   "sosCallFailed": "Could not place the call",
   "sosObtainingLocationRetry": "Getting location... try again",
   "sosShareLocationMessage": "Hi! I am sharing my SafeCampus safety location: {mapUrl}",
+  "reportedIncident": "Reported incident",
+  "descriptionTitleUpper": "DESCRIPTION",
+  "noDescriptionAvailable": "No description available",
+  "detailsTitleUpper": "DETAILS",
+  "witnessesLabel": "Witnesses",
+  "coordinatesLabel": "Coordinates",
+  "shareLabel": "Share",
+  "viewOnMapLabel": "View on map",
+  "loginError": "Login failed",
+  "googleLoginFailed": "Google login failed",
+  "googleErrorPrefix": "Google error",
+  "biometricSetupRequired": "Biometric setup required",
+  "biometricPrompt": "Authenticate to log in",
+  "biometricUnavailable": "Biometrics unavailable",
   "@sosShareLocationMessage": {
     "placeholders": {
       "mapUrl": {}
@@ -410,5 +424,6 @@
     "placeholders": {
       "count": {}
     }
-  }
+  },
+  "rememberMe": "Keep me logged in"
 }

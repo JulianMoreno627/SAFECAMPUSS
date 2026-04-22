@@ -15,16 +15,20 @@ class GeminiService {
   bool get isReady => _model != null;
 
   void init() {
-    final apiKey = dotenv.env['GEMINI_API_KEY'];
-    if (apiKey != null && apiKey.isNotEmpty && apiKey != 'pending') {
-      _model = GenerativeModel(
-        model: 'gemini-1.5-flash',
-        apiKey: apiKey,
-        generationConfig: GenerationConfig(
-          temperature: 0.7,
-          maxOutputTokens: 500,
-        ),
-      );
+    try {
+      final apiKey = dotenv.maybeGet('GEMINI_API_KEY');
+      if (apiKey != null && apiKey.isNotEmpty && apiKey != 'pending') {
+        _model = GenerativeModel(
+          model: 'gemini-1.5-flash',
+          apiKey: apiKey,
+          generationConfig: GenerationConfig(
+            temperature: 0.7,
+            maxOutputTokens: 500,
+          ),
+        );
+      }
+    } catch (e) {
+      _logger.e("Error inicializando GeminiService (dotenv no cargado): $e");
     }
   }
 

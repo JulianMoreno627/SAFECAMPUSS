@@ -297,6 +297,20 @@
   "sosCallFailed": "No se pudo realizar la llamada",
   "sosObtainingLocationRetry": "Obteniendo ubicación... intenta de nuevo",
   "sosShareLocationMessage": "¡Hola! Estoy compartiendo mi ubicación de seguridad desde SafeCampus: {mapUrl}",
+  "reportedIncident": "Incidente reportado",
+  "descriptionTitleUpper": "DESCRIPCIÓN",
+  "noDescriptionAvailable": "Sin descripción disponible",
+  "detailsTitleUpper": "DETALLES",
+  "witnessesLabel": "Testigos",
+  "coordinatesLabel": "Coordenadas",
+  "shareLabel": "Compartir",
+  "viewOnMapLabel": "Ver en mapa",
+  "loginError": "Error al iniciar sesión",
+  "googleLoginFailed": "Error al iniciar sesión con Google",
+  "googleErrorPrefix": "Error de Google",
+  "biometricSetupRequired": "Se requiere configurar biometría",
+  "biometricPrompt": "Autentícate para iniciar sesión",
+  "biometricUnavailable": "Biometría no disponible",
   "@sosShareLocationMessage": {
     "placeholders": {
       "mapUrl": {}
@@ -410,5 +424,6 @@
     "placeholders": {
       "count": {}
     }
-  }
+  },
+  "rememberMe": "Mantener sesión iniciada"
 }

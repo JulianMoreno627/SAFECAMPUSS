@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/providers/auth_provider.dart';
 import '../../widgets/language_toggle_button.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -20,8 +21,17 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   }
 
   void _navigate() {
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) context.go('/onboarding');
+    Future.delayed(const Duration(seconds: 2), () {
+      if (!mounted) return;
+      
+      final auth = ref.read(authProvider);
+      print('DEBUG: SplashScreen - isAuthenticated: ${auth.isAuthenticated}');
+      
+      if (auth.isAuthenticated) {
+        context.go('/map');
+      } else {
+        context.go('/onboarding');
+      }
     });
   }
 
