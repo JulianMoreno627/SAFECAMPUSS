@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/services/ai_service.dart';
+import '../../../core/providers/location_provider.dart';
+import '../../../core/providers/emergency_contacts_provider.dart';
 
 class SosScreen extends ConsumerStatefulWidget {
   const SosScreen({super.key});
@@ -58,6 +63,70 @@ class _SosScreenState extends ConsumerState<SosScreen>
         _aiAdvice = advice;
         _loadingAdvice = false;
       });
+    }
+  }
+
+  Future<void> _callEmergencies() async {
+    final Uri tel = Uri.parse('tel:123');
+    if (await canLaunchUrl(tel)) {
+      await launchUrl(tel);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No se pudo realizar la llamada')),
+        );
+      }
+    }
+  }
+
+  Future<void> _shareLocation() async {
+    final location = ref.read(locationProvider);
+    if (location.currentPosition == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Obteniendo ubicación... intenta de nuevo')),
+        );
+      }
+      return;
+    }
+
+    final lat = location.currentPosition!.latitude;
+    final lng = location.currentPosition!.longitude;
+    final mapUrl = 'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
+    
+    await Share.share('¡Hola! Estoy compartiendo mi ubicación de seguridad desde SafeCampus: $mapUrl');
+  }
+
+  Future<void> _alertContacts() async {
+    final contacts = ref.read(emergencyContactsProvider).contacts;
+    if (contacts.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No tienes contactos configurados')),
+        );
+      }
+      return;
+    }
+
+    final location = ref.read(locationProvider);
+    String mapUrl = '';
+    if (location.currentPosition != null) {
+      final lat = location.currentPosition!.latitude;
+      final lng = location.currentPosition!.longitude;
+      mapUrl = ' https://www.google.com/maps/search/?api=1&query=$lat,$lng';
+    }
+
+    final message = '¡EMERGENCIA! Estoy en SafeCampus y necesito ayuda.$mapUrl';
+    final phones = contacts.map((c) => c.telefono).join(',');
+    
+    // Abrir app de SMS con los contactos y el mensaje
+    final Uri smsUri = Uri.parse('sms:$phones?body=${Uri.encodeComponent(message)}');
+    
+    if (await canLaunchUrl(smsUri)) {
+      await launchUrl(smsUri);
+    } else {
+      // Fallback a compartir el mensaje individualmente si sms: no es soportado
+      await Share.share(message);
     }
   }
 
@@ -139,7 +208,13 @@ class _SosScreenState extends ConsumerState<SosScreen>
   Widget _buildSosButton() {
     return FadeInUp(
       child: GestureDetector(
-        onLongPress: () => setState(() => _activated = !_activated),
+        onLongPress: () {
+          setState(() => _activated = !_activated);
+          if (_activated) {
+            _alertContacts();
+            HapticFeedback.heavyImpact();
+          }
+        },
         child: AnimatedBuilder(
           animation: _pulseController,
           builder: (context, child) {
@@ -239,21 +314,21 @@ class _SosScreenState extends ConsumerState<SosScreen>
                 icon: Icons.phone_rounded,
                 label: 'Llamar\nEmergencias',
                 color: AppColors.riskHigh,
-                onTap: () {},
+                onTap: _callEmergencies,
               ),
               const SizedBox(width: 10),
               _QuickActionButton(
                 icon: Icons.share_location_rounded,
                 label: 'Compartir\nUbicación',
                 color: AppColors.accent,
-                onTap: () {},
+                onTap: _shareLocation,
               ),
               const SizedBox(width: 10),
               _QuickActionButton(
                 icon: Icons.record_voice_over_rounded,
                 label: 'Alertar\nContactos',
                 color: AppColors.riskMedium,
-                onTap: () {},
+                onTap: _alertContacts,
               ),
             ],
           ),
@@ -428,6 +503,9 @@ class _SosScreenState extends ConsumerState<SosScreen>
 
   Widget _buildEmergencyContacts() {
     final cs = Theme.of(context).colorScheme;
+    final contactsState = ref.watch(emergencyContactsProvider);
+    final contacts = contactsState.contacts;
+
     return FadeInUp(
       delay: const Duration(milliseconds: 300),
       child: Column(
@@ -447,40 +525,73 @@ class _SosScreenState extends ConsumerState<SosScreen>
                 onPressed: () => context.push('/sos/contactos-emergencia'),
                 icon: const Icon(Icons.add_rounded,
                     size: 16, color: AppColors.accent),
-                label: const Text('Agregar',
+                label: const Text('Configurar',
                     style: TextStyle(color: AppColors.accent, fontSize: 12)),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: cs.outlineVariant),
             ),
-            child: Column(
-              children: [
-                Icon(Icons.group_add_rounded,
-                    color: cs.onSurface.withValues(alpha: 0.24), size: 40),
-                const SizedBox(height: 12),
-                Text(
-                  'Sin contactos de emergencia',
-                  style: TextStyle(
-                      color: cs.onSurface.withValues(alpha: 0.54),
-                      fontSize: 14),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Agrega personas de confianza para alertarlas automáticamente',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      color: cs.onSurface.withValues(alpha: 0.3),
-                      fontSize: 12),
-                ),
-              ],
-            ),
+            child: contacts.isEmpty
+                ? Column(
+                    children: [
+                      Icon(Icons.group_add_rounded,
+                          color: cs.onSurface.withValues(alpha: 0.24),
+                          size: 40),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Sin contactos de emergencia',
+                        style: TextStyle(
+                            color: cs.onSurface.withValues(alpha: 0.54),
+                            fontSize: 14),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Agrega personas de confianza para alertarlas automáticamente',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            color: cs.onSurface.withValues(alpha: 0.3),
+                            fontSize: 12),
+                      ),
+                    ],
+                  )
+                : Column(
+                    children: contacts.take(3).map((c) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 14,
+                              backgroundColor:
+                                  AppColors.accent.withValues(alpha: 0.1),
+                              child: Text(c.iniciales,
+                                  style: const TextStyle(
+                                      color: AppColors.accent,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(c.nombre,
+                                  style: TextStyle(
+                                      color: cs.onSurface, fontSize: 13)),
+                            ),
+                            Text(c.relacion ?? '',
+                                style: TextStyle(
+                                    color: cs.onSurface.withValues(alpha: 0.4),
+                                    fontSize: 11)),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
           ),
         ],
       ),
