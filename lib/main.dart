@@ -18,6 +18,7 @@ void main() async {
 
   // Inicializar Hive (BD local)
   await Hive.initFlutter();
+  await Hive.openBox('settings'); // Persistencia de preferencias (tema, etc.)
 
   runApp(
     const ProviderScope(

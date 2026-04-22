@@ -4,6 +4,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/providers/auth_provider.dart';
+import '../../../core/providers/theme_provider.dart';
 
 class PerfilScreen extends ConsumerWidget {
   const PerfilScreen({super.key});
@@ -14,16 +15,15 @@ class PerfilScreen extends ConsumerWidget {
     final user = authState.user;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             children: [
               const SizedBox(height: 20),
-              _buildHeader(user),
+              _buildHeader(context, user),
               const SizedBox(height: 32),
-              _buildStatsRow(),
+              _buildStatsRow(context),
               const SizedBox(height: 28),
               _buildOptions(context, ref),
               const SizedBox(height: 20),
@@ -34,7 +34,8 @@ class PerfilScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(Map<String, dynamic>? user) {
+  Widget _buildHeader(BuildContext context, Map<String, dynamic>? user) {
+    final cs = Theme.of(context).colorScheme;
     final nombre = user?['nombre'] ?? 'Usuario';
     final apellido = user?['apellido'] ?? '';
     final email = user?['email'] ?? '';
@@ -83,7 +84,8 @@ class PerfilScreen extends ConsumerWidget {
                     color: AppColors.accent,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.edit_rounded, size: 14, color: Colors.black),
+                  child: const Icon(Icons.edit_rounded,
+                      size: 14, color: Colors.black),
                 ),
               ),
             ],
@@ -91,8 +93,8 @@ class PerfilScreen extends ConsumerWidget {
           const SizedBox(height: 14),
           Text(
             '$nombre $apellido'.trim(),
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: cs.onSurface,
               fontSize: 22,
               fontWeight: FontWeight.bold,
             ),
@@ -100,24 +102,31 @@ class PerfilScreen extends ConsumerWidget {
           const SizedBox(height: 4),
           Text(
             email,
-            style: const TextStyle(color: Colors.white54, fontSize: 13),
+            style: TextStyle(
+                color: cs.onSurface.withValues(alpha: 0.54), fontSize: 13),
           ),
           const SizedBox(height: 10),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             decoration: BoxDecoration(
               color: AppColors.riskLow.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.riskLow.withValues(alpha: 0.4)),
+              border: Border.all(
+                  color: AppColors.riskLow.withValues(alpha: 0.4)),
             ),
             child: const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.verified_rounded, color: AppColors.riskLow, size: 14),
+                Icon(Icons.verified_rounded,
+                    color: AppColors.riskLow, size: 14),
                 SizedBox(width: 6),
                 Text(
                   'Estudiante Verificado',
-                  style: TextStyle(color: AppColors.riskLow, fontSize: 12, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                      color: AppColors.riskLow,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600),
                 ),
               ],
             ),
@@ -127,33 +136,42 @@ class PerfilScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatsRow() {
+  Widget _buildStatsRow(BuildContext context) {
     return FadeInUp(
       child: Row(
         children: [
           const _StatItem(value: '0', label: 'Reportes'),
-          _divider(),
+          _divider(context),
           const _StatItem(value: '0', label: 'Alertas'),
-          _divider(),
+          _divider(context),
           const _StatItem(value: '0', label: 'Rutas'),
         ],
       ),
     );
   }
 
-  Widget _divider() {
-    return Container(width: 1, height: 40, color: Colors.white12);
+  Widget _divider(BuildContext context) {
+    return Container(
+        width: 1,
+        height: 40,
+        color: Theme.of(context).colorScheme.outlineVariant);
   }
 
   Widget _buildOptions(BuildContext context, WidgetRef ref) {
+    final isDark = ref.watch(themeModeProvider) == ThemeMode.dark;
+    final cs = Theme.of(context).colorScheme;
+
     return FadeInUp(
       delay: const Duration(milliseconds: 150),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Cuenta',
-            style: TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w600),
+            style: TextStyle(
+                color: cs.onSurface.withValues(alpha: 0.54),
+                fontSize: 12,
+                fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           _OptionTile(
@@ -172,9 +190,12 @@ class PerfilScreen extends ConsumerWidget {
             onTap: () {},
           ),
           const SizedBox(height: 20),
-          const Text(
+          Text(
             'Seguridad',
-            style: TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w600),
+            style: TextStyle(
+                color: cs.onSurface.withValues(alpha: 0.54),
+                fontSize: 12,
+                fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           _OptionTile(
@@ -193,11 +214,16 @@ class PerfilScreen extends ConsumerWidget {
             onTap: () {},
           ),
           const SizedBox(height: 20),
-          const Text(
+          Text(
             'App',
-            style: TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w600),
+            style: TextStyle(
+                color: cs.onSurface.withValues(alpha: 0.54),
+                fontSize: 12,
+                fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
+          // ── Toggle Dark/Light ─────────────────────────────────────────
+          _ThemeToggleTile(isDark: isDark, ref: ref),
           _OptionTile(
             icon: Icons.settings_outlined,
             label: 'Configuración',
@@ -228,6 +254,53 @@ class PerfilScreen extends ConsumerWidget {
   }
 }
 
+// ── Theme Toggle ──────────────────────────────────────────────────────────────
+
+class _ThemeToggleTile extends ConsumerWidget {
+  final bool isDark;
+  final WidgetRef ref;
+
+  const _ThemeToggleTile({required this.isDark, required this.ref});
+
+  @override
+  Widget build(BuildContext context, WidgetRef widgetRef) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+            color: AppColors.accent.withValues(alpha: 0.8),
+            size: 20,
+          ),
+          const SizedBox(width: 14),
+          Text(
+            isDark ? 'Modo Oscuro' : 'Modo Claro',
+            style: TextStyle(color: cs.onSurface, fontSize: 14),
+          ),
+          const Spacer(),
+          Switch(
+            value: isDark,
+            activeThumbColor: AppColors.accent,
+            activeTrackColor: AppColors.accent.withValues(alpha: 0.5),
+            onChanged: (_) =>
+                widgetRef.read(themeModeProvider.notifier).toggle(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Inner widgets ─────────────────────────────────────────────────────────────
+
 class _StatItem extends StatelessWidget {
   final String value;
   final String label;
@@ -236,19 +309,24 @@ class _StatItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Expanded(
       child: Column(
         children: [
           Text(
             value,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: cs.onSurface,
               fontSize: 22,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 2),
-          Text(label, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+          Text(label,
+              style: TextStyle(
+                  color: cs.onSurface.withValues(alpha: 0.54),
+                  fontSize: 12)),
         ],
       ),
     );
@@ -270,16 +348,18 @@ class _OptionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = color ?? Colors.white;
+    final cs = Theme.of(context).colorScheme;
+    final c = color ?? cs.onSurface;
 
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
       child: Container(
         margin: const EdgeInsets.only(bottom: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: AppColors.cardColor,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(14),
         ),
         child: Row(
@@ -289,7 +369,8 @@ class _OptionTile extends StatelessWidget {
             Text(label, style: TextStyle(color: c, fontSize: 14)),
             const Spacer(),
             if (color == null)
-              const Icon(Icons.chevron_right_rounded, color: Colors.white24, size: 20),
+              Icon(Icons.chevron_right_rounded,
+                  color: cs.onSurface.withValues(alpha: 0.24), size: 20),
           ],
         ),
       ),

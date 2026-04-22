@@ -138,12 +138,14 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        border: Border(bottom: BorderSide(color: Colors.white.withValues(alpha: 0.08))),
+        border: Border(
+            bottom: BorderSide(color: Colors.white.withValues(alpha: 0.08))),
       ),
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+            icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                color: Colors.white, size: 18),
             onPressed: () => Navigator.pop(context),
           ),
           Container(
@@ -157,7 +159,8 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
                 end: Alignment.bottomRight,
               ),
             ),
-            child: const Icon(Icons.psychology_rounded, color: Colors.white, size: 20),
+            child: const Icon(Icons.psychology_rounded,
+                color: Colors.white, size: 20),
           ),
           const SizedBox(width: 10),
           const Expanded(
@@ -166,7 +169,10 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
               children: [
                 Text(
                   'SafeBot',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15),
                 ),
                 Text(
                   'Asistente de seguridad IA',
@@ -185,7 +191,8 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
               children: [
                 Icon(Icons.circle, size: 7, color: AppColors.riskLow),
                 SizedBox(width: 5),
-                Text('En línea', style: TextStyle(color: AppColors.riskLow, fontSize: 11)),
+                Text('En línea',
+                    style: TextStyle(color: AppColors.riskLow, fontSize: 11)),
               ],
             ),
           ),
@@ -209,7 +216,8 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
             decoration: BoxDecoration(
               color: AppColors.accent.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
+              border:
+                  Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
             ),
             child: Text(
               _suggestions[i],
@@ -244,7 +252,8 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
                 colors: [AppColors.primary, AppColors.accent],
               ),
             ),
-            child: const Icon(Icons.psychology_rounded, size: 16, color: Colors.white),
+            child: const Icon(Icons.psychology_rounded,
+                size: 16, color: Colors.white),
           ),
           const SizedBox(width: 10),
           Container(
@@ -265,7 +274,8 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       decoration: BoxDecoration(
         color: AppColors.surface,
-        border: Border(top: BorderSide(color: Colors.white.withValues(alpha: 0.08))),
+        border: Border(
+            top: BorderSide(color: Colors.white.withValues(alpha: 0.08))),
       ),
       child: Row(
         children: [
@@ -277,11 +287,14 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
               textInputAction: TextInputAction.send,
               onSubmitted: _send,
               decoration: InputDecoration(
-                hintText: _ready ? 'Pregúntale a SafeBot...' : 'SafeBot no disponible',
+                hintText: _ready
+                    ? 'Pregúntale a SafeBot...'
+                    : 'SafeBot no disponible',
                 hintStyle: const TextStyle(color: Colors.white30, fontSize: 14),
                 filled: true,
                 fillColor: AppColors.cardColor,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24),
                   borderSide: BorderSide.none,
@@ -304,7 +317,11 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
                 shape: BoxShape.circle,
                 color: _ready ? AppColors.accent : Colors.white12,
                 boxShadow: _ready
-                    ? [BoxShadow(color: AppColors.accent.withValues(alpha: 0.4), blurRadius: 8)]
+                    ? [
+                        BoxShadow(
+                            color: AppColors.accent.withValues(alpha: 0.4),
+                            blurRadius: 8)
+                      ]
                     : [],
               ),
               child: Icon(
@@ -366,7 +383,8 @@ class _BubbleWidget extends StatelessWidget {
           ),
           child: Text(
             msg.text,
-            style: const TextStyle(color: Colors.black, fontSize: 14, height: 1.4),
+            style:
+                const TextStyle(color: Colors.black, fontSize: 14, height: 1.4),
           ),
         ),
       );
@@ -393,7 +411,9 @@ class _BubbleWidget extends StatelessWidget {
               ),
             ),
             child: Icon(
-              msg.isError ? Icons.error_outline_rounded : Icons.psychology_rounded,
+              msg.isError
+                  ? Icons.error_outline_rounded
+                  : Icons.psychology_rounded,
               size: 16,
               color: msg.isError ? AppColors.riskHigh : AppColors.accent,
             ),
@@ -441,13 +461,15 @@ class _TypingDots extends StatefulWidget {
   State<_TypingDots> createState() => _TypingDotsState();
 }
 
-class _TypingDotsState extends State<_TypingDots> with SingleTickerProviderStateMixin {
+class _TypingDotsState extends State<_TypingDots>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 900))
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 900))
       ..repeat();
   }
 

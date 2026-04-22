@@ -17,7 +17,6 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       body: navigationShell,
       bottomNavigationBar: _BottomNavBar(
         currentIndex: navigationShell.currentIndex,
@@ -35,15 +34,17 @@ class _BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: cs.surface,
         border: Border(
-          top: BorderSide(color: Colors.white.withValues(alpha: 0.08)),
+          top: BorderSide(color: cs.outlineVariant),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.4),
+            color: Colors.black.withValues(alpha: 0.15),
             blurRadius: 24,
             offset: const Offset(0, -6),
           ),
@@ -112,6 +113,8 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isSelected = index == currentIndex;
+    final cs = Theme.of(context).colorScheme;
+    final unselected = cs.onSurface.withValues(alpha: 0.3);
 
     return Expanded(
       child: InkWell(
@@ -124,7 +127,8 @@ class _NavItem extends StatelessWidget {
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               curve: Curves.easeOut,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
               decoration: BoxDecoration(
                 color: isSelected
                     ? AppColors.accent.withValues(alpha: 0.15)
@@ -133,7 +137,7 @@ class _NavItem extends StatelessWidget {
               ),
               child: Icon(
                 icon,
-                color: isSelected ? AppColors.accent : Colors.white30,
+                color: isSelected ? AppColors.accent : unselected,
                 size: 22,
               ),
             ),
@@ -141,9 +145,10 @@ class _NavItem extends StatelessWidget {
             AnimatedDefaultTextStyle(
               duration: const Duration(milliseconds: 200),
               style: TextStyle(
-                color: isSelected ? AppColors.accent : Colors.white30,
+                color: isSelected ? AppColors.accent : unselected,
                 fontSize: 10,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                fontWeight:
+                    isSelected ? FontWeight.w600 : FontWeight.normal,
               ),
               child: Text(label),
             ),
@@ -178,7 +183,8 @@ class _SosNavItem extends StatelessWidget {
                 color: AppColors.sosRed,
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.sosRed.withValues(alpha: isSelected ? 0.6 : 0.3),
+                    color: AppColors.sosRed
+                        .withValues(alpha: isSelected ? 0.6 : 0.3),
                     blurRadius: isSelected ? 16 : 8,
                     spreadRadius: isSelected ? 2 : 0,
                   ),

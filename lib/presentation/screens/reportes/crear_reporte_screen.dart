@@ -215,11 +215,13 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
     final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (context) => Padding(
+      builder: (ctx) {
+        final cs = Theme.of(ctx).colorScheme;
+        return Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -228,15 +230,15 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
               width: 36,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.white24,
+                color: cs.onSurface.withValues(alpha: 0.24),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
             const SizedBox(height: 20),
             Text(
               l10n.addPhoto,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: cs.onSurface,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -289,7 +291,8 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
             const SizedBox(height: 16),
           ],
         ),
-      ),
+        );
+      },
     );
   }
 
@@ -303,7 +306,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
-          color: AppColors.cardColor,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: AppColors.accent.withValues(alpha: 0.3),
@@ -315,8 +318,8 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
             const SizedBox(height: 8),
             Text(
               label,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
@@ -389,7 +392,6 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       body: Stack(
         children: [
           // Fondo decorativo
@@ -506,6 +508,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
   // ── Header ────────────────────────────────────────────────────────────────
 
   Widget _buildHeader() {
+    final cs = Theme.of(context).colorScheme;
     return FadeInDown(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
@@ -517,25 +520,25 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: cs.surface,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white12),
+                  border: Border.all(color: cs.outlineVariant),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.arrow_back_ios_new_rounded,
-                  color: Colors.white,
+                  color: cs.onSurface,
                   size: 18,
                 ),
               ),
             ),
             const SizedBox(width: 16),
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Crear Reporte',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: cs.onSurface,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
@@ -543,7 +546,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                 Text(
                   'Ayuda a mantener el campus seguro',
                   style: TextStyle(
-                    color: AppColors.textSecondary,
+                    color: cs.onSurfaceVariant,
                     fontSize: 12,
                   ),
                 ),
@@ -584,14 +587,15 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
   // ── Sección wrapper ───────────────────────────────────────────────────────
 
   Widget _buildSeccion(String titulo, String subtitulo, Widget child) {
+    final cs = Theme.of(context).colorScheme;
     return FadeInUp(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             titulo,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: cs.onSurface,
               fontSize: 15,
               fontWeight: FontWeight.bold,
             ),
@@ -599,8 +603,8 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
           const SizedBox(height: 2),
           Text(
             subtitulo,
-            style: const TextStyle(
-              color: AppColors.textSecondary,
+            style: TextStyle(
+              color: cs.onSurfaceVariant,
               fontSize: 12,
             ),
           ),
@@ -614,6 +618,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
   // ── Foto ──────────────────────────────────────────────────────────────────
 
   Widget _buildFotoSection() {
+    final cs = Theme.of(context).colorScheme;
     return GestureDetector(
       onTap: _mostrarOpcionesImagen,
       child: AnimatedContainer(
@@ -621,12 +626,12 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
         width: double.infinity,
         height: _imagenSeleccionada != null ? 200 : 130,
         decoration: BoxDecoration(
-          color: AppColors.cardColor,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: _imagenSeleccionada != null
                 ? AppColors.accent.withValues(alpha: 0.5)
-                : Colors.white12,
+                : cs.outlineVariant,
             width: _imagenSeleccionada != null ? 2 : 1,
           ),
         ),
@@ -708,19 +713,19 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  const Text(
+                  Text(
                     'Toca para agregar foto',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: cs.onSurface,
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
+                  Text(
                     'Cámara o galería',
                     style: TextStyle(
-                      color: AppColors.textSecondary,
+                      color: cs.onSurfaceVariant,
                       fontSize: 12,
                     ),
                   ),
@@ -733,6 +738,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
   // ── Tipos de incidente ────────────────────────────────────────────────────
 
   Widget _buildTiposGrid() {
+    final cs = Theme.of(context).colorScheme;
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -749,6 +755,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
         final isAiSuggested = _aiSuggestedTipo == tipo['tipo'];
         return GestureDetector(
           onTap: () => setState(() => _tipoSeleccionado = tipo['tipo']),
+<<<<<<< HEAD
           child: Stack(
             fit: StackFit.expand,
             children: [
@@ -766,6 +773,48 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                             ? AppColors.accent.withValues(alpha: 0.6)
                             : Colors.white12,
                     width: isSelected || isAiSuggested ? 2 : 1,
+=======
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? (tipo['color'] as Color).withValues(alpha: 0.2)
+                  : Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: isSelected ? tipo['color'] as Color : cs.outlineVariant,
+                width: isSelected ? 2 : 1,
+              ),
+              boxShadow: isSelected
+                  ? [
+                      BoxShadow(
+                        color: (tipo['color'] as Color).withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        spreadRadius: 1,
+                      )
+                    ]
+                  : [],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  tipo['icon'] as IconData,
+                  color: isSelected
+                      ? tipo['color'] as Color
+                      : cs.onSurfaceVariant,
+                  size: 24,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  tipo['tipo'],
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: isSelected ? cs.onSurface : cs.onSurfaceVariant,
+                    fontSize: 10,
+                    fontWeight:
+                        isSelected ? FontWeight.bold : FontWeight.normal,
+>>>>>>> 58271cffa769bba33d5fd7dd62f07d58de9a16db
                   ),
                   boxShadow: isSelected
                       ? [BoxShadow(
@@ -824,6 +873,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
   // ── Descripción ───────────────────────────────────────────────────────────
 
   Widget _buildDescripcionField() {
+<<<<<<< HEAD
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -900,12 +950,46 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                   : const SizedBox.shrink(key: ValueKey('empty')),
         ),
       ],
+=======
+    final cs = Theme.of(context).colorScheme;
+    return TextFormField(
+      controller: _descripcionController,
+      maxLines: 4,
+      maxLength: 300,
+      style: TextStyle(color: cs.onSurface, fontSize: 14),
+      decoration: InputDecoration(
+        hintText:
+            'Ej: Vi a una persona sospechosa merodeando el parqueadero norte alrededor de las 10 PM...',
+        hintStyle: TextStyle(
+          color: cs.onSurfaceVariant,
+          fontSize: 13,
+        ),
+        filled: true,
+        fillColor: Theme.of(context).cardColor,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: AppColors.accent, width: 1.5),
+        ),
+        counterStyle: TextStyle(color: cs.onSurfaceVariant),
+        errorStyle: const TextStyle(color: AppColors.riskHigh),
+      ),
+      validator: (v) {
+        if (v == null || v.isEmpty) return 'Describe el incidente';
+        if (v.length < 20) return 'Mínimo 20 caracteres';
+        return null;
+      },
+>>>>>>> 58271cffa769bba33d5fd7dd62f07d58de9a16db
     );
   }
 
   // ── Urgencia ──────────────────────────────────────────────────────────────
 
   Widget _buildUrgenciaSelector() {
+    final cs = Theme.of(context).colorScheme;
     return Row(
       children: _nivelesUrgencia.map((nivel) {
         final isSelected = _nivelUrgencia == nivel['nivel'];
@@ -922,10 +1006,10 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
               decoration: BoxDecoration(
                 color: isSelected
                     ? color.withValues(alpha: 0.2)
-                    : AppColors.cardColor,
+                    : Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: isSelected ? color : Colors.white12,
+                  color: isSelected ? color : cs.outlineVariant,
                   width: isSelected ? 2 : 1,
                 ),
               ),
@@ -933,14 +1017,14 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                 children: [
                   Icon(
                     nivel['icon'] as IconData,
-                    color: isSelected ? color : AppColors.textSecondary,
+                    color: isSelected ? color : cs.onSurfaceVariant,
                     size: 20,
                   ),
                   const SizedBox(height: 4),
                   Text(
                     nivel['label'],
                     style: TextStyle(
-                      color: isSelected ? color : AppColors.textSecondary,
+                      color: isSelected ? color : cs.onSurfaceVariant,
                       fontSize: 11,
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                     ),
@@ -989,12 +1073,13 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.cardColor,
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white12),
+              border: Border.all(
+                  color: Theme.of(context).colorScheme.outlineVariant),
             ),
-            child:
-                const Icon(Icons.remove_rounded, color: Colors.white, size: 20),
+            child: Icon(Icons.remove_rounded,
+                color: Theme.of(context).colorScheme.onSurface, size: 20),
           ),
         ),
 
@@ -1006,19 +1091,19 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
             controller: _testigosController,
             keyboardType: TextInputType.number,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
             decoration: InputDecoration(
               hintText: '0',
-              hintStyle: const TextStyle(
-                color: AppColors.textSecondary,
+              hintStyle: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 18,
               ),
               filled: true,
-              fillColor: AppColors.cardColor,
+              fillColor: Theme.of(context).cardColor,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
@@ -1063,15 +1148,16 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
   // ── Ubicación ─────────────────────────────────────────────────────────────
 
   Widget _buildUbicacionCard() {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.cardColor,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: _ubicacionObtenida
               ? AppColors.riskLow.withValues(alpha: 0.4)
-              : Colors.white12,
+              : cs.outlineVariant,
         ),
       ),
       child: Row(
@@ -1082,7 +1168,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
             decoration: BoxDecoration(
               color: _ubicacionObtenida
                   ? AppColors.riskLow.withValues(alpha: 0.15)
-                  : AppColors.textSecondary.withValues(alpha: 0.1),
+                  : cs.onSurfaceVariant.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -1105,7 +1191,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                   style: TextStyle(
                     color: _ubicacionObtenida
                         ? AppColors.riskLow
-                        : AppColors.textSecondary,
+                        : cs.onSurfaceVariant,
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
                   ),
@@ -1113,8 +1199,8 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                 const SizedBox(height: 2),
                 Text(
                   _ubicacionTexto,
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: cs.onSurface,
                     fontSize: 13,
                   ),
                 ),
@@ -1158,15 +1244,16 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
           color: AppColors.accent.withValues(alpha: 0.3),
         ),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.psychology_rounded, color: AppColors.accent, size: 22),
-          SizedBox(width: 12),
+          const Icon(Icons.psychology_rounded,
+              color: AppColors.accent, size: 22),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
               'La IA de SafeCampus analizará tu reporte, clasificará el incidente y notificará automáticamente a los estudiantes en un radio de 500m.',
               style: TextStyle(
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 12,
                 height: 1.5,
               ),
@@ -1180,11 +1267,12 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
   // ── Botón enviar ──────────────────────────────────────────────────────────
 
   Widget _buildBotonEnviar() {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
-      decoration: const BoxDecoration(
-        color: AppColors.background,
-        border: Border(top: BorderSide(color: Colors.white12)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        border: Border(top: BorderSide(color: cs.outlineVariant)),
       ),
       child: SizedBox(
         width: double.infinity,
