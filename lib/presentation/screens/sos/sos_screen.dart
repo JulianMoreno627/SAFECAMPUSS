@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/services/ai_service.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../core/providers/location_provider.dart';
+import '../../../core/providers/emergency_contacts_provider.dart';
 
 class SosScreen extends ConsumerStatefulWidget {
   const SosScreen({super.key});
@@ -38,13 +43,13 @@ class _SosScreenState extends ConsumerState<SosScreen>
   }
 
   List<(String, IconData, Color)> _emergencias(AppLocalizations l10n) => [
-    (l10n.emergRobo, Icons.no_backpack_rounded, AppColors.riskHigh),
-    (l10n.emergAcoso, Icons.person_off_rounded, AppColors.riskMedium),
-    (l10n.emergAccidente, Icons.car_crash_rounded, AppColors.riskHigh),
-    (l10n.emergPelea, Icons.sports_kabaddi_rounded, AppColors.riskCritical),
-    (l10n.emergPeligro, Icons.emergency_rounded, AppColors.sosRed),
-    (l10n.emergOtro, Icons.report_problem_rounded, AppColors.riskMedium),
-  ];
+        (l10n.emergRobo, Icons.no_backpack_rounded, AppColors.riskHigh),
+        (l10n.emergAcoso, Icons.person_off_rounded, AppColors.riskMedium),
+        (l10n.emergAccidente, Icons.car_crash_rounded, AppColors.riskHigh),
+        (l10n.emergPelea, Icons.sports_kabaddi_rounded, AppColors.riskCritical),
+        (l10n.emergPeligro, Icons.emergency_rounded, AppColors.sosRed),
+        (l10n.emergOtro, Icons.report_problem_rounded, AppColors.riskMedium),
+      ];
 
   Future<void> _getAdvice(String tipo) async {
     setState(() {
@@ -58,6 +63,73 @@ class _SosScreenState extends ConsumerState<SosScreen>
         _aiAdvice = advice;
         _loadingAdvice = false;
       });
+    }
+  }
+
+  Future<void> _callEmergencies() async {
+    final Uri tel = Uri.parse('tel:123');
+    if (await canLaunchUrl(tel)) {
+      await launchUrl(tel);
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No se pudo realizar la llamada')),
+        );
+      }
+    }
+  }
+
+  Future<void> _shareLocation() async {
+    final location = ref.read(locationProvider);
+    if (location.currentPosition == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Obteniendo ubicación... intenta de nuevo')),
+        );
+      }
+      return;
+    }
+
+    final lat = location.currentPosition!.latitude;
+    final lng = location.currentPosition!.longitude;
+    final mapUrl = 'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
+
+    await Share.share(
+        '¡Hola! Estoy compartiendo mi ubicación de seguridad desde SafeCampus: $mapUrl');
+  }
+
+  Future<void> _alertContacts() async {
+    final contacts = ref.read(emergencyContactsProvider).contacts;
+    if (contacts.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No tienes contactos configurados')),
+        );
+      }
+      return;
+    }
+
+    final location = ref.read(locationProvider);
+    String mapUrl = '';
+    if (location.currentPosition != null) {
+      final lat = location.currentPosition!.latitude;
+      final lng = location.currentPosition!.longitude;
+      mapUrl = ' https://www.google.com/maps/search/?api=1&query=$lat,$lng';
+    }
+
+    final message = '¡EMERGENCIA! Estoy en SafeCampus y necesito ayuda.$mapUrl';
+    final phones = contacts.map((c) => c.telefono).join(',');
+
+    // Abrir app de SMS con los contactos y el mensaje
+    final Uri smsUri =
+        Uri.parse('sms:$phones?body=${Uri.encodeComponent(message)}');
+
+    if (await canLaunchUrl(smsUri)) {
+      await launchUrl(smsUri);
+    } else {
+      // Fallback a compartir el mensaje individualmente si sms: no es soportado
+      await Share.share(message);
     }
   }
 
@@ -136,7 +208,13 @@ class _SosScreenState extends ConsumerState<SosScreen>
   Widget _buildSosButton(AppLocalizations l10n) {
     return FadeInUp(
       child: GestureDetector(
-        onLongPress: () => setState(() => _activated = !_activated),
+        onLongPress: () {
+          setState(() => _activated = !_activated);
+          if (_activated) {
+            _alertContacts();
+            HapticFeedback.heavyImpact();
+          }
+        },
         child: AnimatedBuilder(
           animation: _pulseController,
           builder: (context, child) {
@@ -149,7 +227,8 @@ class _SosScreenState extends ConsumerState<SosScreen>
                   height: 220 + pulse * 30,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppColors.sosRed.withValues(alpha: 0.08 + pulse * 0.08),
+                    color:
+                        AppColors.sosRed.withValues(alpha: 0.08 + pulse * 0.08),
                   ),
                 ),
                 Container(
@@ -157,7 +236,8 @@ class _SosScreenState extends ConsumerState<SosScreen>
                   height: 180 + pulse * 16,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppColors.sosRed.withValues(alpha: 0.15 + pulse * 0.1),
+                    color:
+                        AppColors.sosRed.withValues(alpha: 0.15 + pulse * 0.1),
                   ),
                 ),
                 Container(
@@ -165,11 +245,15 @@ class _SosScreenState extends ConsumerState<SosScreen>
                   height: 148,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: _activated ? AppColors.sosRed : Theme.of(context).cardColor,
-                    border: Border.all(color: AppColors.sosRed, width: _activated ? 0 : 3),
+                    color: _activated
+                        ? AppColors.sosRed
+                        : Theme.of(context).cardColor,
+                    border: Border.all(
+                        color: AppColors.sosRed, width: _activated ? 0 : 3),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.sosRed.withValues(alpha: _activated ? 0.5 : 0.2),
+                        color: AppColors.sosRed
+                            .withValues(alpha: _activated ? 0.5 : 0.2),
                         blurRadius: _activated ? 40 : 20,
                         spreadRadius: _activated ? 4 : 0,
                       ),
@@ -223,21 +307,21 @@ class _SosScreenState extends ConsumerState<SosScreen>
                 icon: Icons.phone_rounded,
                 label: l10n.callEmergencies,
                 color: AppColors.riskHigh,
-                onTap: () {},
+                onTap: _callEmergencies,
               ),
               const SizedBox(width: 10),
               _QuickActionButton(
                 icon: Icons.share_location_rounded,
                 label: l10n.shareLocation,
                 color: AppColors.accent,
-                onTap: () {},
+                onTap: _shareLocation,
               ),
               const SizedBox(width: 10),
               _QuickActionButton(
                 icon: Icons.record_voice_over_rounded,
                 label: l10n.alertContacts,
                 color: AppColors.riskMedium,
-                onTap: () {},
+                onTap: _alertContacts,
               ),
             ],
           ),
@@ -305,7 +389,8 @@ class _SosScreenState extends ConsumerState<SosScreen>
                   onTap: () => _getAdvice(e.$1),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 180),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                     decoration: BoxDecoration(
                       color: isSelected
                           ? e.$3.withValues(alpha: 0.2)
@@ -359,7 +444,8 @@ class _SosScreenState extends ConsumerState<SosScreen>
                           const SizedBox(width: 10),
                           Text(l10n.sosBotPreparing,
                               style: TextStyle(
-                                  color: AppColors.accent.withValues(alpha: 0.8),
+                                  color:
+                                      AppColors.accent.withValues(alpha: 0.8),
                                   fontSize: 13)),
                         ],
                       )
@@ -403,6 +489,9 @@ class _SosScreenState extends ConsumerState<SosScreen>
 
   Widget _buildEmergencyContacts(AppLocalizations l10n) {
     final cs = Theme.of(context).colorScheme;
+    final contactsState = ref.watch(emergencyContactsProvider);
+    final contacts = contactsState.contacts;
+
     return FadeInUp(
       delay: const Duration(milliseconds: 300),
       child: Column(
@@ -423,37 +512,73 @@ class _SosScreenState extends ConsumerState<SosScreen>
                 icon: const Icon(Icons.add_rounded,
                     size: 16, color: AppColors.accent),
                 label: Text(l10n.addLabel,
-                    style: const TextStyle(color: AppColors.accent, fontSize: 12)),
+                    style:
+                        const TextStyle(color: AppColors.accent, fontSize: 12)),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: cs.outlineVariant),
             ),
-            child: Column(
-              children: [
-                Icon(Icons.group_add_rounded,
-                    color: cs.onSurface.withValues(alpha: 0.24), size: 40),
-                const SizedBox(height: 12),
-                Text(
-                  l10n.noEmergencyContacts,
-                  style: TextStyle(
-                      color: cs.onSurface.withValues(alpha: 0.54), fontSize: 14),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  l10n.addTrustedPeople,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      color: cs.onSurface.withValues(alpha: 0.3), fontSize: 12),
-                ),
-              ],
-            ),
+            child: contacts.isEmpty
+                ? Column(
+                    children: [
+                      Icon(Icons.group_add_rounded,
+                          color: cs.onSurface.withValues(alpha: 0.24),
+                          size: 40),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Sin contactos de emergencia',
+                        style: TextStyle(
+                            color: cs.onSurface.withValues(alpha: 0.54),
+                            fontSize: 14),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Agrega personas de confianza para alertarlas automáticamente',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            color: cs.onSurface.withValues(alpha: 0.3),
+                            fontSize: 12),
+                      ),
+                    ],
+                  )
+                : Column(
+                    children: contacts.take(3).map((c) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 14,
+                              backgroundColor:
+                                  AppColors.accent.withValues(alpha: 0.1),
+                              child: Text(c.iniciales,
+                                  style: const TextStyle(
+                                      color: AppColors.accent,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(c.nombre,
+                                  style: TextStyle(
+                                      color: cs.onSurface, fontSize: 13)),
+                            ),
+                            Text(c.relacion ?? '',
+                                style: TextStyle(
+                                    color: cs.onSurface.withValues(alpha: 0.4),
+                                    fontSize: 11)),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
           ),
         ],
       ),

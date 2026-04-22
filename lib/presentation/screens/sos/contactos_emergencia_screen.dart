@@ -1,31 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/models/contacto_emergencia.dart';
+import '../../../core/providers/emergency_contacts_provider.dart';
 
-class ContactosEmergenciaScreen extends StatefulWidget {
+class ContactosEmergenciaScreen extends ConsumerStatefulWidget {
   const ContactosEmergenciaScreen({super.key});
 
   @override
-  State<ContactosEmergenciaScreen> createState() =>
+  ConsumerState<ContactosEmergenciaScreen> createState() =>
       _ContactosEmergenciaScreenState();
 }
 
 class _ContactosEmergenciaScreenState
-    extends State<ContactosEmergenciaScreen> {
-  final List<_Contacto> _contactos = [];
-
+    extends ConsumerState<ContactosEmergenciaScreen> {
   void _agregar() {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => _AgregarContactoSheet(
-        onGuardar: (c) => setState(() => _contactos.add(c)),
+        onGuardar: (c) {
+          ref.read(emergencyContactsProvider.notifier).addContact(c);
+        },
       ),
     );
   }
 
-  void _eliminar(int index) {
+  void _eliminar(ContactoEmergencia contacto) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -33,7 +36,7 @@ class _ContactosEmergenciaScreenState
         title: const Text('Eliminar contacto',
             style: TextStyle(color: Colors.white)),
         content: Text(
-          '¿Eliminar a ${_contactos[index].nombre}?',
+          '¿Eliminar a ${contacto.nombre}?',
           style: const TextStyle(color: Colors.white70),
         ),
         actions: [
@@ -44,7 +47,7 @@ class _ContactosEmergenciaScreenState
           ),
           TextButton(
             onPressed: () {
-              setState(() => _contactos.removeAt(index));
+              ref.read(emergencyContactsProvider.notifier).removeContact(contacto.id);
               Navigator.pop(ctx);
             },
             child: const Text('Eliminar',
@@ -57,18 +60,20 @@ class _ContactosEmergenciaScreenState
 
   @override
   Widget build(BuildContext context) {
+    final contactsState = ref.watch(emergencyContactsProvider);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(),
+            _buildHeader(contactsState.contacts.length),
             const SizedBox(height: 12),
             _buildInfoBanner(),
             Expanded(
-              child: _contactos.isEmpty
+              child: contactsState.contacts.isEmpty
                   ? _buildEmpty()
-                  : _buildLista(),
+                  : _buildLista(contactsState.contacts),
             ),
           ],
         ),
@@ -84,7 +89,7 @@ class _ContactosEmergenciaScreenState
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(int count) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
       child: Row(
@@ -113,7 +118,7 @@ class _ContactosEmergenciaScreenState
                       fontSize: 20,
                       fontWeight: FontWeight.bold)),
               Text(
-                '${_contactos.length} / 5 contactos',
+                '$count / 5 contactos',
                 style: const TextStyle(color: Colors.white54, fontSize: 12),
               ),
             ],
@@ -183,42 +188,27 @@ class _ContactosEmergenciaScreenState
     );
   }
 
-  Widget _buildLista() {
+  Widget _buildLista(List<ContactoEmergencia> contacts) {
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 100),
-      itemCount: _contactos.length,
+      itemCount: contacts.length,
       itemBuilder: (ctx, i) => FadeInUp(
         delay: Duration(milliseconds: i * 50),
         child: _ContactoCard(
-          contacto: _contactos[i],
-          onEliminar: () => _eliminar(i),
+          contacto: contacts[i],
+          onEliminar: () => _eliminar(contacts[i]),
         ),
       ),
     );
   }
 }
 
-// ── Modelo ────────────────────────────────────────────────────────────────────
-
-class _Contacto {
-  final String nombre;
-  final String telefono;
-  final String relacion;
-
-  const _Contacto({
-    required this.nombre,
-    required this.telefono,
-    required this.relacion,
-  });
-
-  String get initials =>
-      nombre.isNotEmpty ? nombre[0].toUpperCase() : '?';
-}
+// ── Modelo local removido (usamos ContactoEmergencia del core) ──────────────
 
 // ── Card de contacto ──────────────────────────────────────────────────────────
 
 class _ContactoCard extends StatelessWidget {
-  final _Contacto contacto;
+  final ContactoEmergencia contacto;
   final VoidCallback onEliminar;
 
   const _ContactoCard({required this.contacto, required this.onEliminar});
@@ -255,7 +245,7 @@ class _ContactoCard extends StatelessWidget {
               border: Border.all(color: _color.withValues(alpha: 0.4)),
             ),
             child: Center(
-              child: Text(contacto.initials,
+              child: Text(contacto.iniciales,
                   style: TextStyle(
                       color: _color,
                       fontSize: 18,
@@ -277,29 +267,25 @@ class _ContactoCard extends StatelessWidget {
                     style: const TextStyle(
                         color: Colors.white54, fontSize: 13)),
                 const SizedBox(height: 2),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: _color.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                if (contacto.relacion != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: _color.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(contacto.relacion!,
+                        style: TextStyle(
+                            color: _color,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600)),
                   ),
-                  child: Text(contacto.relacion,
-                      style: TextStyle(
-                          color: _color,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600)),
-                ),
               ],
             ),
           ),
           Row(
             children: [
-              IconButton(
-                icon: const Icon(Icons.phone_rounded,
-                    color: AppColors.riskLow, size: 22),
-                onPressed: () {},
-              ),
               IconButton(
                 icon: const Icon(Icons.delete_outline_rounded,
                     color: AppColors.riskHigh, size: 22),
@@ -316,7 +302,7 @@ class _ContactoCard extends StatelessWidget {
 // ── Sheet agregar contacto ────────────────────────────────────────────────────
 
 class _AgregarContactoSheet extends StatefulWidget {
-  final void Function(_Contacto) onGuardar;
+  final void Function(ContactoEmergencia) onGuardar;
 
   const _AgregarContactoSheet({required this.onGuardar});
 
@@ -343,7 +329,8 @@ class _AgregarContactoSheetState extends State<_AgregarContactoSheet> {
 
   void _guardar() {
     if (_nombreCtrl.text.trim().isEmpty || _telCtrl.text.trim().isEmpty) return;
-    widget.onGuardar(_Contacto(
+    widget.onGuardar(ContactoEmergencia(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
       nombre: _nombreCtrl.text.trim(),
       telefono: _telCtrl.text.trim(),
       relacion: _relacion,
