@@ -290,5 +290,41 @@
   "notifNoNotifications": "Sin notificaciones",
   "dashboardAiAnalysis": "Análisis IA del Campus",
   "analyzingTrends": "Analizando tendencias...",
-  "trendsNoData": "El análisis de tendencias estará disponible cuando haya reportes cercanos."
+  "trendsNoData": "El análisis de tendencias estará disponible cuando haya reportes cercanos.",
+  "cancelLabel": "Cancelar",
+  "deleteLabel": "Eliminar",
+  "saveLabel": "Guardar",
+  "sosCallFailed": "No se pudo realizar la llamada",
+  "sosObtainingLocationRetry": "Obteniendo ubicación... intenta de nuevo",
+  "sosShareLocationMessage": "¡Hola! Estoy compartiendo mi ubicación de seguridad desde SafeCampus: {mapUrl}",
+  "@sosShareLocationMessage": {
+    "placeholders": {
+      "mapUrl": {}
+    }
+  },
+  "sosNoContactsConfigured": "No tienes contactos configurados",
+  "sosEmergencyAlertMessage": "¡EMERGENCIA! Estoy en SafeCampus y necesito ayuda.",
+  "emergencyContactsCount": "{count} / {max} contactos",
+  "@emergencyContactsCount": {
+    "placeholders": {
+      "count": {},
+      "max": {}
+    }
+  },
+  "emergencyContactsInfoBanner": "Al activar SOS, estos contactos recibirán tu ubicación y una alerta inmediata.",
+  "deleteEmergencyContactTitle": "Eliminar contacto",
+  "deleteEmergencyContactConfirm": "¿Eliminar a {name}?",
+  "@deleteEmergencyContactConfirm": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "addEmergencyContactTitle": "Agregar Contacto",
+  "fullNameHint": "Nombre completo",
+  "relationshipLabel": "Relación",
+  "relationshipFamily": "Familiar",
+  "relationshipFriend": "Amigo/a",
+  "relationshipPartner": "Pareja",
+  "relationshipClassmate": "Compañero/a",
+  "relationshipOther": "Otro"
 }

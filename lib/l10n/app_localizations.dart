@@ -1849,6 +1849,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Trend analysis will be available when there are nearby reports.'**
   String get trendsNoData;
+
+  /// No description provided for @cancelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancelLabel;
+
+  /// No description provided for @deleteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get deleteLabel;
+
+  /// No description provided for @saveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get saveLabel;
+
+  /// No description provided for @sosCallFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not place the call'**
+  String get sosCallFailed;
+
+  /// No description provided for @sosObtainingLocationRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting location... try again'**
+  String get sosObtainingLocationRetry;
+
+  /// No description provided for @sosShareLocationMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Hi! I am sharing my SafeCampus safety location: {mapUrl}'**
+  String sosShareLocationMessage(Object mapUrl);
+
+  /// No description provided for @sosNoContactsConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no emergency contacts configured'**
+  String get sosNoContactsConfigured;
+
+  /// No description provided for @sosEmergencyAlertMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'EMERGENCY! I\'m in SafeCampus and I need help.'**
+  String get sosEmergencyAlertMessage;
+
+  /// No description provided for @emergencyContactsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} / {max} contacts'**
+  String emergencyContactsCount(Object count, Object max);
+
+  /// No description provided for @emergencyContactsInfoBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'When SOS is activated, these contacts will receive your location and an immediate alert.'**
+  String get emergencyContactsInfoBanner;
+
+  /// No description provided for @deleteEmergencyContactTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete contact'**
+  String get deleteEmergencyContactTitle;
+
+  /// No description provided for @deleteEmergencyContactConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete {name}?'**
+  String deleteEmergencyContactConfirm(Object name);
+
+  /// No description provided for @addEmergencyContactTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Contact'**
+  String get addEmergencyContactTitle;
+
+  /// No description provided for @fullNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name'**
+  String get fullNameHint;
+
+  /// No description provided for @relationshipLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Relationship'**
+  String get relationshipLabel;
+
+  /// No description provided for @relationshipFamily.
+  ///
+  /// In en, this message translates to:
+  /// **'Family'**
+  String get relationshipFamily;
+
+  /// No description provided for @relationshipFriend.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend'**
+  String get relationshipFriend;
+
+  /// No description provided for @relationshipPartner.
+  ///
+  /// In en, this message translates to:
+  /// **'Partner'**
+  String get relationshipPartner;
+
+  /// No description provided for @relationshipClassmate.
+  ///
+  /// In en, this message translates to:
+  /// **'Classmate'**
+  String get relationshipClassmate;
+
+  /// No description provided for @relationshipOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get relationshipOther;
 }
 
 class _AppLocalizationsDelegate

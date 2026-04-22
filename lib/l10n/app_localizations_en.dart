@@ -917,4 +917,73 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get trendsNoData =>
       'Trend analysis will be available when there are nearby reports.';
+
+  @override
+  String get cancelLabel => 'Cancel';
+
+  @override
+  String get deleteLabel => 'Delete';
+
+  @override
+  String get saveLabel => 'Save';
+
+  @override
+  String get sosCallFailed => 'Could not place the call';
+
+  @override
+  String get sosObtainingLocationRetry => 'Getting location... try again';
+
+  @override
+  String sosShareLocationMessage(Object mapUrl) {
+    return 'Hi! I am sharing my SafeCampus safety location: $mapUrl';
+  }
+
+  @override
+  String get sosNoContactsConfigured =>
+      'You have no emergency contacts configured';
+
+  @override
+  String get sosEmergencyAlertMessage =>
+      'EMERGENCY! I\'m in SafeCampus and I need help.';
+
+  @override
+  String emergencyContactsCount(Object count, Object max) {
+    return '$count / $max contacts';
+  }
+
+  @override
+  String get emergencyContactsInfoBanner =>
+      'When SOS is activated, these contacts will receive your location and an immediate alert.';
+
+  @override
+  String get deleteEmergencyContactTitle => 'Delete contact';
+
+  @override
+  String deleteEmergencyContactConfirm(Object name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String get addEmergencyContactTitle => 'Add Contact';
+
+  @override
+  String get fullNameHint => 'Full name';
+
+  @override
+  String get relationshipLabel => 'Relationship';
+
+  @override
+  String get relationshipFamily => 'Family';
+
+  @override
+  String get relationshipFriend => 'Friend';
+
+  @override
+  String get relationshipPartner => 'Partner';
+
+  @override
+  String get relationshipClassmate => 'Classmate';
+
+  @override
+  String get relationshipOther => 'Other';
 }

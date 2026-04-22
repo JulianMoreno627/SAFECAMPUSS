@@ -5,6 +5,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
+import '../../../core/models/contacto_emergencia.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/services/ai_service.dart';
 import '../../../l10n/app_localizations.dart';
@@ -51,6 +52,23 @@ class _SosScreenState extends ConsumerState<SosScreen>
         (l10n.emergOtro, Icons.report_problem_rounded, AppColors.riskMedium),
       ];
 
+  String? _localizedRelation(AppLocalizations l10n, String? relation) {
+    switch (ContactoEmergencia.normalizeRelationCode(relation)) {
+      case ContactoEmergencia.relationFamily:
+        return l10n.relationshipFamily;
+      case ContactoEmergencia.relationFriend:
+        return l10n.relationshipFriend;
+      case ContactoEmergencia.relationPartner:
+        return l10n.relationshipPartner;
+      case ContactoEmergencia.relationClassmate:
+        return l10n.relationshipClassmate;
+      case ContactoEmergencia.relationOther:
+        return l10n.relationshipOther;
+      default:
+        return null;
+    }
+  }
+
   Future<void> _getAdvice(String tipo) async {
     setState(() {
       _selectedEmergency = tipo;
@@ -67,25 +85,26 @@ class _SosScreenState extends ConsumerState<SosScreen>
   }
 
   Future<void> _callEmergencies() async {
+    final l10n = AppLocalizations.of(context)!;
     final Uri tel = Uri.parse('tel:123');
     if (await canLaunchUrl(tel)) {
       await launchUrl(tel);
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No se pudo realizar la llamada')),
+          SnackBar(content: Text(l10n.sosCallFailed)),
         );
       }
     }
   }
 
   Future<void> _shareLocation() async {
+    final l10n = AppLocalizations.of(context)!;
     final location = ref.read(locationProvider);
     if (location.currentPosition == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Obteniendo ubicación... intenta de nuevo')),
+          SnackBar(content: Text(l10n.sosObtainingLocationRetry)),
         );
       }
       return;
@@ -95,16 +114,16 @@ class _SosScreenState extends ConsumerState<SosScreen>
     final lng = location.currentPosition!.longitude;
     final mapUrl = 'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
 
-    await Share.share(
-        '¡Hola! Estoy compartiendo mi ubicación de seguridad desde SafeCampus: $mapUrl');
+    await Share.share(l10n.sosShareLocationMessage(mapUrl));
   }
 
   Future<void> _alertContacts() async {
+    final l10n = AppLocalizations.of(context)!;
     final contacts = ref.read(emergencyContactsProvider).contacts;
     if (contacts.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No tienes contactos configurados')),
+          SnackBar(content: Text(l10n.sosNoContactsConfigured)),
         );
       }
       return;
@@ -118,7 +137,9 @@ class _SosScreenState extends ConsumerState<SosScreen>
       mapUrl = ' https://www.google.com/maps/search/?api=1&query=$lat,$lng';
     }
 
-    final message = '¡EMERGENCIA! Estoy en SafeCampus y necesito ayuda.$mapUrl';
+    final message = mapUrl.isEmpty
+        ? l10n.sosEmergencyAlertMessage
+        : '${l10n.sosEmergencyAlertMessage}$mapUrl';
     final phones = contacts.map((c) => c.telefono).join(',');
 
     // Abrir app de SMS con los contactos y el mensaje
@@ -533,14 +554,14 @@ class _SosScreenState extends ConsumerState<SosScreen>
                           size: 40),
                       const SizedBox(height: 12),
                       Text(
-                        'Sin contactos de emergencia',
+                        l10n.noEmergencyContacts,
                         style: TextStyle(
                             color: cs.onSurface.withValues(alpha: 0.54),
                             fontSize: 14),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Agrega personas de confianza para alertarlas automáticamente',
+                        l10n.addTrustedPeople,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             color: cs.onSurface.withValues(alpha: 0.3),
@@ -550,6 +571,8 @@ class _SosScreenState extends ConsumerState<SosScreen>
                   )
                 : Column(
                     children: contacts.take(3).map((c) {
+                      final relationLabel =
+                          _localizedRelation(l10n, c.relacion);
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
                         child: Row(
@@ -570,10 +593,12 @@ class _SosScreenState extends ConsumerState<SosScreen>
                                   style: TextStyle(
                                       color: cs.onSurface, fontSize: 13)),
                             ),
-                            Text(c.relacion ?? '',
-                                style: TextStyle(
-                                    color: cs.onSurface.withValues(alpha: 0.4),
-                                    fontSize: 11)),
+                            if (relationLabel != null)
+                              Text(relationLabel,
+                                  style: TextStyle(
+                                      color:
+                                          cs.onSurface.withValues(alpha: 0.4),
+                                      fontSize: 11)),
                           ],
                         ),
                       );

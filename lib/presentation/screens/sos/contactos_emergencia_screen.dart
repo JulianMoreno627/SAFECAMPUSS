@@ -4,6 +4,32 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/models/contacto_emergencia.dart';
 import '../../../core/providers/emergency_contacts_provider.dart';
+import '../../../l10n/app_localizations.dart';
+
+String? _localizedRelation(AppLocalizations l10n, String? relation) {
+  switch (ContactoEmergencia.normalizeRelationCode(relation)) {
+    case ContactoEmergencia.relationFamily:
+      return l10n.relationshipFamily;
+    case ContactoEmergencia.relationFriend:
+      return l10n.relationshipFriend;
+    case ContactoEmergencia.relationPartner:
+      return l10n.relationshipPartner;
+    case ContactoEmergencia.relationClassmate:
+      return l10n.relationshipClassmate;
+    case ContactoEmergencia.relationOther:
+      return l10n.relationshipOther;
+    default:
+      return null;
+  }
+}
+
+List<(String, String)> _relationOptions(AppLocalizations l10n) => [
+      (ContactoEmergencia.relationFamily, l10n.relationshipFamily),
+      (ContactoEmergencia.relationFriend, l10n.relationshipFriend),
+      (ContactoEmergencia.relationPartner, l10n.relationshipPartner),
+      (ContactoEmergencia.relationClassmate, l10n.relationshipClassmate),
+      (ContactoEmergencia.relationOther, l10n.relationshipOther),
+    ];
 
 class ContactosEmergenciaScreen extends ConsumerStatefulWidget {
   const ContactosEmergenciaScreen({super.key});
@@ -29,20 +55,21 @@ class _ContactosEmergenciaScreenState
   }
 
   void _eliminar(ContactoEmergencia contacto) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.cardColor,
-        title: const Text('Eliminar contacto',
-            style: TextStyle(color: Colors.white)),
+        title: Text(l10n.deleteEmergencyContactTitle,
+            style: const TextStyle(color: Colors.white)),
         content: Text(
-          '¿Eliminar a ${contacto.nombre}?',
+          l10n.deleteEmergencyContactConfirm(contacto.nombre),
           style: const TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancelar',
+            child: Text(l10n.cancelLabel,
                 style: TextStyle(color: Colors.white54)),
           ),
           TextButton(
@@ -50,7 +77,7 @@ class _ContactosEmergenciaScreenState
               ref.read(emergencyContactsProvider.notifier).removeContact(contacto.id);
               Navigator.pop(ctx);
             },
-            child: const Text('Eliminar',
+            child: Text(l10n.deleteLabel,
                 style: TextStyle(color: AppColors.riskHigh)),
           ),
         ],
@@ -61,6 +88,7 @@ class _ContactosEmergenciaScreenState
   @override
   Widget build(BuildContext context) {
     final contactsState = ref.watch(emergencyContactsProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -83,13 +111,14 @@ class _ContactosEmergenciaScreenState
         backgroundColor: AppColors.accent,
         foregroundColor: Colors.black,
         icon: const Icon(Icons.person_add_rounded),
-        label: const Text('Agregar',
+        label: Text(l10n.addLabel,
             style: TextStyle(fontWeight: FontWeight.bold)),
       ),
     );
   }
 
   Widget _buildHeader(int count) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
       child: Row(
@@ -112,13 +141,13 @@ class _ContactosEmergenciaScreenState
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Contactos de Emergencia',
+              Text(l10n.emergencyContacts,
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.bold)),
               Text(
-                '$count / 5 contactos',
+                l10n.emergencyContactsCount(count, 5),
                 style: const TextStyle(color: Colors.white54, fontSize: 12),
               ),
             ],
@@ -129,6 +158,7 @@ class _ContactosEmergenciaScreenState
   }
 
   Widget _buildInfoBanner() {
+    final l10n = AppLocalizations.of(context)!;
     return FadeInDown(
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -139,16 +169,16 @@ class _ContactosEmergenciaScreenState
           border:
               Border.all(color: AppColors.accent.withValues(alpha: 0.25)),
         ),
-        child: const Row(
+        child: Row(
           children: [
-            Icon(Icons.info_outline_rounded,
+            const Icon(Icons.info_outline_rounded,
                 color: AppColors.accent, size: 18),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Expanded(
               child: Text(
-                'Al activar SOS, estos contactos recibirán tu ubicación y una alerta inmediata.',
-                style:
-                    TextStyle(color: Colors.white60, fontSize: 12, height: 1.4),
+                l10n.emergencyContactsInfoBanner,
+                style: const TextStyle(
+                    color: Colors.white60, fontSize: 12, height: 1.4),
               ),
             ),
           ],
@@ -158,6 +188,7 @@ class _ContactosEmergenciaScreenState
   }
 
   Widget _buildEmpty() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -174,14 +205,15 @@ class _ContactosEmergenciaScreenState
                 color: Colors.white24, size: 52),
           ),
           const SizedBox(height: 18),
-          const Text('Sin contactos de emergencia',
+          Text(l10n.noEmergencyContacts,
               style: TextStyle(
                   color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          const Text(
-            'Agrega personas de confianza\npara alertarlas automáticamente',
+          Text(
+            l10n.addTrustedPeople,
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white54, fontSize: 13, height: 1.5),
+            style: const TextStyle(
+                color: Colors.white54, fontSize: 13, height: 1.5),
           ),
         ],
       ),
@@ -226,6 +258,9 @@ class _ContactoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final relationLabel = _localizedRelation(l10n, contacto.relacion);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
@@ -267,7 +302,7 @@ class _ContactoCard extends StatelessWidget {
                     style: const TextStyle(
                         color: Colors.white54, fontSize: 13)),
                 const SizedBox(height: 2),
-                if (contacto.relacion != null)
+                if (relationLabel != null)
                   Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 8, vertical: 2),
@@ -275,7 +310,7 @@ class _ContactoCard extends StatelessWidget {
                       color: _color.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Text(contacto.relacion!,
+                    child: Text(relationLabel,
                         style: TextStyle(
                             color: _color,
                             fontSize: 11,
@@ -314,11 +349,7 @@ class _AgregarContactoSheet extends StatefulWidget {
 class _AgregarContactoSheetState extends State<_AgregarContactoSheet> {
   final _nombreCtrl = TextEditingController();
   final _telCtrl = TextEditingController();
-  String _relacion = 'Familiar';
-
-  static const _relaciones = [
-    'Familiar', 'Amigo/a', 'Pareja', 'Compañero/a', 'Otro'
-  ];
+  String _relacion = ContactoEmergencia.relationFamily;
 
   @override
   void dispose() {
@@ -340,6 +371,9 @@ class _AgregarContactoSheetState extends State<_AgregarContactoSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final relationOptions = _relationOptions(l10n);
+
     return Container(
       padding: EdgeInsets.fromLTRB(
           24, 20, 24, MediaQuery.of(context).viewInsets.bottom + 24),
@@ -362,28 +396,30 @@ class _AgregarContactoSheetState extends State<_AgregarContactoSheet> {
             ),
           ),
           const SizedBox(height: 20),
-          const Text('Agregar Contacto',
+          Text(l10n.addEmergencyContactTitle,
               style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
-          _field(_nombreCtrl, 'Nombre completo', Icons.person_outline_rounded),
+          _field(_nombreCtrl, l10n.fullNameHint, Icons.person_outline_rounded),
           const SizedBox(height: 12),
-          _field(_telCtrl, 'Teléfono', Icons.phone_outlined,
+          _field(_telCtrl, l10n.phone, Icons.phone_outlined,
               type: TextInputType.phone),
           const SizedBox(height: 16),
-          const Text('Relación',
+          Text(l10n.relationshipLabel,
               style: TextStyle(color: Colors.white70, fontSize: 13)),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
-            children: _relaciones.map((r) {
-              final sel = _relacion == r;
+            children: relationOptions.map((option) {
+              final code = option.$1;
+              final label = option.$2;
+              final sel = _relacion == code;
               return ChoiceChip(
-                label: Text(r),
+                label: Text(label),
                 selected: sel,
-                onSelected: (_) => setState(() => _relacion = r),
+                onSelected: (_) => setState(() => _relacion = code),
                 selectedColor: AppColors.accent.withValues(alpha: 0.25),
                 backgroundColor: AppColors.cardColor,
                 labelStyle: TextStyle(
@@ -408,7 +444,7 @@ class _AgregarContactoSheetState extends State<_AgregarContactoSheet> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14)),
               ),
-              child: const Text('Guardar',
+              child: Text(l10n.saveLabel,
                   style: TextStyle(
                       fontSize: 15, fontWeight: FontWeight.bold)),
             ),
