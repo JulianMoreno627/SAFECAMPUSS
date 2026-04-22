@@ -4,14 +4,32 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/services/ai_service.dart';
 import '../../../core/providers/reports_provider.dart';
 
-class DashboardScreen extends ConsumerWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  String? _aiTrends;
+  bool _loadingTrends = false;
+  List<dynamic> _lastReports = [];
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(reportsProvider);
+
+    // Lanzar análisis cuando cambien los reportes
+    if (state.reportesCercanos.isNotEmpty &&
+        state.reportesCercanos != _lastReports &&
+        !_loadingTrends) {
+      _lastReports = state.reportesCercanos;
+      _fetchTrends(state.reportesCercanos);
+    }
 
     return Scaffold(
       body: SafeArea(
@@ -30,6 +48,8 @@ class DashboardScreen extends ConsumerWidget {
               _buildPieChart(context, state),
               const SizedBox(height: 20),
               _buildBarChart(context, state),
+              const SizedBox(height: 20),
+              _buildAITrendsCard(),
               const SizedBox(height: 20),
               _buildSafeBotCard(context),
               const SizedBox(height: 24),
@@ -402,6 +422,87 @@ class DashboardScreen extends ConsumerWidget {
                   }).toList(),
                 ),
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── AI Trends ─────────────────────────────────────────────────────────────
+
+  Future<void> _fetchTrends(List<dynamic> reports) async {
+    setState(() => _loadingTrends = true);
+    final result = await AiService().analyzeTrends(reports);
+    if (mounted) setState(() { _aiTrends = result; _loadingTrends = false; });
+  }
+
+  Widget _buildAITrendsCard() {
+    return FadeInUp(
+      delay: const Duration(milliseconds: 300),
+      child: Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: AppColors.cardColor,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.accent.withValues(alpha: 0.25)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.accent.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.psychology_rounded,
+                      color: AppColors.accent, size: 18),
+                ),
+                const SizedBox(width: 10),
+                const Text('Análisis IA del Campus',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold)),
+              ],
+            ),
+            const SizedBox(height: 14),
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 400),
+              child: _loadingTrends
+                  ? Row(
+                      key: const ValueKey('loading'),
+                      children: [
+                        const SizedBox(
+                          width: 14, height: 14,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 1.5, color: AppColors.accent),
+                        ),
+                        const SizedBox(width: 10),
+                        Text('Analizando tendencias...',
+                            style: TextStyle(
+                                color: AppColors.accent.withValues(alpha: 0.8),
+                                fontSize: 13)),
+                      ],
+                    )
+                  : _aiTrends != null
+                      ? Text(
+                          _aiTrends!,
+                          key: const ValueKey('result'),
+                          style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 13,
+                              height: 1.6),
+                        )
+                      : const Text(
+                          'El análisis de tendencias estará disponible cuando haya reportes cercanos.',
+                          key: ValueKey('empty'),
+                          style: TextStyle(
+                              color: Colors.white38, fontSize: 13, height: 1.5),
+                        ),
             ),
           ],
         ),

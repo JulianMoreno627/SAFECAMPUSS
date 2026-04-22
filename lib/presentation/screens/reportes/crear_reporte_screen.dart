@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/services/api_service.dart';
+import '../../../core/services/ai_service.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/location_provider.dart';
 import '../../../core/providers/reports_provider.dart';
@@ -35,6 +37,13 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
   late List<Map<String, dynamic>> _nivelesUrgencia;
   double? _lat;
   double? _lng;
+
+  // IA
+  Timer? _debounceTimer;
+  bool _aiSuggesting = false;
+  String? _aiSuggestedTipo;
+  String? _aiSuggestedUrgencia;
+  String? _aiRazon;
 
   @override
   void initState() {
@@ -129,9 +138,35 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     _descripcionController.dispose();
     _testigosController.dispose();
     super.dispose();
+  }
+
+  void _onDescripcionChanged(String value) {
+    _debounceTimer?.cancel();
+    if (value.trim().length < 20) {
+      if (_aiSuggesting) setState(() => _aiSuggesting = false);
+      return;
+    }
+    setState(() => _aiSuggesting = true);
+    _debounceTimer = Timer(const Duration(milliseconds: 1600), () => _clasificarConIA(value));
+  }
+
+  Future<void> _clasificarConIA(String descripcion) async {
+    final result = await AiService().classifyAndSuggest(descripcion);
+    if (!mounted) return;
+    setState(() {
+      _aiSuggesting = false;
+      if (result != null) {
+        _aiSuggestedTipo = result['tipo'];
+        _aiSuggestedUrgencia = result['urgencia'];
+        _aiRazon = result['razon'];
+        _tipoSeleccionado ??= result['tipo'];
+        _nivelUrgencia = result['urgencia'] ?? _nivelUrgencia;
+      }
+    });
   }
 
   Future<void> _obtenerUbicacion() async {
@@ -717,8 +752,28 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
       itemBuilder: (context, index) {
         final tipo = _tiposIncidente[index];
         final isSelected = _tipoSeleccionado == tipo['tipo'];
+        final isAiSuggested = _aiSuggestedTipo == tipo['tipo'];
         return GestureDetector(
           onTap: () => setState(() => _tipoSeleccionado = tipo['tipo']),
+<<<<<<< HEAD
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? (tipo['color'] as Color).withValues(alpha: 0.2)
+                      : AppColors.cardColor,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: isSelected
+                        ? tipo['color'] as Color
+                        : isAiSuggested
+                            ? AppColors.accent.withValues(alpha: 0.6)
+                            : Colors.white12,
+                    width: isSelected || isAiSuggested ? 2 : 1,
+=======
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             decoration: BoxDecoration(
@@ -759,12 +814,56 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                     fontSize: 10,
                     fontWeight:
                         isSelected ? FontWeight.bold : FontWeight.normal,
+>>>>>>> 58271cffa769bba33d5fd7dd62f07d58de9a16db
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                  boxShadow: isSelected
+                      ? [BoxShadow(
+                          color: (tipo['color'] as Color).withValues(alpha: 0.3),
+                          blurRadius: 8, spreadRadius: 1)]
+                      : [],
                 ),
-              ],
-            ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      tipo['icon'] as IconData,
+                      color: isSelected
+                          ? tipo['color'] as Color
+                          : AppColors.textSecondary,
+                      size: 24,
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      tipo['tipo'],
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : AppColors.textSecondary,
+                        fontSize: 10,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              if (isAiSuggested)
+                Positioned(
+                  top: 4, right: 4,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: AppColors.accent,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Text('IA',
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 8,
+                            fontWeight: FontWeight.bold)),
+                  ),
+                ),
+            ],
           ),
         );
       },
@@ -774,6 +873,84 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
   // ── Descripción ───────────────────────────────────────────────────────────
 
   Widget _buildDescripcionField() {
+<<<<<<< HEAD
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextFormField(
+          controller: _descripcionController,
+          maxLines: 4,
+          maxLength: 300,
+          style: const TextStyle(color: Colors.white, fontSize: 14),
+          onChanged: _onDescripcionChanged,
+          decoration: InputDecoration(
+            hintText:
+                'Ej: Vi a una persona sospechosa merodeando el parqueadero norte alrededor de las 10 PM...',
+            hintStyle: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+            filled: true,
+            fillColor: AppColors.cardColor,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide.none,
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: const BorderSide(color: AppColors.accent, width: 1.5),
+            ),
+            counterStyle: const TextStyle(color: AppColors.textSecondary),
+            errorStyle: const TextStyle(color: AppColors.riskHigh),
+          ),
+          validator: (v) {
+            if (v == null || v.isEmpty) return 'Describe el incidente';
+            if (v.length < 20) return 'Mínimo 20 caracteres';
+            return null;
+          },
+        ),
+        // ── Indicador IA ──────────────────────────────────────────────────
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: _aiSuggesting
+              ? Padding(
+                  key: const ValueKey('suggesting'),
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Row(
+                    children: [
+                      const SizedBox(
+                        width: 12, height: 12,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 1.5, color: AppColors.accent),
+                      ),
+                      const SizedBox(width: 8),
+                      Text('IA clasificando...',
+                          style: TextStyle(
+                              color: AppColors.accent.withValues(alpha: 0.8),
+                              fontSize: 12)),
+                    ],
+                  ),
+                )
+              : _aiRazon != null
+                  ? Padding(
+                      key: const ValueKey('result'),
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.psychology_rounded,
+                              color: AppColors.accent, size: 14),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'IA: $_aiRazon',
+                              style: const TextStyle(
+                                  color: AppColors.accent, fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : const SizedBox.shrink(key: ValueKey('empty')),
+        ),
+      ],
+=======
     final cs = Theme.of(context).colorScheme;
     return TextFormField(
       controller: _descripcionController,
@@ -805,6 +982,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
         if (v.length < 20) return 'Mínimo 20 caracteres';
         return null;
       },
+>>>>>>> 58271cffa769bba33d5fd7dd62f07d58de9a16db
     );
   }
 
@@ -848,9 +1026,26 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                     style: TextStyle(
                       color: isSelected ? color : cs.onSurfaceVariant,
                       fontSize: 11,
-                      fontWeight:
-                          isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                     ),
+                  ),
+                  const SizedBox(height: 4),
+                  SizedBox(
+                    height: 14,
+                    child: _aiSuggestedUrgencia == nivel['nivel']
+                        ? Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                            decoration: BoxDecoration(
+                              color: AppColors.accent,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: const Text('IA',
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 8,
+                                    fontWeight: FontWeight.bold)),
+                          )
+                        : null,
                   ),
                 ],
               ),
