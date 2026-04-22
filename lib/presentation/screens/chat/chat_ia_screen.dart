@@ -82,7 +82,6 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
   }
 
   Future<void> _send(String text) async {
-    final l10n = _l10n!;
     final query = text.trim();
     if (query.isEmpty || _session == null || _isTyping) return;
 
@@ -105,30 +104,20 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
       }
     } catch (e) {
       if (mounted) {
-<<<<<<< HEAD
         final raw = e.toString();
         final String friendly;
         if (raw.contains('quota') || raw.contains('RESOURCE_EXHAUSTED') || raw.contains('429')) {
-          friendly = 'Cuota de API excedida. Espera unos segundos y vuelve a intentarlo.';
-        } else if (raw.contains('API_KEY') || raw.contains('API key')) {
-          friendly = 'Clave de API inválida. Verifica GEMINI_API_KEY en el archivo .env';
-        } else if (raw.contains('not found') || raw.contains('404')) {
-          friendly = 'Modelo de IA no disponible. Verifica tu clave de API.';
+          friendly = '⏳ Cuota de API excedida. Espera unos segundos y vuelve a intentarlo.';
+        } else if (raw.contains('API_KEY') || raw.contains('API key') || raw.contains('API_KEY_INVALID')) {
+          friendly = '🔑 Clave de API inválida. Verifica GEMINI_API_KEY en el archivo .env';
+        } else if (raw.contains('not found') || raw.contains('404') || raw.contains('NOT_FOUND')) {
+          friendly = '🤖 Modelo no disponible: $raw';
         } else {
-          friendly = 'Error al contactar SafeBot. Revisa tu conexión.';
+          friendly = '❌ Error: $raw';
         }
         setState(() {
           _isTyping = false;
           _messages.add(_Msg(text: friendly, isUser: false, isError: true));
-=======
-        setState(() {
-          _isTyping = false;
-          _messages.add(_Msg(
-            text: l10n.safebotConnectionError,
-            isUser: false,
-            isError: true,
-          ));
->>>>>>> 6b3b4710a50713a991342b4a1caa548c04c688d6
         });
       }
     }

@@ -70,7 +70,7 @@ class _ContactosEmergenciaScreenState
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text(l10n.cancelLabel,
-                style: TextStyle(color: Colors.white54)),
+                style: const TextStyle(color: Colors.white54)),
           ),
           TextButton(
             onPressed: () {
@@ -78,7 +78,7 @@ class _ContactosEmergenciaScreenState
               Navigator.pop(ctx);
             },
             child: Text(l10n.deleteLabel,
-                style: TextStyle(color: AppColors.riskHigh)),
+                style: const TextStyle(color: AppColors.riskHigh)),
           ),
         ],
       ),
@@ -112,7 +112,7 @@ class _ContactosEmergenciaScreenState
         foregroundColor: Colors.black,
         icon: const Icon(Icons.person_add_rounded),
         label: Text(l10n.addLabel,
-            style: TextStyle(fontWeight: FontWeight.bold)),
+            style: const TextStyle(fontWeight: FontWeight.bold)),
       ),
     );
   }
@@ -142,7 +142,7 @@ class _ContactosEmergenciaScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(l10n.emergencyContacts,
-                  style: TextStyle(
+                  style: const TextStyle(
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.bold)),
@@ -206,7 +206,7 @@ class _ContactosEmergenciaScreenState
           ),
           const SizedBox(height: 18),
           Text(l10n.noEmergencyContacts,
-              style: TextStyle(
+              style: const TextStyle(
                   color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Text(
@@ -397,7 +397,7 @@ class _AgregarContactoSheetState extends State<_AgregarContactoSheet> {
           ),
           const SizedBox(height: 20),
           Text(l10n.addEmergencyContactTitle,
-              style: TextStyle(
+              style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.bold)),
@@ -408,7 +408,7 @@ class _AgregarContactoSheetState extends State<_AgregarContactoSheet> {
               type: TextInputType.phone),
           const SizedBox(height: 16),
           Text(l10n.relationshipLabel,
-              style: TextStyle(color: Colors.white70, fontSize: 13)),
+              style: const TextStyle(color: Colors.white70, fontSize: 13)),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -445,7 +445,7 @@ class _AgregarContactoSheetState extends State<_AgregarContactoSheet> {
                     borderRadius: BorderRadius.circular(14)),
               ),
               child: Text(l10n.saveLabel,
-                  style: TextStyle(
+                  style: const TextStyle(
                       fontSize: 15, fontWeight: FontWeight.bold)),
             ),
           ),
