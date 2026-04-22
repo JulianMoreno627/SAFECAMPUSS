@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../../core/theme/app_colors.dart';
@@ -169,36 +170,65 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
   }
 
   Future<void> _obtenerUbicacion() async {
-    final pos = ref.read(locationProvider).currentPosition;
-    if (pos == null) {
-      if (mounted) {
-        setState(() => _ubicacionTexto = 'No se pudo obtener la ubicación');
-      }
+    // 1. Try provider (already resolved)
+    final providerPos = ref.read(locationProvider).currentPosition;
+    if (providerPos != null) {
+      _lat = providerPos.latitude;
+      _lng = providerPos.longitude;
+      await _resolverDireccion(_lat!, _lng!);
       return;
     }
-    _lat = pos.latitude;
-    _lng = pos.longitude;
+
+    // 2. Last known position (instant, no GPS wait)
     try {
-      final placemarks =
-          await placemarkFromCoordinates(pos.latitude, pos.longitude);
+      final last = await Geolocator.getLastKnownPosition();
+      if (last != null) {
+        _lat = last.latitude;
+        _lng = last.longitude;
+        await _resolverDireccion(_lat!, _lng!);
+        return;
+      }
+    } catch (_) {}
+
+    // 3. Fresh GPS with timeout
+    try {
+      final pos = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.medium,
+        timeLimit: const Duration(seconds: 10),
+      );
+      _lat = pos.latitude;
+      _lng = pos.longitude;
+      await _resolverDireccion(_lat!, _lng!);
+    } catch (_) {
       if (mounted) {
-        final p = placemarks.isNotEmpty ? placemarks.first : null;
-        final addr = [p?.street, p?.subLocality, p?.locality]
-            .where((s) => s != null && s.isNotEmpty)
-            .join(', ');
         setState(() {
-          _ubicacionObtenida = true;
-          _ubicacionTexto = addr.isNotEmpty
-              ? addr
-              : '${pos.latitude.toStringAsFixed(5)}, ${pos.longitude.toStringAsFixed(5)}';
+          _ubicacionObtenida = false;
+          _ubicacionTexto = 'No se pudo obtener la ubicación';
         });
       }
+    }
+  }
+
+  Future<void> _resolverDireccion(double lat, double lng) async {
+    try {
+      final placemarks = await placemarkFromCoordinates(lat, lng);
+      if (!mounted) return;
+      final p = placemarks.isNotEmpty ? placemarks.first : null;
+      final addr = [p?.street, p?.subLocality, p?.locality]
+          .where((s) => s != null && s.isNotEmpty)
+          .join(', ');
+      setState(() {
+        _ubicacionObtenida = true;
+        _ubicacionTexto = addr.isNotEmpty
+            ? addr
+            : '${lat.toStringAsFixed(5)}, ${lng.toStringAsFixed(5)}';
+      });
     } catch (_) {
       if (mounted) {
         setState(() {
           _ubicacionObtenida = true;
           _ubicacionTexto =
-              '${pos.latitude.toStringAsFixed(5)}, ${pos.longitude.toStringAsFixed(5)}';
+              '${lat.toStringAsFixed(5)}, ${lng.toStringAsFixed(5)}';
         });
       }
     }
@@ -358,7 +388,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final userId = ref.read(authProvider).user?['id'] ?? '';
+      final userId = ref.read(authProvider).usuario?.id ?? '';
       await ApiService().crearReporte(
         tipo: _tipoSeleccionado!,
         descripcion: _descripcionController.text.trim(),

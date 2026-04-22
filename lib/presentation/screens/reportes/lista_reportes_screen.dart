@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/providers/reports_provider.dart';
 import '../../../core/providers/location_provider.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../core/models/reporte.dart';
 import '../../widgets/reporte_detalle_sheet.dart';
 
 class ListaReportesScreen extends ConsumerStatefulWidget {
@@ -39,10 +40,10 @@ class _ListaReportesScreenState
     ('otro', l10n.filterOther),
   ];
 
-  List<dynamic> _filtered(List<dynamic> all) {
+  List<Reporte> _filtered(List<Reporte> all) {
     return all.where((r) {
-      final tipo = r['tipo']?.toString().toLowerCase() ?? '';
-      final desc = r['descripcion']?.toString().toLowerCase() ?? '';
+      final tipo = r.tipo.label.toLowerCase();
+      final desc = r.descripcion.toLowerCase();
       final query = _searchQuery.toLowerCase();
 
       final matchesTipo = _selectedKey.isEmpty || tipo == _selectedKey;
@@ -96,7 +97,7 @@ class _ListaReportesScreenState
   }
 
   Widget _buildHeader(ReportsState state, ColorScheme cs, AppLocalizations l10n) {
-    final color = _riskColor(state.nivelRiesgo);
+    final color = _riskColor(state.nivelRiesgoLabel);
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
       child: Row(
@@ -133,7 +134,7 @@ class _ListaReportesScreenState
                 Icon(Icons.shield_rounded, size: 14, color: color),
                 const SizedBox(width: 6),
                 Text(
-                  state.nivelRiesgo,
+                  state.nivelRiesgoLabel,
                   style: TextStyle(
                       color: color,
                       fontSize: 12,
@@ -234,15 +235,14 @@ class _ListaReportesScreenState
     );
   }
 
-  Widget _buildList(List<dynamic> items) {
+  Widget _buildList(List<Reporte> items) {
     return ListView.builder(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
       itemCount: items.length,
       itemBuilder: (context, i) => _ReportCard(
-        report: items[i],
-        onTap: () => ReporteDetalleSheet.show(
-            context, Map<String, dynamic>.from(items[i])),
+        reporte: items[i],
+        onTap: () => ReporteDetalleSheet.show(context, items[i]),
       ),
     );
   }
@@ -327,59 +327,23 @@ class _ListaReportesScreenState
 }
 
 class _ReportCard extends StatelessWidget {
-  final dynamic report;
+  final Reporte reporte;
   final VoidCallback onTap;
 
-  const _ReportCard({required this.report, required this.onTap});
+  const _ReportCard({required this.reporte, required this.onTap});
 
-  Color get _riskColor {
-    switch (report['nivel_urgencia']?.toString().toLowerCase()) {
-      case 'critico':
-        return AppColors.riskCritical;
-      case 'alto':
-        return AppColors.riskHigh;
-      case 'medio':
-        return AppColors.riskMedium;
-      default:
-        return AppColors.riskLow;
+  Color get _color {
+    switch (reporte.nivelUrgencia) {
+      case NivelUrgencia.critico: return AppColors.riskCritical;
+      case NivelUrgencia.alto:    return AppColors.riskHigh;
+      case NivelUrgencia.medio:   return AppColors.riskMedium;
+      case NivelUrgencia.bajo:    return AppColors.riskLow;
     }
-  }
-
-  IconData get _typeIcon {
-    switch (report['tipo']?.toString().toLowerCase()) {
-      case 'robo':
-        return Icons.no_backpack_rounded;
-      case 'acoso':
-        return Icons.person_off_rounded;
-      case 'pelea':
-        return Icons.sports_kabaddi_rounded;
-      case 'vandalismo':
-        return Icons.broken_image_rounded;
-      case 'accidente':
-        return Icons.car_crash_rounded;
-      case 'persona sospechosa':
-        return Icons.visibility_rounded;
-      case 'iluminación':
-        return Icons.flashlight_off_rounded;
-      default:
-        return Icons.report_rounded;
-    }
-  }
-
-  String _timeAgo(String? raw, AppLocalizations l10n) {
-    if (raw == null) return '';
-    final date = DateTime.tryParse(raw);
-    if (date == null) return '';
-    final diff = DateTime.now().difference(date);
-    if (diff.inMinutes < 1) return l10n.timeAgoNow;
-    if (diff.inMinutes < 60) return 'Hace ${diff.inMinutes} min';
-    if (diff.inHours < 24) return 'Hace ${diff.inHours} h';
-    return 'Hace ${diff.inDays} días';
   }
 
   @override
   Widget build(BuildContext context) {
-    final color = _riskColor;
+    final color = _color;
     final cs = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
 
@@ -402,7 +366,7 @@ class _ReportCard extends StatelessWidget {
                 color: color.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: Icon(_typeIcon, color: color, size: 24),
+              child: Icon(reporte.tipo.mapIcon, color: color, size: 24),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -413,7 +377,7 @@ class _ReportCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          report['tipo'] ?? l10n.incidentDefault,
+                          reporte.tipo.label,
                           style: TextStyle(
                             color: cs.onSurface,
                             fontWeight: FontWeight.w600,
@@ -422,7 +386,7 @@ class _ReportCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        _timeAgo(report['created_at']?.toString(), l10n),
+                        reporte.tiempoTranscurrido,
                         style: TextStyle(
                             color: cs.onSurface.withValues(alpha: 0.38),
                             fontSize: 11),
@@ -431,7 +395,7 @@ class _ReportCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    report['descripcion'] ?? '',
+                    reporte.descripcion,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -450,24 +414,21 @@ class _ReportCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          (report['nivel_urgencia'] ?? 'bajo')
-                              .toString()
-                              .toUpperCase(),
+                          reporte.nivelUrgencia.label.toUpperCase(),
                           style: TextStyle(
                               color: color,
                               fontSize: 10,
                               fontWeight: FontWeight.bold),
                         ),
                       ),
-                      if (report['testigos'] != null &&
-                          report['testigos'] != 0) ...[
+                      if (reporte.testigos > 0) ...[
                         const SizedBox(width: 8),
                         Icon(Icons.group_rounded,
                             size: 12,
                             color: cs.onSurface.withValues(alpha: 0.38)),
                         const SizedBox(width: 4),
                         Text(
-                          '${report['testigos']} ${report['testigos'] == 1 ? l10n.witnessCount : l10n.witnessCountPlural}',
+                          '${reporte.testigos} ${reporte.testigos == 1 ? l10n.witnessCount : l10n.witnessCountPlural}',
                           style: TextStyle(
                               color: cs.onSurface.withValues(alpha: 0.38),
                               fontSize: 11),
@@ -480,10 +441,7 @@ class _ReportCard extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Icon(Icons.chevron_right_rounded,
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withValues(alpha: 0.24),
+                color: cs.onSurface.withValues(alpha: 0.24),
                 size: 20),
           ],
         ),

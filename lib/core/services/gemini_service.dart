@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:logger/logger.dart';
+import '../models/reporte.dart';
 
 class GeminiService {
   static final GeminiService _instance = GeminiService._internal();
@@ -75,7 +76,7 @@ Responde exactamente en este formato JSON:
     required String origen,
     required String destino,
     required String hora,
-    required List<Map<String, dynamic>> reportesCercanos,
+    required List<Reporte> reportesCercanos,
   }) async {
     const fallback = {
       'score_seguridad': 60,
@@ -91,7 +92,7 @@ Responde exactamente en este formato JSON:
         ? 'Sin reportes recientes'
         : reportesCercanos
             .take(5)
-            .map((r) => '- ${r['tipo']}: ${r['descripcion'] ?? ''} (${r['nivel_urgencia'] ?? 'bajo'})')
+            .map((r) => '- ${r.tipo.label}: ${r.descripcion} (${r.nivelUrgencia.label})')
             .join('\n');
 
     final prompt = '''

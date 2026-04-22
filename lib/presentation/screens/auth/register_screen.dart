@@ -111,7 +111,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final response = await _apiService.register(
+      await _apiService.register(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
         nombre: _nombreController.text.trim(),
@@ -119,16 +119,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
         telefono: _telefonoController.text.trim(),
       );
 
-      if (response['token'] != null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('¡Registro exitoso! Ya puedes iniciar sesión.'),
-              backgroundColor: AppColors.riskLow,
-            ),
-          );
-          context.go('/login');
-        }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('¡Registro exitoso! Ya puedes iniciar sesión.'),
+            backgroundColor: AppColors.riskLow,
+          ),
+        );
+        context.go('/login');
       }
     } catch (e) {
       if (mounted) {

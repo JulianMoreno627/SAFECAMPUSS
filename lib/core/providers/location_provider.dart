@@ -31,15 +31,21 @@ class LocationNotifier extends StateNotifier<LocationState> {
     _init();
   }
 
+  static const _locationSettings = LocationSettings(
+    accuracy: LocationAccuracy.medium,
+    distanceFilter: 10,
+  );
+
   Future<void> _init() async {
     state = state.copyWith(isLoading: true);
-    
+
     bool serviceEnabled;
     LocationPermission permission;
 
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      state = state.copyWith(isLoading: false, error: 'Servicio de ubicación desactivado');
+      state = state.copyWith(
+          isLoading: false, error: 'Servicio de ubicación desactivado');
       return;
     }
 
@@ -53,19 +59,44 @@ class LocationNotifier extends StateNotifier<LocationState> {
     }
 
     if (permission == LocationPermission.deniedForever) {
-      state = state.copyWith(isLoading: false, error: 'Permiso denegado permanentemente');
+      state = state.copyWith(
+          isLoading: false, error: 'Permiso denegado permanentemente');
       return;
     }
 
-    // Obtener ubicación inicial
-    final position = await Geolocator.getCurrentPosition();
-    state = state.copyWith(
-      currentPosition: LatLng(position.latitude, position.longitude),
-      isLoading: false,
-    );
+    // Try last known first (instant response)
+    try {
+      final last = await Geolocator.getLastKnownPosition();
+      if (last != null) {
+        state = state.copyWith(
+          currentPosition: LatLng(last.latitude, last.longitude),
+          isLoading: false,
+        );
+      }
+    } catch (_) {}
 
-    // Escuchar cambios en tiempo real
-    Geolocator.getPositionStream().listen((Position position) {
+    // Request accurate position with timeout
+    try {
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.medium,
+        timeLimit: const Duration(seconds: 15),
+      );
+      state = state.copyWith(
+        currentPosition: LatLng(position.latitude, position.longitude),
+        isLoading: false,
+      );
+    } catch (_) {
+      if (state.currentPosition == null) {
+        state = state.copyWith(
+            isLoading: false, error: 'No se pudo obtener la ubicación');
+      } else {
+        state = state.copyWith(isLoading: false);
+      }
+    }
+
+    // Stream updates
+    Geolocator.getPositionStream(locationSettings: _locationSettings)
+        .listen((Position position) {
       state = state.copyWith(
         currentPosition: LatLng(position.latitude, position.longitude),
       );
@@ -73,6 +104,7 @@ class LocationNotifier extends StateNotifier<LocationState> {
   }
 }
 
-final locationProvider = StateNotifierProvider<LocationNotifier, LocationState>((ref) {
+final locationProvider =
+    StateNotifierProvider<LocationNotifier, LocationState>((ref) {
   return LocationNotifier();
 });

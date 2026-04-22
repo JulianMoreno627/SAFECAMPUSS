@@ -61,6 +61,10 @@ dependencies:
   latlong2: ^0.9.1
   http: ^1.6.0
 
+  # Autenticación
+  local_auth: ^2.3.0
+  google_sign_in: ^6.2.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

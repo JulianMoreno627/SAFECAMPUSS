@@ -53,15 +53,25 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
       return;
     }
 
-    final reports = ref.read(reportsProvider).reportesCercanos;
-    _session = service.startChatSession(reportesCercanos: reports);
-    setState(() {
-      _ready = true;
-      _messages.add(_Msg(
-        text: l10n.safebotWelcome,
-        isUser: false,
-      ));
-    });
+    try {
+      final reports = ref.read(reportsProvider).reportesCercanos;
+      _session = service.startChatSession(reportesCercanos: reports);
+      setState(() {
+        _ready = true;
+        _messages.add(_Msg(
+          text: l10n.safebotWelcome,
+          isUser: false,
+        ));
+      });
+    } catch (e) {
+      setState(() {
+        _messages.add(_Msg(
+          text: 'Error al iniciar SafeBot: ${e.toString().replaceAll("Exception: ", "")}',
+          isUser: false,
+          isError: true,
+        ));
+      });
+    }
   }
 
   @override

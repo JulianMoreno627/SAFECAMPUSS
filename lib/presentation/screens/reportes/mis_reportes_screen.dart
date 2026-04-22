@@ -2,11 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/providers/reports_provider.dart';
+import '../../../core/models/reporte.dart';
+import '../../../core/services/api_service.dart';
 import '../../../core/providers/auth_provider.dart';
-import '../../../core/providers/location_provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../widgets/reporte_detalle_sheet.dart';
+
+final _misReportesProvider =
+    FutureProvider.autoDispose<List<Reporte>>((ref) async {
+  final userId = ref.watch(authProvider).usuario?.id ?? '';
+  if (userId.isEmpty) return [];
+  return ApiService().getReportesDelUsuario(userId);
+});
 
 class MisReportesScreen extends ConsumerStatefulWidget {
   const MisReportesScreen({super.key});
@@ -16,26 +23,7 @@ class MisReportesScreen extends ConsumerStatefulWidget {
 }
 
 class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
-  // Server-side key ('': all, 'critico', 'alto', 'medio', 'bajo')
   String _filtroKey = '';
-
-  static const _tipoIconos = {
-    'robo':                Icons.phone_android_rounded,
-    'acoso':               Icons.warning_rounded,
-    'persona sospechosa':  Icons.person_off_rounded,
-    'iluminación':         Icons.light_mode_rounded,
-    'pelea':               Icons.sports_mma_rounded,
-    'vandalismo':          Icons.broken_image_rounded,
-    'accidente':           Icons.car_crash_rounded,
-    'otro':                Icons.more_horiz_rounded,
-  };
-
-  static const _nivelColores = {
-    'critico': AppColors.riskCritical,
-    'alto':    AppColors.riskHigh,
-    'medio':   AppColors.riskMedium,
-    'bajo':    AppColors.riskLow,
-  };
 
   List<(String, String)> _filtros(AppLocalizations l10n) => [
     ('', l10n.filterAll),
@@ -45,63 +33,88 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
     ('bajo', l10n.lowRisk),
   ];
 
-  Future<void> _refresh() async {
-    final pos = ref.read(locationProvider).currentPosition;
-    if (pos != null) {
-      await ref
-          .read(reportsProvider.notifier)
-          .fetchNearbyReports(pos.latitude, pos.longitude);
-    }
-  }
-
-  List<dynamic> _filtrados(List<dynamic> todos, String userId) {
-    return todos.where((r) {
-      final esDelUsuario =
-          r['user_id']?.toString() == userId ||
-          r['usuario_id']?.toString() == userId;
-      if (!esDelUsuario) return false;
-      if (_filtroKey.isEmpty) return true;
-      final nivel = r['nivel_urgencia']?.toString().toLowerCase() ?? '';
-      return nivel == _filtroKey;
-    }).toList();
+  List<Reporte> _filtrados(List<Reporte> todos) {
+    if (_filtroKey.isEmpty) return todos;
+    return todos.where((r) => r.nivelUrgencia.name == _filtroKey).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    final reportsState = ref.watch(reportsProvider);
-    final userId = ref.watch(authProvider).user?['id']?.toString() ?? '';
-    final todos = reportsState.reportesCercanos;
-    final misReportes = _filtrados(todos, userId);
+    final asyncReportes = ref.watch(_misReportesProvider);
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(misReportes.length, l10n),
-            _buildFiltros(l10n),
-            Expanded(
-              child: reportsState.isLoading
-                  ? const Center(
-                      child: CircularProgressIndicator(
-                          color: AppColors.accent, strokeWidth: 2))
-                  : RefreshIndicator(
-                      onRefresh: _refresh,
-                      color: AppColors.accent,
-                      backgroundColor: AppColors.cardColor,
-                      child: misReportes.isEmpty
-                          ? _buildEmpty(l10n)
-                          : _buildLista(misReportes),
-                    ),
-            ),
-          ],
+        child: asyncReportes.when(
+          loading: () => Column(
+            children: [
+              _buildHeader(null, l10n),
+              _buildFiltros(l10n),
+              const Expanded(
+                child: Center(
+                  child: CircularProgressIndicator(
+                      color: AppColors.accent, strokeWidth: 2),
+                ),
+              ),
+            ],
+          ),
+          error: (e, _) => Column(
+            children: [
+              _buildHeader(null, l10n),
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.cloud_off_rounded,
+                          color: Colors.white30, size: 48),
+                      const SizedBox(height: 12),
+                      const Text('Error al cargar reportes',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 8),
+                      TextButton.icon(
+                        onPressed: () => ref.invalidate(_misReportesProvider),
+                        icon: const Icon(Icons.refresh_rounded,
+                            color: AppColors.accent),
+                        label: const Text('Reintentar',
+                            style: TextStyle(color: AppColors.accent)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          data: (todos) {
+            final misReportes = _filtrados(todos);
+            return Column(
+              children: [
+                _buildHeader(todos.length, l10n),
+                _buildFiltros(l10n),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: () async =>
+                        ref.invalidate(_misReportesProvider),
+                    color: AppColors.accent,
+                    backgroundColor: AppColors.cardColor,
+                    child: misReportes.isEmpty
+                        ? _buildEmpty(l10n)
+                        : _buildLista(misReportes),
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _buildHeader(int total, AppLocalizations l10n) {
+  Widget _buildHeader(int? total, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
       child: Row(
@@ -109,7 +122,8 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
           GestureDetector(
             onTap: () => Navigator.pop(context),
             child: Container(
-              width: 44, height: 44,
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
                 color: AppColors.surface,
                 borderRadius: BorderRadius.circular(12),
@@ -124,10 +138,16 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(l10n.myReportsTitle,
-                  style: const TextStyle(color: Colors.white, fontSize: 20,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold)),
-              Text('$total ${l10n.statsReports.toLowerCase()}',
-                  style: const TextStyle(color: Colors.white54, fontSize: 12)),
+              Text(
+                total != null
+                    ? '$total ${l10n.statsReports.toLowerCase()}'
+                    : 'Cargando...',
+                style: const TextStyle(color: Colors.white54, fontSize: 12),
+              ),
             ],
           ),
         ],
@@ -151,20 +171,21 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
             onTap: () => setState(() => _filtroKey = key),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 180),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
                 color: sel ? AppColors.accent : AppColors.cardColor,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: sel ? AppColors.accent : Colors.white12,
-                ),
+                    color: sel ? AppColors.accent : Colors.white12),
               ),
               child: Text(
                 label,
                 style: TextStyle(
                   color: sel ? Colors.black : Colors.white54,
                   fontSize: 12,
-                  fontWeight: sel ? FontWeight.bold : FontWeight.normal,
+                  fontWeight:
+                      sel ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
             ),
@@ -198,15 +219,17 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
                 _filtroKey.isEmpty
                     ? l10n.noReportsSent
                     : l10n.noResults,
-                style: const TextStyle(color: Colors.white,
-                    fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
                 l10n.helpCommunityReport,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.white54, fontSize: 13,
-                    height: 1.5),
+                style: const TextStyle(
+                    color: Colors.white54, fontSize: 13, height: 1.5),
               ),
             ],
           ),
@@ -215,7 +238,7 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
     );
   }
 
-  Widget _buildLista(List<dynamic> reportes) {
+  Widget _buildLista(List<Reporte> reportes) {
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
       itemCount: reportes.length,
@@ -223,10 +246,7 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
         delay: Duration(milliseconds: i * 40),
         child: _ReporteCard(
           reporte: reportes[i],
-          tipoIconos: _tipoIconos,
-          nivelColores: _nivelColores,
-          onTap: () => ReporteDetalleSheet.show(
-              ctx, Map<String, dynamic>.from(reportes[i])),
+          onTap: () => ReporteDetalleSheet.show(ctx, reportes[i]),
         ),
       ),
     );
@@ -236,28 +256,19 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
 // ── Card ──────────────────────────────────────────────────────────────────────
 
 class _ReporteCard extends StatelessWidget {
-  final dynamic reporte;
-  final Map<String, IconData> tipoIconos;
-  final Map<String, Color> nivelColores;
+  final Reporte reporte;
   final VoidCallback onTap;
 
-  const _ReporteCard({
-    required this.reporte,
-    required this.tipoIconos,
-    required this.nivelColores,
-    required this.onTap,
-  });
+  const _ReporteCard({required this.reporte, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final tipo  = reporte['tipo']?.toString() ?? 'Otro';
-    final desc  = reporte['descripcion']?.toString() ?? '';
-    final nivel = reporte['nivel_urgencia']?.toString().toLowerCase() ?? 'bajo';
-    final fecha = _formatFecha(reporte['created_at']?.toString(), l10n);
-
-    final icon  = tipoIconos[tipo.toLowerCase()] ?? Icons.report_outlined;
-    final color = nivelColores[nivel] ?? AppColors.riskLow;
+    final color = switch (reporte.nivelUrgencia) {
+      NivelUrgencia.critico => AppColors.riskCritical,
+      NivelUrgencia.alto    => AppColors.riskHigh,
+      NivelUrgencia.medio   => AppColors.riskMedium,
+      NivelUrgencia.bajo    => AppColors.riskLow,
+    };
 
     return GestureDetector(
       onTap: onTap,
@@ -278,7 +289,7 @@ class _ReporteCard extends StatelessWidget {
                 color: color.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(icon, color: color, size: 22),
+              child: Icon(reporte.tipo.icon, color: color, size: 22),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -288,21 +299,27 @@ class _ReporteCard extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: Text(tipo,
-                            style: const TextStyle(color: Colors.white,
-                                fontSize: 14, fontWeight: FontWeight.bold)),
+                        child: Text(reporte.tipo.label,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold)),
                       ),
-                      _NivelBadge(nivel: nivel, color: color),
+                      _NivelBadge(
+                          label: reporte.nivelUrgencia.labelCapitalized,
+                          color: color),
                     ],
                   ),
-                  if (desc.isNotEmpty) ...[
+                  if (reporte.descripcion.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(
-                      desc,
+                      reporte.descripcion,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                          color: Colors.white54, fontSize: 12, height: 1.4),
+                          color: Colors.white54,
+                          fontSize: 12,
+                          height: 1.4),
                     ),
                   ],
                   const SizedBox(height: 6),
@@ -311,7 +328,7 @@ class _ReporteCard extends StatelessWidget {
                       const Icon(Icons.access_time_rounded,
                           color: Colors.white30, size: 12),
                       const SizedBox(width: 4),
-                      Text(fecha,
+                      Text(reporte.tiempoTranscurrido,
                           style: const TextStyle(
                               color: Colors.white30, fontSize: 11)),
                       const Spacer(),
@@ -327,32 +344,16 @@ class _ReporteCard extends StatelessWidget {
       ),
     );
   }
-
-  String _formatFecha(String? raw, AppLocalizations l10n) {
-    if (raw == null || raw.isEmpty) return l10n.unknownDate;
-    try {
-      final dt = DateTime.parse(raw).toLocal();
-      final diff = DateTime.now().difference(dt);
-      if (diff.inMinutes < 60) return 'Hace ${diff.inMinutes} min';
-      if (diff.inHours < 24) return 'Hace ${diff.inHours} h';
-      if (diff.inDays < 7) return 'Hace ${diff.inDays} días';
-      return '${dt.day}/${dt.month}/${dt.year}';
-    } catch (_) {
-      return l10n.unknownDate;
-    }
-  }
 }
 
 class _NivelBadge extends StatelessWidget {
-  final String nivel;
+  final String label;
   final Color color;
 
-  const _NivelBadge({required this.nivel, required this.color});
+  const _NivelBadge({required this.label, required this.color});
 
   @override
   Widget build(BuildContext context) {
-    final label =
-        nivel.isEmpty ? 'bajo' : nivel[0].toUpperCase() + nivel.substring(1);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
@@ -362,7 +363,9 @@ class _NivelBadge extends StatelessWidget {
       ),
       child: Text(label,
           style: TextStyle(
-              color: color, fontSize: 10, fontWeight: FontWeight.bold)),
+              color: color,
+              fontSize: 10,
+              fontWeight: FontWeight.bold)),
     );
   }
 }
