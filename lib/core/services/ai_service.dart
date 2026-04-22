@@ -17,7 +17,7 @@ class AiService {
   void init() {
     final apiKey = dotenv.env['GEMINI_API_KEY'];
     if (apiKey != null && apiKey.isNotEmpty && apiKey != 'pending') {
-      _model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
+      _model = GenerativeModel(model: 'gemini-1.5-flash-latest', apiKey: apiKey);
     }
   }
 

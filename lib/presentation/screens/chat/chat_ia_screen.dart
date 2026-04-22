@@ -101,14 +101,20 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
       }
     } catch (e) {
       if (mounted) {
-        final detail = e.toString().replaceAll('Exception: ', '');
+        final raw = e.toString();
+        final String friendly;
+        if (raw.contains('quota') || raw.contains('RESOURCE_EXHAUSTED') || raw.contains('429')) {
+          friendly = 'Cuota de API excedida. Espera unos segundos y vuelve a intentarlo.';
+        } else if (raw.contains('API_KEY') || raw.contains('API key')) {
+          friendly = 'Clave de API inválida. Verifica GEMINI_API_KEY en el archivo .env';
+        } else if (raw.contains('not found') || raw.contains('404')) {
+          friendly = 'Modelo de IA no disponible. Verifica tu clave de API.';
+        } else {
+          friendly = 'Error al contactar SafeBot. Revisa tu conexión.';
+        }
         setState(() {
           _isTyping = false;
-          _messages.add(_Msg(
-            text: 'Error al contactar SafeBot: $detail',
-            isUser: false,
-            isError: true,
-          ));
+          _messages.add(_Msg(text: friendly, isUser: false, isError: true));
         });
       }
     }

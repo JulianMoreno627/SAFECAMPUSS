@@ -22,11 +22,22 @@ class MapScreen extends ConsumerStatefulWidget {
 class _MapScreenState extends ConsumerState<MapScreen> {
   final MapController _mapController = MapController();
   bool _sosActive = false;
+  bool _centeredOnUser = false;
 
   @override
   Widget build(BuildContext context) {
     final locationState = ref.watch(locationProvider);
     final reportsState = ref.watch(reportsProvider);
+
+    // Auto-center map the first time a real position arrives
+    ref.listen(locationProvider, (prev, next) {
+      if (!_centeredOnUser && next.currentPosition != null) {
+        _centeredOnUser = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _mapController.move(next.currentPosition!, 16);
+        });
+      }
+    });
     final l10n = AppLocalizations.of(context)!;
     final cs = Theme.of(context).colorScheme;
 

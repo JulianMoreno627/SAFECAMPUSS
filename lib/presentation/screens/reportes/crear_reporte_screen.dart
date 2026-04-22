@@ -428,6 +428,15 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // If location wasn't ready at initState, update as soon as provider resolves
+    ref.listen(locationProvider, (prev, next) {
+      if (_lat == null && next.currentPosition != null) {
+        _lat = next.currentPosition!.latitude;
+        _lng = next.currentPosition!.longitude;
+        _resolverDireccion(_lat!, _lng!);
+      }
+    });
+
     return Scaffold(
       body: Stack(
         children: [
