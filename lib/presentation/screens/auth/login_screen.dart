@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/services/api_service.dart';
+import '../../widgets/language_toggle_button.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen>
+class _LoginScreenState extends ConsumerState<LoginScreen>
     with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
@@ -81,6 +83,13 @@ class _LoginScreenState extends State<LoginScreen>
         children: [
           // Fondo estático sin animación (evita el trabe)
           _buildStaticBackground(),
+
+          // Boton de idioma — top-right
+          const Positioned(
+            top: 52,
+            right: 20,
+            child: LanguageToggleButton(),
+          ),
 
           // Contenido con scroll
           SafeArea(

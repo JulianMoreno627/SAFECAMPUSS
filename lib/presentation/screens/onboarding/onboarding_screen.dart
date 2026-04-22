@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_icons.dart';
+import '../../widgets/language_toggle_button.dart';
 
-class OnboardingScreen extends StatefulWidget {
+class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
 
   @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
+  ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
+class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
@@ -39,7 +41,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     final List<OnboardingData> pages = [
       OnboardingData(
         icon: AppIcons.sos,
@@ -69,10 +71,18 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             controller: _pageController,
             onPageChanged: (index) => setState(() => _currentPage = index),
             itemCount: pages.length,
-            itemBuilder: (context, index) => _OnboardingPage(data: pages[index]),
+            itemBuilder: (context, index) =>
+                _OnboardingPage(data: pages[index]),
           ),
 
-          // Skip button
+          // Boton de idioma — top-left
+          const Positioned(
+            top: 50,
+            left: 20,
+            child: LanguageToggleButton(),
+          ),
+
+          // Skip button — top-right
           Positioned(
             top: 50,
             right: 20,
@@ -90,7 +100,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 : const SizedBox.shrink(),
           ),
 
-          // Bottom part
+          // Bottom controls
           Positioned(
             bottom: 50,
             left: 30,

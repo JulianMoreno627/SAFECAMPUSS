@@ -4,6 +4,7 @@ import 'package:animate_do/animate_do.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/theme_provider.dart';
+import '../../../core/providers/locale_provider.dart';
 
 class PerfilScreen extends ConsumerWidget {
   const PerfilScreen({super.key});
@@ -223,6 +224,8 @@ class PerfilScreen extends ConsumerWidget {
           const SizedBox(height: 8),
           // ── Toggle Dark/Light ─────────────────────────────────────────
           _ThemeToggleTile(isDark: isDark, ref: ref),
+          // ── Toggle Idioma ─────────────────────────────────────────────
+          _LangToggleTile(ref: ref),
           _OptionTile(
             icon: Icons.settings_outlined,
             label: 'Configuración',
@@ -246,6 +249,51 @@ class PerfilScreen extends ConsumerWidget {
             onTap: () {
               ref.read(authProvider.notifier).logout();
             },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Language Toggle ───────────────────────────────────────────────────────────
+
+class _LangToggleTile extends ConsumerWidget {
+  final WidgetRef ref;
+
+  const _LangToggleTile({required this.ref});
+
+  @override
+  Widget build(BuildContext context, WidgetRef widgetRef) {
+    final cs = Theme.of(context).colorScheme;
+    final isEs = widgetRef.watch(localeProvider).languageCode == 'es';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.language_rounded,
+            color: AppColors.accent.withValues(alpha: 0.8),
+            size: 20,
+          ),
+          const SizedBox(width: 14),
+          Text(
+            isEs ? 'Español' : 'English',
+            style: TextStyle(color: cs.onSurface, fontSize: 14),
+          ),
+          const Spacer(),
+          Switch(
+            value: isEs,
+            activeThumbColor: AppColors.accent,
+            activeTrackColor: AppColors.accent.withValues(alpha: 0.5),
+            onChanged: (_) =>
+                widgetRef.read(localeProvider.notifier).toggle(),
           ),
         ],
       ),
