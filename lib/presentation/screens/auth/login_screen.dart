@@ -164,17 +164,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Stack(
         children: [
           _buildStaticBackground(),
-          const Positioned(
-            top: 52,
-            right: 20,
-            child: LanguageToggleButton(),
-          ),
           SafeArea(
             child: CustomScrollView(
               slivers: [
@@ -192,6 +188,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ],
             ),
           ),
+          const Positioned(
+            top: 52,
+            right: 20,
+            child: LanguageToggleButton(),
+          ),
         ],
       ),
     );
@@ -201,9 +202,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return Stack(
       children: [
         Positioned(
-          top: -80, left: -60,
+          top: -80,
+          left: -60,
           child: Container(
-            width: 250, height: 250,
+            width: 250,
+            height: 250,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: RadialGradient(colors: [
@@ -214,9 +217,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
         ),
         Positioned(
-          bottom: -60, right: -80,
+          bottom: -60,
+          right: -80,
           child: Container(
-            width: 300, height: 300,
+            width: 300,
+            height: 300,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: RadialGradient(colors: [
@@ -227,9 +232,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
         ),
         Positioned(
-          top: 220, right: -40,
+          top: 220,
+          right: -40,
           child: Container(
-            width: 180, height: 180,
+            width: 180,
+            height: 180,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: RadialGradient(colors: [
@@ -249,7 +256,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         FadeInDown(
           duration: const Duration(milliseconds: 600),
           child: Container(
-            width: 90, height: 90,
+            width: 90,
+            height: 90,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: const LinearGradient(
@@ -260,7 +268,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               boxShadow: [
                 BoxShadow(
                   color: AppColors.accent.withValues(alpha: 0.4),
-                  blurRadius: 30, spreadRadius: 5,
+                  blurRadius: 30,
+                  spreadRadius: 5,
                 ),
               ],
             ),
@@ -290,7 +299,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           delay: const Duration(milliseconds: 300),
           child: Text(
             l10n.loginSubtitle,
-            style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+            style:
+                const TextStyle(color: AppColors.textSecondary, fontSize: 13),
           ),
         ),
       ],
@@ -298,12 +308,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Widget _buildForm(AppLocalizations l10n) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     return FadeInUp(
       duration: const Duration(milliseconds: 600),
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: cs.surface,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(36),
             topRight: Radius.circular(36),
@@ -317,14 +329,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(l10n.loginButton,
-                  style: const TextStyle(
-                      color: Colors.white,
+                  style: TextStyle(
+                      color: cs.onSurface,
                       fontSize: 22,
                       fontWeight: FontWeight.bold)),
               const SizedBox(height: 4),
               Text(l10n.loginSubtitle,
-                  style: const TextStyle(
-                      color: AppColors.textSecondary, fontSize: 13)),
+                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
               const SizedBox(height: 24),
               _buildEmailField(l10n),
               const SizedBox(height: 14),
@@ -392,8 +403,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   child: RichText(
                     text: TextSpan(
                       text: l10n.noAccount,
-                      style: const TextStyle(
-                          color: AppColors.textSecondary, fontSize: 14),
+                      style:
+                          TextStyle(color: cs.onSurfaceVariant, fontSize: 14),
                       children: [
                         TextSpan(
                           text: ' ${l10n.registerButton}',
@@ -414,16 +425,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Widget _buildEmailField(AppLocalizations l10n) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     return TextFormField(
       controller: _emailController,
       keyboardType: TextInputType.emailAddress,
-      style: const TextStyle(color: Colors.white),
+      style: TextStyle(color: cs.onSurface),
       decoration: InputDecoration(
         hintText: l10n.emailLabel,
-        hintStyle: const TextStyle(color: AppColors.textSecondary),
+        hintStyle: TextStyle(color: cs.onSurfaceVariant),
         prefixIcon: const Icon(Icons.email_outlined, color: AppColors.accent),
         filled: true,
-        fillColor: AppColors.cardColor,
+        fillColor: theme.cardColor,
         border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide.none),
@@ -441,25 +454,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Widget _buildPasswordField(AppLocalizations l10n) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     return TextFormField(
       controller: _passwordController,
       obscureText: _obscurePassword,
-      style: const TextStyle(color: Colors.white),
+      style: TextStyle(color: cs.onSurface),
       decoration: InputDecoration(
         hintText: l10n.passwordLabel,
-        hintStyle: const TextStyle(color: AppColors.textSecondary),
+        hintStyle: TextStyle(color: cs.onSurfaceVariant),
         prefixIcon:
             const Icon(Icons.lock_outline_rounded, color: AppColors.accent),
         suffixIcon: IconButton(
           icon: Icon(
             _obscurePassword ? Icons.visibility_off : Icons.visibility,
-            color: AppColors.textSecondary, size: 20,
+            color: cs.onSurfaceVariant,
+            size: 20,
           ),
-          onPressed: () =>
-              setState(() => _obscurePassword = !_obscurePassword),
+          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
         ),
         filled: true,
-        fillColor: AppColors.cardColor,
+        fillColor: theme.cardColor,
         border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide.none),
@@ -485,14 +500,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.accent,
           foregroundColor: Colors.black,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           elevation: 6,
           shadowColor: AppColors.accent.withValues(alpha: 0.4),
         ),
         child: _isLoading
             ? const SizedBox(
-                width: 22, height: 22,
+                width: 22,
+                height: 22,
                 child: CircularProgressIndicator(
                     strokeWidth: 2.5, color: Colors.black))
             : Text(l10n.loginButton,
@@ -508,15 +524,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
-        Expanded(
-            child: Divider(color: Colors.white.withValues(alpha: 0.1))),
+        Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.1))),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(l10n.orDivider,
-              style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+              style: const TextStyle(
+                  color: AppColors.textSecondary, fontSize: 12)),
         ),
-        Expanded(
-            child: Divider(color: Colors.white.withValues(alpha: 0.1))),
+        Expanded(child: Divider(color: Colors.white.withValues(alpha: 0.1))),
       ],
     );
   }
@@ -528,17 +543,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 13),
         side: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
       icon: Image.network(
         'https://www.gstatic.com/images/branding/product/2x/googleg_48dp.png',
         height: 20,
-        errorBuilder: (_, __, ___) => const Icon(
-            Icons.g_mobiledata_rounded,
+        errorBuilder: (_, __, ___) => const Icon(Icons.g_mobiledata_rounded,
             color: Colors.white, size: 24),
       ),
-      label: Text(l10n.googleErrorPrefix == 'Google error' ? 'Google' : 'Google',
+      label: Text(
+          l10n.googleErrorPrefix == 'Google error' ? 'Google' : 'Google',
           style: const TextStyle(color: Colors.white, fontSize: 14),
           overflow: TextOverflow.ellipsis),
     );
@@ -554,13 +568,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             color: _biometricAvailable
                 ? AppColors.accent.withValues(alpha: 0.5)
                 : Colors.white12),
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
       icon: Icon(
         Icons.fingerprint_rounded,
-        color:
-            _biometricAvailable ? AppColors.accent : AppColors.textSecondary,
+        color: _biometricAvailable ? AppColors.accent : AppColors.textSecondary,
         size: 22,
       ),
       label: Text(

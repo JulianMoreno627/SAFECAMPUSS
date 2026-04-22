@@ -49,7 +49,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     final token = box.get(_tokenKey) as String?;
     final userJson = box.get(_userKey) as String?;
 
-    print('DEBUG: AuthNotifier.init() - token: ${token != null ? 'encontrado' : 'null'}, userJson: ${userJson != null ? 'encontrado' : 'null'}');
+    // print('DEBUG: AuthNotifier.init() - token: ${token != null ? 'encontrado' : 'null'}, userJson: ${userJson != null ? 'encontrado' : 'null'}');
 
     if (token != null && userJson != null) {
       try {
@@ -57,9 +57,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
         final usuario = Usuario.fromMap(userData);
         _api.setToken(token);
         state = state.copyWith(usuario: usuario, token: token);
-        print('DEBUG: Sesión recuperada para ${usuario.email}');
+        // print('DEBUG: Sesión recuperada para ${usuario.email}');
       } catch (e) {
-        print('DEBUG: Error al decodificar sesión: $e');
+        // print('DEBUG: Error al decodificar sesión: $e');
         await box.delete(_tokenKey);
         await box.delete(_userKey);
       }

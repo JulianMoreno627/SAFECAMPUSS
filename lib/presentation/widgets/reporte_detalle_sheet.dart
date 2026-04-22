@@ -20,10 +20,14 @@ class ReporteDetalleSheet extends StatelessWidget {
 
   Color get _riskColor {
     switch (reporte.nivelUrgencia) {
-      case NivelUrgencia.critico: return AppColors.riskCritical;
-      case NivelUrgencia.alto:    return AppColors.riskHigh;
-      case NivelUrgencia.medio:   return AppColors.riskMedium;
-      case NivelUrgencia.bajo:    return AppColors.riskLow;
+      case NivelUrgencia.critico:
+        return AppColors.riskCritical;
+      case NivelUrgencia.alto:
+        return AppColors.riskHigh;
+      case NivelUrgencia.medio:
+        return AppColors.riskMedium;
+      case NivelUrgencia.bajo:
+        return AppColors.riskLow;
     }
   }
 
@@ -85,7 +89,9 @@ class ReporteDetalleSheet extends StatelessWidget {
                         Icon(Icons.circle, size: 8, color: color),
                         const SizedBox(width: 6),
                         Text(
-                          reporte.nivelUrgencia.localizedLabel(l10n).toUpperCase(),
+                          reporte.nivelUrgencia
+                              .localizedLabel(l10n)
+                              .toUpperCase(),
                           style: TextStyle(
                             color: color,
                             fontSize: 11,
@@ -118,8 +124,7 @@ class ReporteDetalleSheet extends StatelessWidget {
                       color: color.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child:
-                        Icon(reporte.tipo.mapIcon, color: color, size: 28),
+                    child: Icon(reporte.tipo.mapIcon, color: color, size: 28),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -171,7 +176,7 @@ class ReporteDetalleSheet extends StatelessWidget {
                   children: [
                     _DetailRow(
                       icon: Icons.group_rounded,
-                      label: l10n.witnessesLabel,
+                      label: l10n.witnesses,
                       value: '${reporte.testigos}',
                       color: color,
                     ),
@@ -286,10 +291,8 @@ class _DetailRow extends StatelessWidget {
           children: [
             Text(label,
                 style: TextStyle(
-                    color: cs.onSurface.withValues(alpha: 0.38),
-                    fontSize: 11)),
-            Text(value,
-                style: TextStyle(color: cs.onSurface, fontSize: 14)),
+                    color: cs.onSurface.withValues(alpha: 0.38), fontSize: 11)),
+            Text(value, style: TextStyle(color: cs.onSurface, fontSize: 14)),
           ],
         ),
       ],
@@ -329,9 +332,7 @@ class _ActionButton extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14),
+                  color: color, fontWeight: FontWeight.w600, fontSize: 14),
             ),
           ],
         ),

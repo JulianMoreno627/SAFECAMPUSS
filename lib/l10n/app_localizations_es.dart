@@ -1203,4 +1203,13 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get rememberMe => 'Mantener sesión iniciada';
+
+  @override
+  String get profileUpdated => 'Perfil actualizado';
+
+  @override
+  String get saveButton => 'Guardar';
+
+  @override
+  String get saveChanges => 'Guardar cambios';
 }

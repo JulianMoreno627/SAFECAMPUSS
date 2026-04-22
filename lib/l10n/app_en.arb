@@ -425,5 +425,8 @@
       "count": {}
     }
   },
-  "rememberMe": "Keep me logged in"
+  "rememberMe": "Keep me logged in",
+  "profileUpdated": "Profile updated",
+  "saveButton": "Save",
+  "saveChanges": "Save changes"
 }

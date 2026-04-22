@@ -42,9 +42,11 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
   Widget build(BuildContext context) {
     final asyncReportes = ref.watch(_misReportesProvider);
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: asyncReportes.when(
           loading: () => Column(
@@ -67,12 +69,12 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.cloud_off_rounded,
-                          color: Colors.white30, size: 48),
+                      Icon(Icons.cloud_off_rounded,
+                          color: cs.onSurface.withValues(alpha: 0.3), size: 48),
                       const SizedBox(height: 12),
                       Text(l10n.errorLoadingReports,
-                          style: const TextStyle(
-                              color: Colors.white,
+                          style: TextStyle(
+                              color: cs.onSurface,
                               fontSize: 16,
                               fontWeight: FontWeight.bold)),
                       const SizedBox(height: 8),
@@ -99,7 +101,7 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
                   child: RefreshIndicator(
                     onRefresh: () async => ref.invalidate(_misReportesProvider),
                     color: AppColors.accent,
-                    backgroundColor: AppColors.cardColor,
+                    backgroundColor: theme.cardColor,
                     child: misReportes.isEmpty
                         ? _buildEmpty(l10n)
                         : _buildLista(misReportes),
@@ -114,6 +116,7 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
   }
 
   Widget _buildHeader(int? total, AppLocalizations l10n) {
+    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
       child: Row(
@@ -124,12 +127,12 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: cs.surface,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white12),
+                border: Border.all(color: cs.outlineVariant),
               ),
-              child: const Icon(Icons.arrow_back_ios_new_rounded,
-                  color: Colors.white, size: 18),
+              child: Icon(Icons.arrow_back_ios_new_rounded,
+                  color: cs.onSurface, size: 18),
             ),
           ),
           const SizedBox(width: 14),
@@ -137,15 +140,15 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(l10n.myReportsTitle,
-                  style: const TextStyle(
-                      color: Colors.white,
+                  style: TextStyle(
+                      color: cs.onSurface,
                       fontSize: 20,
                       fontWeight: FontWeight.bold)),
               Text(
                 total != null
                     ? '$total ${l10n.statsReports.toLowerCase()}'
                     : l10n.loadingLabel,
-                style: const TextStyle(color: Colors.white54, fontSize: 12),
+                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
               ),
             ],
           ),
@@ -156,6 +159,8 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
 
   Widget _buildFiltros(AppLocalizations l10n) {
     final filtros = _filtros(l10n);
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     return SizedBox(
       height: 48,
       child: ListView.separated(
@@ -172,15 +177,19 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
               duration: const Duration(milliseconds: 180),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               decoration: BoxDecoration(
-                color: sel ? AppColors.accent : AppColors.cardColor,
+                color: sel ? AppColors.accent : theme.cardColor,
                 borderRadius: BorderRadius.circular(20),
-                border:
-                    Border.all(color: sel ? AppColors.accent : Colors.white12),
+                border: Border.all(
+                    color: sel ? AppColors.accent : cs.outlineVariant),
               ),
               child: Text(
                 label,
                 style: TextStyle(
-                  color: sel ? Colors.black : Colors.white54,
+                  color: sel
+                      ? (theme.brightness == Brightness.dark
+                          ? Colors.black
+                          : Colors.white)
+                      : cs.onSurfaceVariant,
                   fontSize: 12,
                   fontWeight: sel ? FontWeight.bold : FontWeight.normal,
                 ),
@@ -193,6 +202,8 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
   }
 
   Widget _buildEmpty(AppLocalizations l10n) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     return ListView(
       children: [
         SizedBox(
@@ -203,19 +214,18 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: AppColors.cardColor,
+                  color: theme.cardColor,
                   shape: BoxShape.circle,
-                  border: Border.all(
-                      color: AppColors.accent.withValues(alpha: 0.2)),
+                  border: Border.all(color: AppColors.accent.withValues(alpha: 0.2)),
                 ),
-                child: const Icon(Icons.article_outlined,
-                    color: Colors.white24, size: 48),
+                child: Icon(Icons.article_outlined,
+                    color: cs.onSurface.withValues(alpha: 0.2), size: 48),
               ),
               const SizedBox(height: 18),
               Text(
                 _filtroKey.isEmpty ? l10n.noReportsSent : l10n.noResults,
-                style: const TextStyle(
-                    color: Colors.white,
+                style: TextStyle(
+                    color: cs.onSurface,
                     fontSize: 16,
                     fontWeight: FontWeight.bold),
               ),
@@ -223,8 +233,8 @@ class _MisReportesScreenState extends ConsumerState<MisReportesScreen> {
               Text(
                 l10n.helpCommunityReport,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                    color: Colors.white54, fontSize: 13, height: 1.5),
+                style: TextStyle(
+                    color: cs.onSurfaceVariant, fontSize: 13, height: 1.5),
               ),
             ],
           ),
@@ -259,6 +269,8 @@ class _ReporteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     final color = switch (reporte.nivelUrgencia) {
       NivelUrgencia.critico => AppColors.riskCritical,
       NivelUrgencia.alto => AppColors.riskHigh,
@@ -272,7 +284,7 @@ class _ReporteCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppColors.cardColor,
+          color: theme.cardColor,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: color.withValues(alpha: 0.2)),
         ),
@@ -296,8 +308,8 @@ class _ReporteCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(reporte.tipo.localizedLabel(l10n),
-                            style: const TextStyle(
-                                color: Colors.white,
+                            style: TextStyle(
+                                color: cs.onSurface,
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold)),
                       ),
@@ -312,22 +324,25 @@ class _ReporteCard extends StatelessWidget {
                       reporte.descripcion,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          color: Colors.white54, fontSize: 12, height: 1.4),
+                      style: TextStyle(
+                          color: cs.onSurfaceVariant,
+                          fontSize: 12,
+                          height: 1.4),
                     ),
                   ],
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(Icons.access_time_rounded,
-                          color: Colors.white30, size: 12),
+                      Icon(Icons.access_time_rounded,
+                          color: cs.onSurface.withValues(alpha: 0.3), size: 12),
                       const SizedBox(width: 4),
                       Text(reporte.localizedTiempoTranscurrido(l10n),
-                          style: const TextStyle(
-                              color: Colors.white30, fontSize: 11)),
+                          style: TextStyle(
+                              color: cs.onSurface.withValues(alpha: 0.3),
+                              fontSize: 11)),
                       const Spacer(),
-                      const Icon(Icons.chevron_right_rounded,
-                          color: Colors.white24, size: 16),
+                      Icon(Icons.chevron_right_rounded,
+                          color: cs.onSurface.withValues(alpha: 0.2), size: 16),
                     ],
                   ),
                 ],

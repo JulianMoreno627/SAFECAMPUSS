@@ -14,9 +14,11 @@ class NotificacionesScreen extends ConsumerWidget {
     final state = ref.watch(notificacionesProvider);
     final notifier = ref.read(notificacionesProvider.notifier);
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -32,14 +34,13 @@ class NotificacionesScreen extends ConsumerWidget {
                       child: CircularProgressIndicator(
                           color: AppColors.accent, strokeWidth: 2))
                   : state.notificaciones.isEmpty
-                      ? _buildEmpty(state.error, l10n)
+                      ? _buildEmpty(state.error, l10n, theme, cs)
                       : RefreshIndicator(
                           onRefresh: notifier.fetchNotificaciones,
                           color: AppColors.accent,
-                          backgroundColor: AppColors.cardColor,
+                          backgroundColor: theme.cardColor,
                           child: ListView.builder(
-                            padding:
-                                const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
                             itemCount: state.notificaciones.length,
                             itemBuilder: (ctx, i) {
                               final n = state.notificaciones[i];
@@ -60,30 +61,34 @@ class NotificacionesScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildEmpty(String? error, AppLocalizations l10n) {
+  Widget _buildEmpty(
+      String? error, AppLocalizations l10n, ThemeData theme, ColorScheme cs) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
             padding: const EdgeInsets.all(24),
-            decoration: const BoxDecoration(
-              color: AppColors.cardColor,
+            decoration: BoxDecoration(
+              color: theme.cardColor,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.notifications_off_outlined,
-                color: Colors.white24, size: 48),
+            child: Icon(Icons.notifications_off_outlined,
+                color: cs.onSurface.withValues(alpha: 0.2), size: 48),
           ),
           const SizedBox(height: 16),
           Text(
-            error != null ? 'Sin conexión al servidor' : l10n.notifNoNotifications,
-            style: const TextStyle(color: Colors.white54, fontSize: 16),
+            error != null
+                ? 'Sin conexión al servidor'
+                : l10n.notifNoNotifications,
+            style: TextStyle(color: cs.onSurfaceVariant, fontSize: 16),
           ),
           const SizedBox(height: 6),
-          const Text(
+          Text(
             'Te avisaremos cuando haya alertas en el campus',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white30, fontSize: 13),
+            style:
+                TextStyle(color: cs.onSurface.withValues(alpha: 0.3), fontSize: 13),
           ),
         ],
       ),
@@ -137,8 +142,8 @@ class _Header extends StatelessWidget {
                       fontWeight: FontWeight.bold)),
               if (noLeidas > 0)
                 Text('$noLeidas ${l10n.notifScreenSubtitle}',
-                    style: const TextStyle(
-                        color: AppColors.accent, fontSize: 12)),
+                    style:
+                        const TextStyle(color: AppColors.accent, fontSize: 12)),
             ],
           ),
           const Spacer(),
@@ -146,7 +151,8 @@ class _Header extends StatelessWidget {
             TextButton(
               onPressed: onMarcarTodas,
               child: Text(l10n.notifMarkAllRead,
-                  style: const TextStyle(color: AppColors.accent, fontSize: 12)),
+                  style:
+                      const TextStyle(color: AppColors.accent, fontSize: 12)),
             ),
         ],
       ),
@@ -164,19 +170,27 @@ class _NotifCard extends StatelessWidget {
 
   Color get _color {
     switch (notif.tipo) {
-      case TipoNotificacion.alerta:  return AppColors.riskHigh;
-      case TipoNotificacion.reporte: return AppColors.riskMedium;
-      case TipoNotificacion.ia:      return AppColors.accent;
-      case TipoNotificacion.sistema: return AppColors.riskLow;
+      case TipoNotificacion.alerta:
+        return AppColors.riskHigh;
+      case TipoNotificacion.reporte:
+        return AppColors.riskMedium;
+      case TipoNotificacion.ia:
+        return AppColors.accent;
+      case TipoNotificacion.sistema:
+        return AppColors.riskLow;
     }
   }
 
   IconData get _icon {
     switch (notif.tipo) {
-      case TipoNotificacion.alerta:  return Icons.warning_amber_rounded;
-      case TipoNotificacion.reporte: return Icons.report_rounded;
-      case TipoNotificacion.ia:      return Icons.psychology_rounded;
-      case TipoNotificacion.sistema: return Icons.info_outline_rounded;
+      case TipoNotificacion.alerta:
+        return Icons.warning_amber_rounded;
+      case TipoNotificacion.reporte:
+        return Icons.report_rounded;
+      case TipoNotificacion.ia:
+        return Icons.psychology_rounded;
+      case TipoNotificacion.sistema:
+        return Icons.info_outline_rounded;
     }
   }
 
@@ -191,14 +205,11 @@ class _NotifCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: notif.leida
-              ? AppColors.cardColor
-              : color.withValues(alpha: 0.08),
+          color:
+              notif.leida ? AppColors.cardColor : color.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: notif.leida
-                ? Colors.white12
-                : color.withValues(alpha: 0.35),
+            color: notif.leida ? Colors.white12 : color.withValues(alpha: 0.35),
             width: notif.leida ? 1 : 1.5,
           ),
         ),
@@ -236,8 +247,7 @@ class _NotifCard extends StatelessWidget {
                         Container(
                           width: 8,
                           height: 8,
-                          margin:
-                              const EdgeInsets.only(left: 6, top: 2),
+                          margin: const EdgeInsets.only(left: 6, top: 2),
                           decoration: BoxDecoration(
                             color: color,
                             shape: BoxShape.circle,
@@ -248,13 +258,11 @@ class _NotifCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(notif.cuerpo,
                       style: const TextStyle(
-                          color: Colors.white54,
-                          fontSize: 12,
-                          height: 1.4)),
+                          color: Colors.white54, fontSize: 12, height: 1.4)),
                   const SizedBox(height: 6),
                   Text(notif.localizedTiempoTranscurrido(l10n),
-                      style: const TextStyle(
-                          color: Colors.white30, fontSize: 11)),
+                      style:
+                          const TextStyle(color: Colors.white30, fontSize: 11)),
                 ],
               ),
             ),

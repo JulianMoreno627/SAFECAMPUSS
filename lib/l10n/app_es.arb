@@ -198,6 +198,9 @@
   "noReportsSent": "No has enviado reportes",
   "helpCommunityReport": "Ayuda a la comunidad reportando incidentes en el campus",
   "unknownDate": "Fecha desconocida",
+  "profileUpdated": "Perfil actualizado",
+  "saveButton": "Guardar",
+  "saveChanges": "Guardar cambios",
   "safeRouteTitle": "Ruta Segura",
   "safeRouteSubtitle": "Análisis de seguridad con IA",
   "whereAreYouGoing": "¿A dónde vas?",
@@ -425,5 +428,8 @@
       "count": {}
     }
   },
-  "rememberMe": "Mantener sesión iniciada"
+  "rememberMe": "Mantener sesión iniciada",
+  "profileUpdated": "Perfil actualizado",
+  "saveButton": "Guardar",
+  "saveChanges": "Guardar cambios"
 }

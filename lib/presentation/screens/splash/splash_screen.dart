@@ -25,7 +25,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       if (!mounted) return;
       
       final auth = ref.read(authProvider);
-      print('DEBUG: SplashScreen - isAuthenticated: ${auth.isAuthenticated}');
+      // print('DEBUG: SplashScreen - isAuthenticated: ${auth.isAuthenticated}');
       
       if (auth.isAuthenticated) {
         context.go('/map');

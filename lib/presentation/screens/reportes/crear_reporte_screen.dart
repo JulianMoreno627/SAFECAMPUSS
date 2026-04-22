@@ -109,7 +109,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
         'code': 'Otro',
         'label': l10n.incidentOther,
         'icon': Icons.more_horiz_rounded,
-        'color': AppColors.textSecondary
+        'color': Theme.of(context).colorScheme.onSurfaceVariant
       },
     ];
   }
@@ -1120,9 +1120,8 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
               _ubicacionObtenida
                   ? Icons.location_on_rounded
                   : Icons.location_searching_rounded,
-              color: _ubicacionObtenida
-                  ? AppColors.riskLow
-                  : AppColors.textSecondary,
+              color:
+                  _ubicacionObtenida ? AppColors.riskLow : cs.onSurfaceVariant,
               size: 24,
             ),
           ),

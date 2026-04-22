@@ -214,18 +214,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         value: entry.value.toDouble(),
         color: palette[i % palette.length],
         title: '${pct.toStringAsFixed(0)}%',
-        radius: 52,
+        radius: 40, // Reducido de 52 para evitar solapamiento
         titleStyle: const TextStyle(
-            color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-        badgeWidget: entry.value > 1
-            ? Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: palette[i % palette.length].withValues(alpha: 0.2),
-                  shape: BoxShape.circle,
-                ),
-              )
-            : null,
+            color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
       );
     }).toList();
 
@@ -250,12 +241,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             Row(
               children: [
                 SizedBox(
-                  height: 160,
-                  width: 160,
+                  height: 140, // Reducido de 160
+                  width: 140, // Reducido de 160
                   child: PieChart(
                     PieChartData(
                       sections: sections,
-                      centerSpaceRadius: 36,
+                      centerSpaceRadius: 30, // Reducido de 36
                       sectionsSpace: 2,
                     ),
                   ),
@@ -430,12 +421,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   Widget _buildAITrendsCard(AppLocalizations l10n) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
     return FadeInUp(
       delay: const Duration(milliseconds: 300),
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: AppColors.cardColor,
+          color: theme.cardColor,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: AppColors.accent.withValues(alpha: 0.25)),
         ),
@@ -455,8 +448,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ),
                 const SizedBox(width: 10),
                 Text(l10n.dashboardAiAnalysis,
-                    style: const TextStyle(
-                        color: Colors.white,
+                    style: TextStyle(
+                        color: cs.onSurface,
                         fontSize: 15,
                         fontWeight: FontWeight.bold)),
               ],
@@ -485,14 +478,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       ? Text(
                           _aiTrends!,
                           key: const ValueKey('result'),
-                          style: const TextStyle(
-                              color: Colors.white70, fontSize: 13, height: 1.6),
+                          style: TextStyle(
+                              color: cs.onSurfaceVariant,
+                              fontSize: 13,
+                              height: 1.6),
                         )
                       : Text(
                           l10n.trendsNoData,
                           key: const ValueKey('empty'),
-                          style: const TextStyle(
-                              color: Colors.white38, fontSize: 13, height: 1.5),
+                          style: TextStyle(
+                              color: cs.onSurface.withValues(alpha: 0.38),
+                              fontSize: 13,
+                              height: 1.5),
                         ),
             ),
           ],

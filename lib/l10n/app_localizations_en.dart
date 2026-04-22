@@ -1197,4 +1197,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get rememberMe => 'Keep me logged in';
+
+  @override
+  String get profileUpdated => 'Profile updated';
+
+  @override
+  String get saveButton => 'Save';
+
+  @override
+  String get saveChanges => 'Save changes';
 }
