@@ -9,6 +9,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_icons.dart';
 import '../../../core/providers/location_provider.dart';
 import '../../../core/providers/reports_provider.dart';
+import '../../../core/models/reporte.dart';
 import '../../widgets/reporte_detalle_sheet.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
@@ -61,12 +62,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   ),
                 MarkerLayer(
                   markers:
-                      reportsState.reportesCercanos.map((report) {
+                      reportsState.reportesCercanos.map((reporte) {
                     return Marker(
-                      point: LatLng(report['lat'], report['lng']),
+                      point: LatLng(reporte.lat, reporte.lng),
                       width: 40,
                       height: 40,
-                      child: _buildReportMarker(report),
+                      child: _buildReportMarker(reporte),
                     );
                   }).toList(),
                 ),
@@ -132,20 +133,20 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
-  Widget _buildReportMarker(dynamic report) {
+  Widget _buildReportMarker(Reporte reporte) {
+    final color = _nivelColor(reporte.nivelUrgencia);
     return GestureDetector(
-      onTap: () => _showReportDetail(report),
+      onTap: () => _showReportDetail(reporte),
       child: Hero(
-        tag: 'report-${report['id']}',
+        tag: 'report-${reporte.id}',
         child: Container(
           decoration: BoxDecoration(
-            color: _getRiskColor(report['nivel_urgencia']),
+            color: color,
             shape: BoxShape.circle,
             border: Border.all(color: Colors.white, width: 2),
             boxShadow: [
               BoxShadow(
-                color: _getRiskColor(report['nivel_urgencia'])
-                    .withValues(alpha: 0.4),
+                color: color.withValues(alpha: 0.4),
                 blurRadius: 8,
                 spreadRadius: 2,
               ),
@@ -158,16 +159,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
-  Color _getRiskColor(String? level) {
-    switch (level?.toLowerCase()) {
-      case 'critico':
-        return AppColors.riskCritical;
-      case 'alto':
-        return AppColors.riskHigh;
-      case 'medio':
-        return AppColors.riskMedium;
-      default:
-        return AppColors.riskLow;
+  Color _nivelColor(NivelUrgencia nivel) {
+    switch (nivel) {
+      case NivelUrgencia.critico: return AppColors.riskCritical;
+      case NivelUrgencia.alto:    return AppColors.riskHigh;
+      case NivelUrgencia.medio:   return AppColors.riskMedium;
+      case NivelUrgencia.bajo:    return AppColors.riskLow;
     }
   }
 
@@ -205,9 +202,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                         fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    '${l10n.riskLevel}: ${reportsState.nivelRiesgo}',
+                    '${l10n.riskLevel}: ${reportsState.nivelRiesgoLabel}',
                     style: TextStyle(
-                      color: _getRiskColor(reportsState.nivelRiesgo),
+                      color: _riesgoColor(reportsState.nivelRiesgo),
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                     ),
@@ -259,8 +256,16 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
-  void _showReportDetail(dynamic report) {
-    ReporteDetalleSheet.show(
-        context, Map<String, dynamic>.from(report));
+  Color _riesgoColor(NivelRiesgo nivel) {
+    switch (nivel) {
+      case NivelRiesgo.critico: return AppColors.riskCritical;
+      case NivelRiesgo.alto:    return AppColors.riskHigh;
+      case NivelRiesgo.medio:   return AppColors.riskMedium;
+      case NivelRiesgo.bajo:    return AppColors.riskLow;
+    }
+  }
+
+  void _showReportDetail(Reporte reporte) {
+    ReporteDetalleSheet.show(context, reporte);
   }
 }

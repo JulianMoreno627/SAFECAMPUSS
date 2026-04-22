@@ -1,65 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/models/reporte.dart';
 
 class ReporteDetalleSheet extends StatelessWidget {
-  final Map<String, dynamic> report;
+  final Reporte reporte;
 
-  const ReporteDetalleSheet({super.key, required this.report});
+  const ReporteDetalleSheet({super.key, required this.reporte});
 
-  static void show(BuildContext context, Map<String, dynamic> report) {
+  static void show(BuildContext context, Reporte reporte) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => ReporteDetalleSheet(report: report),
+      builder: (_) => ReporteDetalleSheet(reporte: reporte),
     );
   }
 
   Color get _riskColor {
-    switch (report['nivel_urgencia']?.toString().toLowerCase()) {
-      case 'critico':
-        return AppColors.riskCritical;
-      case 'alto':
-        return AppColors.riskHigh;
-      case 'medio':
-        return AppColors.riskMedium;
-      default:
-        return AppColors.riskLow;
+    switch (reporte.nivelUrgencia) {
+      case NivelUrgencia.critico: return AppColors.riskCritical;
+      case NivelUrgencia.alto:    return AppColors.riskHigh;
+      case NivelUrgencia.medio:   return AppColors.riskMedium;
+      case NivelUrgencia.bajo:    return AppColors.riskLow;
     }
-  }
-
-  IconData get _typeIcon {
-    switch (report['tipo']?.toString().toLowerCase()) {
-      case 'robo':
-        return Icons.no_backpack_rounded;
-      case 'acoso':
-        return Icons.person_off_rounded;
-      case 'pelea':
-        return Icons.sports_kabaddi_rounded;
-      case 'vandalismo':
-        return Icons.broken_image_rounded;
-      case 'accidente':
-        return Icons.car_crash_rounded;
-      case 'persona sospechosa':
-        return Icons.visibility_rounded;
-      case 'iluminación':
-        return Icons.flashlight_off_rounded;
-      default:
-        return Icons.report_rounded;
-    }
-  }
-
-  String _timeAgo(String? raw) {
-    if (raw == null) return 'Hace un momento';
-    final date = DateTime.tryParse(raw);
-    if (date == null) return 'Hace un momento';
-    final diff = DateTime.now().difference(date);
-    if (diff.inMinutes < 1) return 'Ahora mismo';
-    if (diff.inMinutes < 60) return 'Hace ${diff.inMinutes} min';
-    if (diff.inHours < 24) return 'Hace ${diff.inHours} h';
-    if (diff.inDays < 7) return 'Hace ${diff.inDays} días';
-    return 'Hace más de una semana';
   }
 
   @override
@@ -75,8 +39,7 @@ class ReporteDetalleSheet extends StatelessWidget {
         return Container(
           decoration: BoxDecoration(
             color: cs.surface,
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(24)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
             border: Border(
               top: BorderSide(color: color.withValues(alpha: 0.5), width: 2),
             ),
@@ -91,7 +54,6 @@ class ReporteDetalleSheet extends StatelessWidget {
             controller: scrollController,
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
             children: [
-              // ── Drag handle ────────────────────────────────────────────
               Center(
                 child: Container(
                   margin: const EdgeInsets.symmetric(vertical: 12),
@@ -104,17 +66,16 @@ class ReporteDetalleSheet extends StatelessWidget {
                 ),
               ),
 
-              // ── Risk badge ─────────────────────────────────────────────
+              // Risk badge + tiempo
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: color.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(20),
-                      border:
-                          Border.all(color: color.withValues(alpha: 0.4)),
+                      border: Border.all(color: color.withValues(alpha: 0.4)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -122,9 +83,7 @@ class ReporteDetalleSheet extends StatelessWidget {
                         Icon(Icons.circle, size: 8, color: color),
                         const SizedBox(width: 6),
                         Text(
-                          (report['nivel_urgencia'] ?? 'bajo')
-                              .toString()
-                              .toUpperCase(),
+                          reporte.nivelUrgencia.label.toUpperCase(),
                           style: TextStyle(
                             color: color,
                             fontSize: 11,
@@ -137,7 +96,7 @@ class ReporteDetalleSheet extends StatelessWidget {
                   ),
                   const Spacer(),
                   Text(
-                    _timeAgo(report['created_at']?.toString()),
+                    reporte.tiempoTranscurrido,
                     style: TextStyle(
                         color: cs.onSurface.withValues(alpha: 0.38),
                         fontSize: 12),
@@ -147,7 +106,7 @@ class ReporteDetalleSheet extends StatelessWidget {
 
               const SizedBox(height: 20),
 
-              // ── Tipo + ícono ───────────────────────────────────────────
+              // Tipo + ícono
               Row(
                 children: [
                   Container(
@@ -157,7 +116,8 @@ class ReporteDetalleSheet extends StatelessWidget {
                       color: color.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Icon(_typeIcon, color: color, size: 28),
+                    child:
+                        Icon(reporte.tipo.mapIcon, color: color, size: 28),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -165,7 +125,7 @@ class ReporteDetalleSheet extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          report['tipo'] ?? 'Incidente',
+                          reporte.tipo.label,
                           style: TextStyle(
                             color: cs.onSurface,
                             fontSize: 20,
@@ -185,11 +145,13 @@ class ReporteDetalleSheet extends StatelessWidget {
 
               const SizedBox(height: 24),
 
-              // ── Descripción ────────────────────────────────────────────
+              // Descripción
               _Section(
-                title: 'Descripción',
+                title: 'DESCRIPCIÓN',
                 child: Text(
-                  report['descripcion'] ?? 'Sin descripción disponible.',
+                  reporte.descripcion.isNotEmpty
+                      ? reporte.descripcion
+                      : 'Sin descripción disponible.',
                   style: TextStyle(
                     color: cs.onSurface.withValues(alpha: 0.7),
                     fontSize: 14,
@@ -200,24 +162,23 @@ class ReporteDetalleSheet extends StatelessWidget {
 
               const SizedBox(height: 20),
 
-              // ── Metadata ───────────────────────────────────────────────
+              // Detalles
               _Section(
-                title: 'Detalles',
+                title: 'DETALLES',
                 child: Column(
                   children: [
                     _DetailRow(
                       icon: Icons.group_rounded,
                       label: 'Testigos',
-                      value: '${report['testigos'] ?? 0}',
+                      value: '${reporte.testigos}',
                       color: color,
                     ),
                     const SizedBox(height: 10),
                     _DetailRow(
                       icon: Icons.location_on_rounded,
                       label: 'Coordenadas',
-                      value: report['lat'] != null
-                          ? '${(report['lat'] as num).toStringAsFixed(4)}, ${(report['lng'] as num).toStringAsFixed(4)}'
-                          : 'No disponible',
+                      value:
+                          '${reporte.lat.toStringAsFixed(4)}, ${reporte.lng.toStringAsFixed(4)}',
                       color: color,
                     ),
                   ],
@@ -226,7 +187,7 @@ class ReporteDetalleSheet extends StatelessWidget {
 
               const SizedBox(height: 28),
 
-              // ── Acciones ───────────────────────────────────────────────
+              // Acciones
               Row(
                 children: [
                   Expanded(
@@ -235,12 +196,9 @@ class ReporteDetalleSheet extends StatelessWidget {
                       label: 'Compartir',
                       color: AppColors.accent,
                       onTap: () {
-                        final tipo = report['tipo'] ?? 'Incidente';
-                        final desc = report['descripcion'] ?? '';
-                        final urgencia =
-                            report['nivel_urgencia'] ?? '';
                         Share.share(
-                          'SafeCampus AI — Reporte: $tipo ($urgencia)\n$desc',
+                          'SafeCampus AI — Reporte: ${reporte.tipo.label} '
+                          '(${reporte.nivelUrgencia.label})\n${reporte.descripcion}',
                         );
                       },
                     ),
@@ -264,6 +222,8 @@ class ReporteDetalleSheet extends StatelessWidget {
   }
 }
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
 class _Section extends StatelessWidget {
   final String title;
   final Widget child;
@@ -273,7 +233,6 @@ class _Section extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -309,7 +268,6 @@ class _DetailRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-
     return Row(
       children: [
         Container(
@@ -329,8 +287,7 @@ class _DetailRow extends StatelessWidget {
                     color: cs.onSurface.withValues(alpha: 0.38),
                     fontSize: 11)),
             Text(value,
-                style:
-                    TextStyle(color: cs.onSurface, fontSize: 14)),
+                style: TextStyle(color: cs.onSurface, fontSize: 14)),
           ],
         ),
       ],

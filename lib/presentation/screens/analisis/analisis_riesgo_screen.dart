@@ -6,6 +6,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/services/gemini_service.dart';
 import '../../../core/providers/reports_provider.dart';
 import '../../../core/providers/auth_provider.dart';
+import '../../../core/models/reporte.dart';
 
 class AnalisisRiesgoScreen extends ConsumerStatefulWidget {
   const AnalisisRiesgoScreen({super.key});
@@ -28,17 +29,15 @@ class _AnalisisRiesgoScreenState extends ConsumerState<AnalisisRiesgoScreen> {
 
     final reportes = ref.read(reportsProvider).reportesCercanos;
     final userId =
-        ref.read(authProvider).user?['id']?.toString() ?? '';
+        ref.read(authProvider).usuario?.id ?? '';
 
     // Derivar parámetros de los reportes del usuario
     final misReportes = reportes
-        .where((r) =>
-            r['user_id']?.toString() == userId ||
-            r['usuario_id']?.toString() == userId)
+        .where((r) => r.perteneceA(userId))
         .toList();
 
     final zonas = misReportes
-        .map((r) => r['tipo']?.toString() ?? 'Zona desconocida')
+        .map((r) => r.tipo.label)
         .toSet()
         .take(5)
         .toList();
@@ -51,7 +50,7 @@ class _AnalisisRiesgoScreenState extends ConsumerState<AnalisisRiesgoScreen> {
             : 'Noche';
 
     final rutaFrecuente = misReportes.isNotEmpty
-        ? 'Zona con incidentes de ${misReportes.first['tipo'] ?? 'tipo desconocido'}'
+        ? 'Zona con incidentes de ${misReportes.first.tipo.label}'
         : 'Campus universitario general';
 
     final result = await GeminiService().analizarRiesgoPersonal(

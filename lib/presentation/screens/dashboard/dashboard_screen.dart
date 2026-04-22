@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/services/ai_service.dart';
 import '../../../core/providers/reports_provider.dart';
+import '../../../core/models/reporte.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -94,7 +95,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   Widget _buildRiskBanner(BuildContext context, ReportsState state) {
     final cs = Theme.of(context).colorScheme;
-    final color = _riskColor(state.nivelRiesgo);
+    final color = _riskColor(state.nivelRiesgoLabel);
 
     return FadeInUp(
       child: Container(
@@ -129,7 +130,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         color: cs.onSurface.withValues(alpha: 0.6),
                         fontSize: 12)),
                 const SizedBox(height: 2),
-                Text(state.nivelRiesgo,
+                Text(state.nivelRiesgoLabel,
                     style: TextStyle(
                         color: color,
                         fontSize: 20,
@@ -162,11 +163,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget _buildStatsRow(BuildContext context, ReportsState state) {
     final reports = state.reportesCercanos;
     final criticos =
-        reports.where((r) => r['nivel_urgencia'] == 'critico').length;
+        reports.where((r) => r.nivelUrgencia == NivelUrgencia.critico).length;
     final altos =
-        reports.where((r) => r['nivel_urgencia'] == 'alto').length;
+        reports.where((r) => r.nivelUrgencia == NivelUrgencia.alto).length;
     final medios =
-        reports.where((r) => r['nivel_urgencia'] == 'medio').length;
+        reports.where((r) => r.nivelUrgencia == NivelUrgencia.medio).length;
 
     return FadeInUp(
       delay: const Duration(milliseconds: 80),
@@ -198,7 +199,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     final counts = <String, int>{};
     for (final r in reports) {
-      final tipo = r['tipo']?.toString() ?? 'Otro';
+      final tipo = r.tipo.label;
       counts[tipo] = (counts[tipo] ?? 0) + 1;
     }
 
@@ -329,14 +330,14 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final cs = Theme.of(context).colorScheme;
     final reports = state.reportesCercanos;
 
-    int count(String level) =>
-        reports.where((r) => r['nivel_urgencia'] == level).length;
+    int count(NivelUrgencia nivel) =>
+        reports.where((r) => r.nivelUrgencia == nivel).length;
 
     final data = [
-      ('Bajo', count('bajo').toDouble(), AppColors.riskLow),
-      ('Medio', count('medio').toDouble(), AppColors.riskMedium),
-      ('Alto', count('alto').toDouble(), AppColors.riskHigh),
-      ('Crítico', count('critico').toDouble(), AppColors.riskCritical),
+      ('Bajo',    count(NivelUrgencia.bajo).toDouble(),    AppColors.riskLow),
+      ('Medio',   count(NivelUrgencia.medio).toDouble(),   AppColors.riskMedium),
+      ('Alto',    count(NivelUrgencia.alto).toDouble(),    AppColors.riskHigh),
+      ('Crítico', count(NivelUrgencia.critico).toDouble(), AppColors.riskCritical),
     ];
 
     final maxY =

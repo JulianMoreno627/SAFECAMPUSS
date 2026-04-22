@@ -60,10 +60,7 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
     final now = TimeOfDay.now();
     final hora =
         '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
-    final reportes = ref
-        .read(reportsProvider)
-        .reportesCercanos
-        .cast<Map<String, dynamic>>();
+    final reportes = ref.read(reportsProvider).reportesCercanos;
 
     final result = await GeminiService().recomendarRuta(
       origen: _origenCtrl.text.trim(),

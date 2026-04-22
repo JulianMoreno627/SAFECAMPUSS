@@ -358,7 +358,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final userId = ref.read(authProvider).user?['id'] ?? '';
+      final userId = ref.read(authProvider).usuario?.id ?? '';
       await ApiService().crearReporte(
         tipo: _tipoSeleccionado!,
         descripcion: _descripcionController.text.trim(),

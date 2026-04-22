@@ -1,103 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/models/notificacion.dart';
+import '../../../core/providers/notificaciones_provider.dart';
 
-class NotificacionesScreen extends StatefulWidget {
+class NotificacionesScreen extends ConsumerWidget {
   const NotificacionesScreen({super.key});
 
   @override
-  State<NotificacionesScreen> createState() => _NotificacionesScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(notificacionesProvider);
+    final notifier = ref.read(notificacionesProvider.notifier);
 
-class _NotificacionesScreenState extends State<NotificacionesScreen> {
-  final List<_Notificacion> _notificaciones = [
-    _Notificacion(
-      tipo: _TipoNotif.alerta,
-      titulo: 'Alerta de seguridad cercana',
-      cuerpo: 'Se reportó un robo a 200m de tu ubicación actual. Mantente alerta.',
-      hora: 'Hace 5 min',
-      leida: false,
-    ),
-    _Notificacion(
-      tipo: _TipoNotif.reporte,
-      titulo: 'Nuevo reporte en el campus',
-      cuerpo: 'Pelea reportada cerca del edificio de Ingeniería.',
-      hora: 'Hace 18 min',
-      leida: false,
-    ),
-    _Notificacion(
-      tipo: _TipoNotif.ia,
-      titulo: 'SafeBot — Análisis completado',
-      cuerpo: 'Tu zona tiene nivel de riesgo medio en las últimas 2 horas. Recomendamos evitar el parqueadero norte.',
-      hora: 'Hace 1 h',
-      leida: false,
-    ),
-    _Notificacion(
-      tipo: _TipoNotif.sistema,
-      titulo: 'Reporte enviado exitosamente',
-      cuerpo: 'Tu reporte de "Persona sospechosa" fue recibido y está siendo revisado.',
-      hora: 'Hace 3 h',
-      leida: true,
-    ),
-    _Notificacion(
-      tipo: _TipoNotif.alerta,
-      titulo: 'Zona de riesgo actualizada',
-      cuerpo: 'El sector de la biblioteca ha bajado su nivel de riesgo a bajo.',
-      hora: 'Hace 5 h',
-      leida: true,
-    ),
-    _Notificacion(
-      tipo: _TipoNotif.ia,
-      titulo: 'Ruta segura disponible',
-      cuerpo: 'SafeBot calculó una ruta alternativa más segura hacia el edificio C.',
-      hora: 'Ayer',
-      leida: true,
-    ),
-    _Notificacion(
-      tipo: _TipoNotif.sistema,
-      titulo: 'Bienvenido a SafeCampus AI',
-      cuerpo: 'Tu cuenta ha sido verificada. Ya puedes reportar incidentes y recibir alertas en tiempo real.',
-      hora: 'Hace 2 días',
-      leida: true,
-    ),
-  ];
-
-  int get _noLeidas => _notificaciones.where((n) => !n.leida).length;
-
-  void _marcarTodasLeidas() {
-    setState(() {
-      for (final n in _notificaciones) {
-        n.leida = true;
-      }
-    });
-  }
-
-  void _marcarLeida(int index) {
-    setState(() => _notificaciones[index].leida = true);
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(),
+            _Header(
+              noLeidas: state.noLeidas,
+              onMarcarTodas: notifier.marcarTodasLeidas,
+              onBack: () => Navigator.pop(context),
+            ),
             Expanded(
-              child: _notificaciones.isEmpty
-                  ? _buildEmpty()
-                  : ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-                      itemCount: _notificaciones.length,
-                      itemBuilder: (context, i) => FadeInUp(
-                        delay: Duration(milliseconds: i * 40),
-                        child: _NotifCard(
-                          notif: _notificaciones[i],
-                          onTap: () => _marcarLeida(i),
+              child: state.isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(
+                          color: AppColors.accent, strokeWidth: 2))
+                  : state.notificaciones.isEmpty
+                      ? _buildEmpty(state.error)
+                      : RefreshIndicator(
+                          onRefresh: notifier.fetchNotificaciones,
+                          color: AppColors.accent,
+                          backgroundColor: AppColors.cardColor,
+                          child: ListView.builder(
+                            padding:
+                                const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                            itemCount: state.notificaciones.length,
+                            itemBuilder: (ctx, i) {
+                              final n = state.notificaciones[i];
+                              return FadeInUp(
+                                delay: Duration(milliseconds: i * 40),
+                                child: _NotifCard(
+                                  notif: n,
+                                  onTap: () => notifier.marcarLeida(n.id),
+                                ),
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                    ),
             ),
           ],
         ),
@@ -105,13 +57,58 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildEmpty(String? error) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: const BoxDecoration(
+              color: AppColors.cardColor,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.notifications_off_outlined,
+                color: Colors.white24, size: 48),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            error != null ? 'Sin conexión al servidor' : 'Sin notificaciones',
+            style: const TextStyle(color: Colors.white54, fontSize: 16),
+          ),
+          const SizedBox(height: 6),
+          const Text(
+            'Te avisaremos cuando haya alertas en el campus',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.white30, fontSize: 13),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+
+class _Header extends StatelessWidget {
+  final int noLeidas;
+  final VoidCallback onMarcarTodas;
+  final VoidCallback onBack;
+
+  const _Header({
+    required this.noLeidas,
+    required this.onMarcarTodas,
+    required this.onBack,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
       child: Row(
         children: [
           GestureDetector(
-            onTap: () => Navigator.pop(context),
+            onTap: onBack,
             child: Container(
               width: 44,
               height: 44,
@@ -133,16 +130,16 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
                       color: Colors.white,
                       fontSize: 20,
                       fontWeight: FontWeight.bold)),
-              if (_noLeidas > 0)
-                Text('$_noLeidas sin leer',
+              if (noLeidas > 0)
+                Text('$noLeidas sin leer',
                     style: const TextStyle(
                         color: AppColors.accent, fontSize: 12)),
             ],
           ),
           const Spacer(),
-          if (_noLeidas > 0)
+          if (noLeidas > 0)
             TextButton(
-              onPressed: _marcarTodasLeidas,
+              onPressed: onMarcarTodas,
               child: const Text('Leer todas',
                   style: TextStyle(color: AppColors.accent, fontSize: 12)),
             ),
@@ -150,93 +147,37 @@ class _NotificacionesScreenState extends State<NotificacionesScreen> {
       ),
     );
   }
-
-  Widget _buildEmpty() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _EmptyIcon(),
-          SizedBox(height: 16),
-          Text('Sin notificaciones',
-              style: TextStyle(color: Colors.white54, fontSize: 16)),
-          SizedBox(height: 6),
-          Text('Te avisaremos cuando haya alertas en el campus',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white30, fontSize: 13)),
-        ],
-      ),
-    );
-  }
-}
-
-// ── Modelo ────────────────────────────────────────────────────────────────────
-
-enum _TipoNotif { alerta, reporte, ia, sistema }
-
-class _Notificacion {
-  final _TipoNotif tipo;
-  final String titulo;
-  final String cuerpo;
-  final String hora;
-  bool leida;
-
-  _Notificacion({
-    required this.tipo,
-    required this.titulo,
-    required this.cuerpo,
-    required this.hora,
-    required this.leida,
-  });
-}
-
-// ── Empty icon ────────────────────────────────────────────────────────────────
-
-class _EmptyIcon extends StatelessWidget {
-  const _EmptyIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: const BoxDecoration(
-        color: AppColors.cardColor,
-        shape: BoxShape.circle,
-      ),
-      child: const Icon(Icons.notifications_off_outlined,
-          color: Colors.white24, size: 48),
-    );
-  }
 }
 
 // ── Card ──────────────────────────────────────────────────────────────────────
 
 class _NotifCard extends StatelessWidget {
-  final _Notificacion notif;
+  final Notificacion notif;
   final VoidCallback onTap;
 
   const _NotifCard({required this.notif, required this.onTap});
 
   Color get _color {
     switch (notif.tipo) {
-      case _TipoNotif.alerta:   return AppColors.riskHigh;
-      case _TipoNotif.reporte:  return AppColors.riskMedium;
-      case _TipoNotif.ia:       return AppColors.accent;
-      case _TipoNotif.sistema:  return AppColors.riskLow;
+      case TipoNotificacion.alerta:  return AppColors.riskHigh;
+      case TipoNotificacion.reporte: return AppColors.riskMedium;
+      case TipoNotificacion.ia:      return AppColors.accent;
+      case TipoNotificacion.sistema: return AppColors.riskLow;
     }
   }
 
   IconData get _icon {
     switch (notif.tipo) {
-      case _TipoNotif.alerta:   return Icons.warning_amber_rounded;
-      case _TipoNotif.reporte:  return Icons.report_rounded;
-      case _TipoNotif.ia:       return Icons.psychology_rounded;
-      case _TipoNotif.sistema:  return Icons.info_outline_rounded;
+      case TipoNotificacion.alerta:  return Icons.warning_amber_rounded;
+      case TipoNotificacion.reporte: return Icons.report_rounded;
+      case TipoNotificacion.ia:      return Icons.psychology_rounded;
+      case TipoNotificacion.sistema: return Icons.info_outline_rounded;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final color = _color;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -246,10 +187,12 @@ class _NotifCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: notif.leida
               ? AppColors.cardColor
-              : _color.withValues(alpha: 0.08),
+              : color.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: notif.leida ? Colors.white12 : _color.withValues(alpha: 0.35),
+            color: notif.leida
+                ? Colors.white12
+                : color.withValues(alpha: 0.35),
             width: notif.leida ? 1 : 1.5,
           ),
         ),
@@ -259,10 +202,10 @@ class _NotifCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: _color.withValues(alpha: 0.15),
+                color: color.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(_icon, color: _color, size: 20),
+              child: Icon(_icon, color: color, size: 20),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -287,22 +230,23 @@ class _NotifCard extends StatelessWidget {
                         Container(
                           width: 8,
                           height: 8,
-                          margin: const EdgeInsets.only(left: 6, top: 2),
+                          margin:
+                              const EdgeInsets.only(left: 6, top: 2),
                           decoration: BoxDecoration(
-                            color: _color,
+                            color: color,
                             shape: BoxShape.circle,
                           ),
                         ),
                     ],
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    notif.cuerpo,
-                    style: const TextStyle(
-                        color: Colors.white54, fontSize: 12, height: 1.4),
-                  ),
+                  Text(notif.cuerpo,
+                      style: const TextStyle(
+                          color: Colors.white54,
+                          fontSize: 12,
+                          height: 1.4)),
                   const SizedBox(height: 6),
-                  Text(notif.hora,
+                  Text(notif.tiempoTranscurrido,
                       style: const TextStyle(
                           color: Colors.white30, fontSize: 11)),
                 ],

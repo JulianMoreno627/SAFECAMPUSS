@@ -1,24 +1,25 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/api_service.dart';
+import '../models/reporte.dart';
 import 'location_provider.dart';
 
 class ReportsState {
-  final List<dynamic> reportesCercanos;
+  final List<Reporte> reportesCercanos;
   final bool isLoading;
-  final String nivelRiesgo; // 'Bajo', 'Medio', 'Alto', 'Crítico'
+  final NivelRiesgo nivelRiesgo;
   final String? error;
 
-  ReportsState({
+  const ReportsState({
     this.reportesCercanos = const [],
     this.isLoading = false,
-    this.nivelRiesgo = 'Bajo',
+    this.nivelRiesgo = NivelRiesgo.bajo,
     this.error,
   });
 
   ReportsState copyWith({
-    List<dynamic>? reportesCercanos,
+    List<Reporte>? reportesCercanos,
     bool? isLoading,
-    String? nivelRiesgo,
+    NivelRiesgo? nivelRiesgo,
     String? error,
   }) {
     return ReportsState(
@@ -28,17 +29,45 @@ class ReportsState {
       error: error ?? this.error,
     );
   }
+
+  String get nivelRiesgoLabel => nivelRiesgo.label;
+}
+
+enum NivelRiesgo {
+  bajo,
+  medio,
+  alto,
+  critico;
+
+  String get label {
+    switch (this) {
+      case NivelRiesgo.bajo:    return 'Bajo';
+      case NivelRiesgo.medio:   return 'Medio';
+      case NivelRiesgo.alto:    return 'Alto';
+      case NivelRiesgo.critico: return 'Crítico';
+    }
+  }
+
+  static NivelRiesgo fromString(String value) {
+    switch (value.toLowerCase()) {
+      case 'crítico':
+      case 'critico': return NivelRiesgo.critico;
+      case 'alto':    return NivelRiesgo.alto;
+      case 'medio':   return NivelRiesgo.medio;
+      default:        return NivelRiesgo.bajo;
+    }
+  }
 }
 
 class ReportsNotifier extends StateNotifier<ReportsState> {
-  final ApiService _apiService = ApiService();
+  final ApiService _api = ApiService();
   final Ref ref;
 
-  ReportsNotifier(this.ref) : super(ReportsState()) {
-    // Escuchar cambios de ubicación para actualizar reportes automáticamente
+  ReportsNotifier(this.ref) : super(const ReportsState()) {
     ref.listen(locationProvider, (previous, next) {
       if (next.currentPosition != null) {
-        fetchNearbyReports(next.currentPosition!.latitude, next.currentPosition!.longitude);
+        fetchNearbyReports(
+            next.currentPosition!.latitude, next.currentPosition!.longitude);
       }
     });
   }
@@ -46,41 +75,30 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
   Future<void> fetchNearbyReports(double lat, double lng) async {
     state = state.copyWith(isLoading: true);
     try {
-      final reportes = await _apiService.getReportesCercanos(lat, lng);
-      
-      // Calcular nivel de riesgo basado en cantidad y urgencia de reportes cercanos
-      String riesgo = _calcularNivelRiesgo(reportes);
-
+      final reportes = await _api.getReportesCercanos(lat, lng);
       state = state.copyWith(
         reportesCercanos: reportes,
-        nivelRiesgo: riesgo,
+        nivelRiesgo: _calcularNivelRiesgo(reportes),
         isLoading: false,
+        error: null,
       );
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
 
-  String _calcularNivelRiesgo(List<dynamic> reportes) {
-    if (reportes.isEmpty) return 'Bajo';
-    
-    int puntos = 0;
-    for (var r in reportes) {
-      switch (r['nivel_urgencia']?.toString().toLowerCase()) {
-        case 'critico': puntos += 10; break;
-        case 'alto': puntos += 5; break;
-        case 'medio': puntos += 2; break;
-        default: puntos += 1;
-      }
-    }
-
-    if (puntos > 20) return 'Crítico';
-    if (puntos > 10) return 'Alto';
-    if (puntos > 5) return 'Medio';
-    return 'Bajo';
+  NivelRiesgo _calcularNivelRiesgo(List<Reporte> reportes) {
+    if (reportes.isEmpty) return NivelRiesgo.bajo;
+    final puntos = reportes.fold<int>(
+        0, (sum, r) => sum + r.nivelUrgencia.puntos);
+    if (puntos > 20) return NivelRiesgo.critico;
+    if (puntos > 10) return NivelRiesgo.alto;
+    if (puntos > 5)  return NivelRiesgo.medio;
+    return NivelRiesgo.bajo;
   }
 }
 
-final reportsProvider = StateNotifierProvider<ReportsNotifier, ReportsState>((ref) {
+final reportsProvider =
+    StateNotifierProvider<ReportsNotifier, ReportsState>((ref) {
   return ReportsNotifier(ref);
 });

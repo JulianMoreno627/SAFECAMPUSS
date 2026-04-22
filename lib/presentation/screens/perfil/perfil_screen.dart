@@ -4,6 +4,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/providers/auth_provider.dart';
+import '../../../core/models/usuario.dart';
 import '../../../core/providers/theme_provider.dart';
 import '../../../core/providers/locale_provider.dart';
 
@@ -13,7 +14,7 @@ class PerfilScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
-    final user = authState.user;
+    final usuario = authState.usuario;
 
     return Scaffold(
       body: SafeArea(
@@ -22,7 +23,7 @@ class PerfilScreen extends ConsumerWidget {
           child: Column(
             children: [
               const SizedBox(height: 20),
-              _buildHeader(context, user),
+              _buildHeader(context, usuario),
               const SizedBox(height: 32),
               _buildStatsRow(context),
               const SizedBox(height: 28),
@@ -35,12 +36,12 @@ class PerfilScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, Map<String, dynamic>? user) {
+  Widget _buildHeader(BuildContext context, Usuario? user) {
     final cs = Theme.of(context).colorScheme;
-    final nombre = user?['nombre'] ?? 'Usuario';
-    final apellido = user?['apellido'] ?? '';
-    final email = user?['email'] ?? '';
-    final initials = nombre.isNotEmpty ? nombre[0].toUpperCase() : 'U';
+    final nombre = user?.nombre ?? 'Usuario';
+    final apellido = user?.apellido ?? '';
+    final email = user?.email ?? '';
+    final initials = user?.iniciales ?? 'U';
 
     return FadeInDown(
       child: Column(

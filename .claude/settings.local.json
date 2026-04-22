@@ -3,7 +3,8 @@
     "allow": [
       "Bash(flutter analyze *)",
       "Bash(flutter build *)",
-      "Bash(git -C \"c:/Users/andse/SAFECAMPUSS\" diff HEAD -- lib/presentation/screens/sos/sos_screen.dart)"
+      "Bash(git -C \"c:/Users/andse/SAFECAMPUSS\" diff HEAD -- lib/presentation/screens/sos/sos_screen.dart)",
+      "Bash(flutter pub *)"
     ]
   }
 }
