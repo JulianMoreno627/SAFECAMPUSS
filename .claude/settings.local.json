@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter pub *)",
+      "Bash(curl -s \"https://generativelanguage.googleapis.com/v1beta/models?key=AIzaSyDHRZBTQpKJ4eamGPXT3XIU1w1Moqw9wO0\")",
+      "Bash(python -c \"import sys,json; data=json.load\\(sys.stdin\\); [print\\(m.get\\('name',''\\),'-',m.get\\('displayName',''\\)\\) for m in data.get\\('models',[]\\)]\")",
+      "Bash(flutter gen-l10n *)"
+    ]
+  }
+}

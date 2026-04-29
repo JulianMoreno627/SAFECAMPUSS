@@ -18,7 +18,7 @@ void main() async {
   try {
     // 2. Cargar .env de forma segura
     try {
-      await dotenv.load(fileName: "assets/.env");
+      await dotenv.load(fileName: ".env");
     } catch (e) {
       debugPrint("Advertencia: No se pudo cargar .env: $e");
     }

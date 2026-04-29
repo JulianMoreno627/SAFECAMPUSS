@@ -633,7 +633,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routeDestination => 'Destination';
 
   @override
-  String get analyzeWithAI => 'Analyze Route with AI';
+  String get analyzeWithAI => 'Analyze with AI';
 
   @override
   String get safebotAnalyzingRoute => 'SafeBot analyzing route...';
@@ -919,6 +919,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Trend analysis will be available when there are nearby reports.';
 
   @override
+  String get refreshAnalysis => 'Refresh analysis';
+
+  @override
   String get cancelLabel => 'Cancel';
 
   @override
@@ -1138,9 +1141,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recommendedActionsLabel => 'Recommended actions';
-
-  @override
-  String get refreshAnalysis => 'Refresh analysis';
 
   @override
   String get exposureModerate => 'Moderate';

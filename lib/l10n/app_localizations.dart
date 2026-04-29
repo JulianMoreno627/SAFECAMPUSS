@@ -1325,7 +1325,7 @@ abstract class AppLocalizations {
   /// No description provided for @analyzeWithAI.
   ///
   /// In en, this message translates to:
-  /// **'Analyze Route with AI'**
+  /// **'Analyze with AI'**
   String get analyzeWithAI;
 
   /// No description provided for @safebotAnalyzingRoute.
@@ -1850,6 +1850,12 @@ abstract class AppLocalizations {
   /// **'Trend analysis will be available when there are nearby reports.'**
   String get trendsNoData;
 
+  /// No description provided for @refreshAnalysis.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh analysis'**
+  String get refreshAnalysis;
+
   /// No description provided for @cancelLabel.
   ///
   /// In en, this message translates to:
@@ -2263,12 +2269,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Recommended actions'**
   String get recommendedActionsLabel;
-
-  /// No description provided for @refreshAnalysis.
-  ///
-  /// In en, this message translates to:
-  /// **'Refresh analysis'**
-  String get refreshAnalysis;
 
   /// No description provided for @exposureModerate.
   ///

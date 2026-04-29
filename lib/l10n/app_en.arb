@@ -291,6 +291,8 @@
   "dashboardAiAnalysis": "Campus AI Analysis",
   "analyzingTrends": "Analyzing trends...",
   "trendsNoData": "Trend analysis will be available when there are nearby reports.",
+  "analyzeWithAI": "Analyze with AI",
+  "refreshAnalysis": "Refresh analysis",
   "cancelLabel": "Cancel",
   "deleteLabel": "Delete",
   "saveLabel": "Save",

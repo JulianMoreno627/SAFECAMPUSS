@@ -19,19 +19,11 @@ class DashboardScreen extends ConsumerStatefulWidget {
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   String? _aiTrends;
   bool _loadingTrends = false;
-  List<Reporte> _lastReports = [];
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(reportsProvider);
     final l10n = AppLocalizations.of(context)!;
-
-    if (state.reportesCercanos.isNotEmpty &&
-        state.reportesCercanos != _lastReports &&
-        !_loadingTrends) {
-      _lastReports = state.reportesCercanos;
-      _fetchTrends(state.reportesCercanos);
-    }
 
     return Scaffold(
       body: SafeArea(
@@ -413,11 +405,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Future<void> _fetchTrends(List<Reporte> reports) async {
     setState(() => _loadingTrends = true);
     final result = await AiService().analyzeTrends(reports);
-    if (mounted)
+    if (mounted) {
       setState(() {
         _aiTrends = result;
         _loadingTrends = false;
       });
+    }
   }
 
   Widget _buildAITrendsCard(AppLocalizations l10n) {
@@ -475,21 +468,57 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       ],
                     )
                   : _aiTrends != null
-                      ? Text(
-                          _aiTrends!,
+                      ? Column(
                           key: const ValueKey('result'),
-                          style: TextStyle(
-                              color: cs.onSurfaceVariant,
-                              fontSize: 13,
-                              height: 1.6),
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _aiTrends!,
+                              style: TextStyle(
+                                  color: cs.onSurfaceVariant,
+                                  fontSize: 13,
+                                  height: 1.6),
+                            ),
+                            const SizedBox(height: 10),
+                            GestureDetector(
+                              onTap: () => _fetchTrends(
+                                  ref.read(reportsProvider).reportesCercanos),
+                              child: Text(l10n.refreshAnalysis,
+                                  style: const TextStyle(
+                                      color: AppColors.accent,
+                                      fontSize: 12,
+                                      decoration: TextDecoration.underline)),
+                            ),
+                          ],
                         )
-                      : Text(
-                          l10n.trendsNoData,
-                          key: const ValueKey('empty'),
-                          style: TextStyle(
-                              color: cs.onSurface.withValues(alpha: 0.38),
-                              fontSize: 13,
-                              height: 1.5),
+                      : GestureDetector(
+                          key: const ValueKey('btn'),
+                          onTap: () => _fetchTrends(
+                              ref.read(reportsProvider).reportesCercanos),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: AppColors.accent.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                  color:
+                                      AppColors.accent.withValues(alpha: 0.3)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.auto_awesome_rounded,
+                                    color: AppColors.accent, size: 15),
+                                const SizedBox(width: 8),
+                                Text(l10n.analyzeWithAI,
+                                    style: const TextStyle(
+                                        color: AppColors.accent,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600)),
+                              ],
+                            ),
+                          ),
                         ),
             ),
           ],

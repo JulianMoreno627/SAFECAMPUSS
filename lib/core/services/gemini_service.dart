@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import '../models/reporte.dart';
 
@@ -10,29 +10,65 @@ class GeminiService {
   GeminiService._internal();
 
   final Logger _logger = Logger();
-  GenerativeModel? _model;
+  String? _apiKey;
+  static const _model = 'llama-3.3-70b-versatile';
+  static const _endpoint = 'https://api.groq.com/openai/v1/chat/completions';
 
-  bool get isReady => _model != null;
+  bool get isReady => _apiKey != null;
 
   void init() {
-    try {
-      final apiKey = dotenv.maybeGet('GEMINI_API_KEY');
-      if (apiKey != null && apiKey.isNotEmpty && apiKey != 'pending') {
-        _model = GenerativeModel(
-          model: 'gemini-1.5-flash',
-          apiKey: apiKey,
-          generationConfig: GenerationConfig(
-            temperature: 0.7,
-            maxOutputTokens: 500,
-          ),
-        );
-      }
-    } catch (e) {
-      _logger.e("Error inicializando GeminiService (dotenv no cargado): $e");
+    final key = dotenv.maybeGet('GROQ_API_KEY');
+    if (key != null && key.isNotEmpty && key != 'pending') {
+      _apiKey = key;
     }
   }
 
-  // ── 1. Clasificar reporte automáticamente ─────────────────────────────────
+  // ── HTTP helper ───────────────────────────────────────────────────────────
+
+  Future<String?> _complete(
+    List<Map<String, String>> messages, {
+    int maxTokens = 500,
+    double temperature = 0.7,
+  }) async {
+    final res = await http.post(
+      Uri.parse(_endpoint),
+      headers: {
+        'Authorization': 'Bearer $_apiKey',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'model': _model,
+        'messages': messages,
+        'temperature': temperature,
+        'max_tokens': maxTokens,
+      }),
+    );
+    if (res.statusCode == 200) {
+      final data = jsonDecode(res.body) as Map<String, dynamic>;
+      return (data['choices'] as List).first['message']['content'] as String?;
+    }
+    if (res.statusCode == 429) throw Exception('RESOURCE_EXHAUSTED: ${res.body}');
+    throw Exception('${res.statusCode}: ${res.body}');
+  }
+
+  Map<String, dynamic>? _parseJson(String raw) {
+    final clean = raw.replaceAll('```json', '').replaceAll('```', '').trim();
+    try {
+      final decoded = jsonDecode(clean);
+      if (decoded is Map<String, dynamic>) return decoded;
+    } catch (_) {}
+    try {
+      final start = clean.indexOf('{');
+      final end = clean.lastIndexOf('}');
+      if (start != -1 && end != -1 && end > start) {
+        final decoded = jsonDecode(clean.substring(start, end + 1));
+        if (decoded is Map<String, dynamic>) return decoded;
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  // ── 1. Clasificar reporte ─────────────────────────────────────────────────
 
   Future<Map<String, dynamic>> clasificarReporte({
     required String descripcion,
@@ -46,28 +82,23 @@ class GeminiService {
       'radio_alerta_metros': 200,
       'recomendacion': 'Mantente alerta en esta zona',
     };
-    if (_model == null) return fallback;
-
-    final prompt = '''
-Eres un sistema de seguridad universitaria. Analiza este reporte de incidente y responde SOLO en JSON sin explicaciones:
-
-Tipo: $tipo
-Descripción: $descripcion
-
-Responde exactamente en este formato JSON:
-{
-  "nivel_riesgo": "bajo|medio|alto|critico",
-  "confianza": 0.95,
-  "categoria": "robo|acoso|iluminacion|sospechoso|pelea|vandalismo|otro",
-  "alertar_zona": true,
-  "radio_alerta_metros": 300,
-  "recomendacion": "texto corto de recomendación"
-}
-''';
+    if (_apiKey == null) return fallback;
 
     try {
-      final response = await _model!.generateContent([Content.text(prompt)]);
-      return _parseJson(response.text ?? '') ?? fallback;
+      final text = await _complete([
+        {
+          'role': 'system',
+          'content':
+              'Sistema de seguridad universitaria. Responde ÚNICAMENTE con JSON válido sin markdown.',
+        },
+        {
+          'role': 'user',
+          'content':
+              'Tipo: $tipo\nDescripción: $descripcion\n\n'
+              '{"nivel_riesgo":"bajo|medio|alto|critico","confianza":0.95,"categoria":"robo|acoso|iluminacion|sospechoso|pelea|vandalismo|otro","alertar_zona":true,"radio_alerta_metros":300,"recomendacion":"texto corto"}',
+        },
+      ], maxTokens: 150, temperature: 0.2);
+      return _parseJson(text ?? '') ?? fallback;
     } catch (e) {
       _logger.e('GeminiService.clasificarReporte error: $e');
       return {...fallback, 'categoria': tipo.toLowerCase()};
@@ -90,7 +121,7 @@ Responde exactamente en este formato JSON:
       'motivo': 'Sin datos suficientes',
       'tips': ['Mantente en zonas iluminadas', 'Comparte tu ubicación'],
     };
-    if (_model == null) return fallback;
+    if (_apiKey == null) return fallback;
 
     final reportesStr = reportesCercanos.isEmpty
         ? 'Sin reportes recientes'
@@ -99,29 +130,21 @@ Responde exactamente en este formato JSON:
             .map((r) => '- ${r.tipo.label}: ${r.descripcion} (${r.nivelUrgencia.label})')
             .join('\n');
 
-    final prompt = '''
-Eres un sistema de seguridad universitaria. Analiza la seguridad de esta ruta y responde SOLO en JSON:
-
-Origen: $origen
-Destino: $destino
-Hora actual: $hora
-Reportes recientes en la zona:
-$reportesStr
-
-Responde exactamente en este formato JSON:
-{
-  "score_seguridad": 75,
-  "nivel_riesgo": "bajo|medio|alto|critico",
-  "recomendacion": "texto de recomendación",
-  "ruta_alternativa": true,
-  "motivo": "explicación breve",
-  "tips": ["tip 1", "tip 2", "tip 3"]
-}
-''';
-
     try {
-      final response = await _model!.generateContent([Content.text(prompt)]);
-      return _parseJson(response.text ?? '') ?? fallback;
+      final text = await _complete([
+        {
+          'role': 'system',
+          'content':
+              'Sistema de seguridad universitaria. Responde ÚNICAMENTE con JSON válido sin markdown.',
+        },
+        {
+          'role': 'user',
+          'content':
+              'Origen: $origen\nDestino: $destino\nHora: $hora\nReportes:\n$reportesStr\n\n'
+              '{"score_seguridad":75,"nivel_riesgo":"bajo|medio|alto|critico","recomendacion":"texto","ruta_alternativa":true,"motivo":"breve","tips":["tip1","tip2","tip3"]}',
+        },
+      ], maxTokens: 200, temperature: 0.3);
+      return _parseJson(text ?? '') ?? fallback;
     } catch (e) {
       _logger.e('GeminiService.recomendarRuta error: $e');
       return fallback;
@@ -147,68 +170,56 @@ Responde exactamente en este formato JSON:
         'Evita salir solo después de las 9 PM',
       ],
     };
-    if (_model == null) return fallback;
-
-    final prompt = '''
-Eres un sistema de seguridad universitaria. Analiza el perfil de riesgo de este estudiante y responde SOLO en JSON:
-
-Ruta más frecuente: $rutaFrecuente
-Horario habitual: $horarioHabitual
-Zonas visitadas: ${zonasVisitadas.join(', ')}
-
-Responde exactamente en este formato JSON:
-{
-  "nivel_exposicion": "bajo|moderado|alto",
-  "zona_mas_riesgosa": "nombre de zona",
-  "dia_vulnerable": "día de la semana",
-  "score_riesgo": 45,
-  "recomendacion_principal": "texto",
-  "acciones": ["acción 1", "acción 2", "acción 3"]
-}
-''';
+    if (_apiKey == null) return fallback;
 
     try {
-      final response = await _model!.generateContent([Content.text(prompt)]);
-      return _parseJson(response.text ?? '') ?? fallback;
+      final text = await _complete([
+        {
+          'role': 'system',
+          'content':
+              'Sistema de seguridad universitaria. Responde ÚNICAMENTE con JSON válido sin markdown.',
+        },
+        {
+          'role': 'user',
+          'content':
+              'Ruta frecuente: $rutaFrecuente\nHorario: $horarioHabitual\nZonas: ${zonasVisitadas.join(", ")}\n\n'
+              '{"nivel_exposicion":"bajo|moderado|alto","zona_mas_riesgosa":"nombre","dia_vulnerable":"día","score_riesgo":45,"recomendacion_principal":"texto","acciones":["acción1","acción2","acción3"]}',
+        },
+      ], maxTokens: 200, temperature: 0.3);
+      return _parseJson(text ?? '') ?? fallback;
     } catch (e) {
       _logger.e('GeminiService.analizarRiesgoPersonal error: $e');
       return fallback;
     }
   }
 
-  // ── 4. Chat de seguridad (respuesta única, no multi-turn) ────────────────
+  // ── 4. Chat de seguridad ──────────────────────────────────────────────────
 
   Future<String> chatSeguridad({
     required String pregunta,
     required String zonaActual,
     required String nivelRiesgo,
   }) async {
-    if (_model == null) {
-      return 'Error al conectar con la IA. Verifica tu conexión.';
-    }
-
-    final prompt = '''
-Eres SafeBot, un asistente de seguridad universitaria.
-El estudiante está en: $zonaActual
-Nivel de riesgo actual: $nivelRiesgo
-
-Responde de forma concisa y útil a esta pregunta de seguridad:
-$pregunta
-
-Máximo 3 oraciones. Sé directo y práctico. Responde en español.
-''';
-
+    if (_apiKey == null) return 'Error al conectar con la IA. Verifica tu conexión.';
     try {
-      final response = await _model!.generateContent([Content.text(prompt)]);
-      return response.text?.trim() ??
-          'No pude procesar tu consulta. Intenta de nuevo.';
+      final text = await _complete([
+        {
+          'role': 'system',
+          'content':
+              'Eres SafeBot, asistente de seguridad universitaria. '
+              'Zona actual: $zonaActual. Nivel de riesgo: $nivelRiesgo. '
+              'Responde de forma concisa (máximo 3 oraciones), directo y práctico. En español.',
+        },
+        {'role': 'user', 'content': pregunta},
+      ], maxTokens: 150);
+      return text?.trim() ?? 'No pude procesar tu consulta. Intenta de nuevo.';
     } catch (e) {
       _logger.e('GeminiService.chatSeguridad error: $e');
       return 'Error al conectar con la IA. Verifica tu conexión.';
     }
   }
 
-  // ── 5. Tips de seguridad personalizados ──────────────────────────────────
+  // ── 5. Tips de seguridad ──────────────────────────────────────────────────
 
   Future<List<String>> generarTipsSeguridad({
     required String zona,
@@ -222,24 +233,24 @@ Máximo 3 oraciones. Sé directo y práctico. Responde en español.
       'Evita usar audífonos en ambos oídos',
       'Camina por el centro del andén',
     ];
-    if (_model == null) return fallback;
-
-    final prompt = '''
-Eres un sistema de seguridad universitaria. Genera tips de seguridad personalizados y responde SOLO en JSON:
-
-Zona: $zona
-Hora: $hora
-Nivel de riesgo: $nivelRiesgo
-
-Responde exactamente en este formato JSON:
-{
-  "tips": ["tip 1", "tip 2", "tip 3", "tip 4", "tip 5"]
-}
-''';
+    if (_apiKey == null) return fallback;
 
     try {
-      final response = await _model!.generateContent([Content.text(prompt)]);
-      final data = _parseJson(response.text ?? '');
+      final text = await _complete([
+        {
+          'role': 'system',
+          'content':
+              'Sistema de seguridad universitaria. Responde ÚNICAMENTE con JSON válido sin markdown.',
+        },
+        {
+          'role': 'user',
+          'content':
+              'Zona: $zona\nHora: $hora\nNivel de riesgo: $nivelRiesgo\n\n'
+              '{"tips":["tip1","tip2","tip3","tip4","tip5"]}',
+        },
+      ], maxTokens: 150, temperature: 0.5);
+      if (text == null) return fallback;
+      final data = _parseJson(text);
       if (data == null) return fallback;
       final tips = data['tips'];
       if (tips is List) return tips.map((t) => t.toString()).toList();
@@ -248,36 +259,6 @@ Responde exactamente en este formato JSON:
       _logger.e('GeminiService.generarTipsSeguridad error: $e');
       return fallback;
     }
-  }
-
-  // ── Helper: parse JSON with jsonDecode first, manual fallback ────────────
-
-  Map<String, dynamic>? _parseJson(String raw) {
-    if (raw.isEmpty) return null;
-
-    final clean = raw
-        .replaceAll('```json', '')
-        .replaceAll('```', '')
-        .trim();
-
-    // Intento 1: jsonDecode estándar
-    try {
-      final decoded = jsonDecode(clean);
-      if (decoded is Map<String, dynamic>) return decoded;
-    } catch (_) {}
-
-    // Intento 2: extraer el bloque {} y reintentar
-    try {
-      final start = clean.indexOf('{');
-      final end = clean.lastIndexOf('}');
-      if (start != -1 && end != -1 && end > start) {
-        final block = clean.substring(start, end + 1);
-        final decoded = jsonDecode(block);
-        if (decoded is Map<String, dynamic>) return decoded;
-      }
-    } catch (_) {}
-
-    return null;
   }
 }
 

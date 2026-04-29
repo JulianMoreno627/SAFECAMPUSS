@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/services/ai_service.dart';
 import '../../../core/providers/reports_provider.dart';
@@ -17,7 +16,7 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
   final _inputController = TextEditingController();
   final _scrollController = ScrollController();
   final List<_Msg> _messages = [];
-  ChatSession? _session;
+  List<Map<String, String>>? _history;
   bool _isTyping = false;
   bool _ready = false;
   AppLocalizations? _l10n;
@@ -55,7 +54,7 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
 
     try {
       final reports = ref.read(reportsProvider).reportesCercanos;
-      _session = service.startChatSession(reportesCercanos: reports);
+      _history = service.buildChatHistory(reportesCercanos: reports);
       setState(() {
         _ready = true;
         _messages.add(_Msg(
@@ -83,7 +82,7 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
 
   Future<void> _send(String text) async {
     final query = text.trim();
-    if (query.isEmpty || _session == null || _isTyping) return;
+    if (query.isEmpty || _history == null || _isTyping) return;
 
     _inputController.clear();
     setState(() {
@@ -92,34 +91,34 @@ class _ChatIaScreenState extends ConsumerState<ChatIaScreen> {
     });
     _scrollToBottom();
 
+    String? reply;
+    String? errorMsg;
+
     try {
-      final response = await _session!.sendMessage(Content.text(query));
-      final reply = response.text?.trim() ?? '';
-      if (mounted) {
-        setState(() {
-          _isTyping = false;
-          _messages.add(_Msg(text: reply, isUser: false));
-        });
-        _scrollToBottom();
-      }
+      reply = await AiService().sendChatMessage(_history!, query);
+      _history!.add({'role': 'user', 'content': query});
+      _history!.add({'role': 'assistant', 'content': reply});
     } catch (e) {
-      if (mounted) {
-        final raw = e.toString();
-        final String friendly;
-        if (raw.contains('quota') || raw.contains('RESOURCE_EXHAUSTED') || raw.contains('429')) {
-          friendly = '⏳ Cuota de API excedida. Espera unos segundos y vuelve a intentarlo.';
-        } else if (raw.contains('API_KEY') || raw.contains('API key') || raw.contains('API_KEY_INVALID')) {
-          friendly = '🔑 Clave de API inválida. Verifica GEMINI_API_KEY en el archivo .env';
-        } else if (raw.contains('not found') || raw.contains('404') || raw.contains('NOT_FOUND')) {
-          friendly = '🤖 Modelo no disponible: $raw';
-        } else {
-          friendly = '❌ Error: $raw';
-        }
-        setState(() {
-          _isTyping = false;
-          _messages.add(_Msg(text: friendly, isUser: false, isError: true));
-        });
+      final raw = e.toString();
+      if (raw.contains('RESOURCE_EXHAUSTED') || raw.contains('429')) {
+        errorMsg = '⏳ Límite de la API alcanzado. Intenta en unos segundos.';
+      } else if (raw.contains('API_KEY') || raw.contains('unauthorized') || raw.contains('401')) {
+        errorMsg = '🔑 Clave de API inválida. Verifica GROQ_API_KEY en el archivo .env';
+      } else {
+        errorMsg = '❌ Error: $raw';
       }
+    }
+
+    if (mounted) {
+      setState(() {
+        _isTyping = false;
+        if (reply != null) {
+          _messages.add(_Msg(text: reply, isUser: false));
+        } else {
+          _messages.add(_Msg(text: errorMsg ?? '❌ Error desconocido', isUser: false, isError: true));
+        }
+      });
+      _scrollToBottom();
     }
   }
 
