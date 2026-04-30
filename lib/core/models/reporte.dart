@@ -209,6 +209,8 @@ class Reporte {
   final double lng;
   final String? userId;
   final int testigos;
+  final int votosPositivos;
+  final int votosNegativos;
   final String? fotoUrl;
   final DateTime? createdAt;
 
@@ -221,6 +223,8 @@ class Reporte {
     required this.lng,
     this.userId,
     this.testigos = 0,
+    this.votosPositivos = 0,
+    this.votosNegativos = 0,
     this.fotoUrl,
     this.createdAt,
   });
@@ -236,6 +240,8 @@ class Reporte {
       lng: (map['lng'] as num?)?.toDouble() ?? 0.0,
       userId: map['user_id']?.toString() ?? map['usuario_id']?.toString(),
       testigos: (map['testigos'] as num?)?.toInt() ?? 0,
+      votosPositivos: (map['votos_positivos'] as num?)?.toInt() ?? 0,
+      votosNegativos: (map['votos_negativos'] as num?)?.toInt() ?? 0,
       fotoUrl: map['foto_url']?.toString(),
       createdAt: map['created_at'] != null
           ? DateTime.tryParse(map['created_at'].toString())
@@ -252,6 +258,8 @@ class Reporte {
         'lng': lng,
         if (userId != null) 'user_id': userId,
         'testigos': testigos,
+        'votos_positivos': votosPositivos,
+        'votos_negativos': votosNegativos,
         if (fotoUrl != null) 'foto_url': fotoUrl,
         if (createdAt != null) 'created_at': createdAt!.toIso8601String(),
       };

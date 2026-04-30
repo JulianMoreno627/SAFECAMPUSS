@@ -194,6 +194,38 @@ class ReporteDetalleSheet extends StatelessWidget {
 
               const SizedBox(height: 28),
 
+              // Gamificación (Karma)
+              _Section(
+                title: 'CONFIABILIDAD DEL REPORTE',
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _ActionButton(
+                        icon: Icons.thumb_up_alt_rounded,
+                        label: 'Confirmar (${reporte.votosPositivos})',
+                        color: Colors.greenAccent,
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Gracias por confirmar este reporte.')));
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _ActionButton(
+                        icon: Icons.thumb_down_alt_rounded,
+                        label: 'Falsa Alarma (${reporte.votosNegativos})',
+                        color: Colors.redAccent,
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Voto registrado. Lo revisaremos.')));
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 28),
+
               // Acciones
               Row(
                 children: [

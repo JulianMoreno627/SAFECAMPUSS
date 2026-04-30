@@ -1,6 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import '../models/reporte.dart';
+import 'reports_provider.dart';
 
 class LocationState {
   final LatLng? currentPosition;
@@ -27,8 +30,22 @@ class LocationState {
 }
 
 class LocationNotifier extends StateNotifier<LocationState> {
-  LocationNotifier() : super(LocationState()) {
+  final Ref ref;
+  final FlutterLocalNotificationsPlugin _notificationsPlugin = FlutterLocalNotificationsPlugin();
+  bool _notifInitialized = false;
+  DateTime? _lastAlertTime;
+
+  LocationNotifier(this.ref) : super(LocationState()) {
     _init();
+  }
+
+  Future<void> _initNotifications() async {
+    if (_notifInitialized) return;
+    const androidParams = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const darwinParams = DarwinInitializationSettings();
+    const initSettings = InitializationSettings(android: androidParams, iOS: darwinParams);
+    await _notificationsPlugin.initialize(initSettings);
+    _notifInitialized = true;
   }
 
   static const _locationSettings = LocationSettings(
@@ -97,14 +114,54 @@ class LocationNotifier extends StateNotifier<LocationState> {
     // Stream updates
     Geolocator.getPositionStream(locationSettings: _locationSettings)
         .listen((Position position) {
-      state = state.copyWith(
-        currentPosition: LatLng(position.latitude, position.longitude),
-      );
+      final newPos = LatLng(position.latitude, position.longitude);
+      state = state.copyWith(currentPosition: newPos);
+      _checkGeofencing(newPos);
     });
+  }
+
+  void _checkGeofencing(LatLng pos) async {
+    await _initNotifications();
+    
+    // Evitar spam: máximo 1 alerta cada 5 minutos
+    if (_lastAlertTime != null && DateTime.now().difference(_lastAlertTime!).inMinutes < 5) {
+      return;
+    }
+
+    final reports = ref.read(reportsProvider).reportesCercanos;
+    const distance = Distance();
+
+    for (final r in reports) {
+      if (r.nivelUrgencia == NivelUrgencia.critico) {
+        final d = distance.as(LengthUnit.Meter, pos, LatLng(r.lat, r.lng));
+        if (d <= 150) {
+          _lastAlertTime = DateTime.now();
+          _showWarningNotification(r);
+          break; // Solo notificar 1 vez por ciclo
+        }
+      }
+    }
+  }
+
+  Future<void> _showWarningNotification(Reporte r) async {
+    const androidDetails = AndroidNotificationDetails(
+      'geofencing_alerts',
+      'Alertas de Proximidad',
+      importance: Importance.max,
+      priority: Priority.high,
+      icon: '@mipmap/ic_launcher',
+    );
+    const details = NotificationDetails(android: androidDetails);
+    await _notificationsPlugin.show(
+      DateTime.now().millisecond,
+      '⚠️ ZONA DE ALERTA CERCANA',
+      'Estás a ${r.tipo.label} a menos de 150m. Mantente alerta.',
+      details,
+    );
   }
 }
 
 final locationProvider =
     StateNotifierProvider<LocationNotifier, LocationState>((ref) {
-  return LocationNotifier();
+  return LocationNotifier(ref);
 });

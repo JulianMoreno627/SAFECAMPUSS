@@ -85,14 +85,14 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
     if (destPlaces.isNotEmpty) destLatLng = destPlaces.first.position;
 
     // 3. Get Route
+    final reportes = ref.read(reportsProvider).reportesCercanos;
     if (origLatLng != null && destLatLng != null) {
-      _routeResult = await RoutingService().getRoute(origLatLng, destLatLng);
+      _routeResult = await RoutingService().getRoute(origLatLng, destLatLng, reportesCercanos: reportes);
     }
 
     final now = TimeOfDay.now();
     final hora =
         '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
-    final reportes = ref.read(reportsProvider).reportesCercanos;
 
     final result = await aiService.recomendarRuta(
       origen: _origenCtrl.text.trim(),

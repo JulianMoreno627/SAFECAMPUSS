@@ -23,6 +23,7 @@ class _SosScreenState extends ConsumerState<SosScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _pulseController;
   bool _activated = false;
+  bool _followMeActive = false;
 
   String? _aiAdvice;
   bool _loadingAdvice = false;
@@ -173,6 +174,8 @@ class _SosScreenState extends ConsumerState<SosScreen>
                     _buildSosButton(l10n),
                     const SizedBox(height: 32),
                     _buildQuickActions(l10n),
+                    const SizedBox(height: 20),
+                    _buildFollowMe(l10n),
                     const SizedBox(height: 28),
                     _buildAIAdvisor(l10n),
                     const SizedBox(height: 28),
@@ -347,6 +350,49 @@ class _SosScreenState extends ConsumerState<SosScreen>
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFollowMe(AppLocalizations l10n) {
+    final cs = Theme.of(context).colorScheme;
+    return FadeInUp(
+      delay: const Duration(milliseconds: 150),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: _followMeActive ? AppColors.accent.withValues(alpha: 0.1) : Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: _followMeActive ? AppColors.accent.withValues(alpha: 0.5) : cs.outlineVariant),
+        ),
+        child: Row(
+          children: [
+            if (_followMeActive)
+              Pulse(infinite: true, child: const Icon(Icons.visibility_rounded, color: AppColors.accent))
+            else
+              Icon(Icons.visibility_off_rounded, color: cs.onSurface.withValues(alpha: 0.5)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Acompañamiento Virtual', style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.bold, fontSize: 14)),
+                  Text(_followMeActive ? 'Compartiendo ubicación en vivo' : 'Tus contactos sabrán dónde estás', style: TextStyle(color: _followMeActive ? AppColors.accent : cs.onSurface.withValues(alpha: 0.5), fontSize: 11)),
+                ],
+              ),
+            ),
+            Switch(
+              value: _followMeActive,
+              onChanged: (v) {
+                setState(() => _followMeActive = v);
+                if (v) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tus contactos ahora pueden ver tu ubicación en tiempo real.')));
+                }
+              },
+              activeColor: AppColors.accent,
+            ),
+          ],
+        ),
       ),
     );
   }

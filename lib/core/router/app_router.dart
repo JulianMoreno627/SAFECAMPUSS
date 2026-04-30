@@ -22,6 +22,7 @@ import '../../presentation/screens/rutas/ruta_segura_screen.dart';
 import '../../presentation/screens/analisis/analisis_riesgo_screen.dart';
 import '../../presentation/screens/analisis/estadisticas_screen.dart';
 import '../../presentation/screens/sos/historial_sos_screen.dart';
+import '../../presentation/screens/sos/fake_call_screen.dart';
 import '../../presentation/screens/map/detalle_zona_screen.dart';
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -88,6 +89,10 @@ class AppRouter {
                 GoRoute(
                   path: 'historial-sos',
                   builder: (c, s) => const HistorialSosScreen(),
+                ),
+                GoRoute(
+                  path: 'fake-call',
+                  builder: (c, s) => const FakeCallScreen(),
                 ),
               ],
             ),

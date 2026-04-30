@@ -856,6 +856,13 @@ class _MapScreenState extends ConsumerState<MapScreen>
         ),
         const SizedBox(height: 10),
         FloatingActionButton(
+          heroTag: 'fake_call',
+          onPressed: () => context.push('/sos/fake-call'),
+          backgroundColor: Colors.black87,
+          child: const Icon(Icons.call, color: Colors.greenAccent),
+        ),
+        const SizedBox(height: 10),
+        FloatingActionButton(
           heroTag: 'report',
           onPressed: () => context.push('/map/crear-reporte'),
           backgroundColor: AppColors.accent,
@@ -896,7 +903,8 @@ class _MapScreenState extends ConsumerState<MapScreen>
       _showAICard = false;
     });
 
-    final result = await RoutingService().getRoute(userPos, dest);
+    final reports = ref.read(reportsProvider).reportesCercanos;
+    final result = await RoutingService().getRoute(userPos, dest, reportesCercanos: reports);
 
     if (!mounted) return;
     if (result != null && result.points.isNotEmpty) {

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:logger/logger.dart';
+import '../models/reporte.dart';
 
 class PlaceResult {
   final LatLng position;
@@ -78,10 +79,11 @@ class RoutingService {
 
   // ── Routing: LatLng pair → polyline ──────────────────────────────────────
 
-  Future<RouteResult?> getRoute(LatLng origin, LatLng dest) async {
+  Future<RouteResult?> getRoute(LatLng origin, LatLng dest, {List<Reporte>? reportesCercanos}) async {
+    final hasReports = reportesCercanos != null && reportesCercanos.isNotEmpty;
     final url =
         '$_osrm/${origin.longitude},${origin.latitude};${dest.longitude},${dest.latitude}'
-        '?overview=full&geometries=geojson&steps=false';
+        '?overview=full&geometries=geojson&steps=false${hasReports ? '&alternatives=3' : ''}';
     try {
       final res = await http
           .get(Uri.parse(url))
@@ -92,20 +94,57 @@ class RoutingService {
       final routes = data['routes'] as List?;
       if (routes == null || routes.isEmpty) return null;
 
-      final route = routes.first as Map<String, dynamic>;
-      final coords =
-          (route['geometry']['coordinates'] as List).map((c) {
-        return LatLng(
-          (c[1] as num).toDouble(),
-          (c[0] as num).toDouble(),
+      final parsedRoutes = routes.map((route) {
+        final r = route as Map<String, dynamic>;
+        final coords = (r['geometry']['coordinates'] as List).map((c) {
+          return LatLng((c[1] as num).toDouble(), (c[0] as num).toDouble());
+        }).toList();
+        return RouteResult(
+          points: coords,
+          distanceMeters: (r['distance'] as num).toDouble(),
+          durationSeconds: (r['duration'] as num).toDouble(),
         );
       }).toList();
 
-      return RouteResult(
-        points: coords,
-        distanceMeters: (route['distance'] as num).toDouble(),
-        durationSeconds: (route['duration'] as num).toDouble(),
-      );
+      if (!hasReports || parsedRoutes.length == 1) {
+        return parsedRoutes.first;
+      }
+
+      // Evaluar la ruta más segura
+      RouteResult bestRoute = parsedRoutes.first;
+      double lowestPenalty = double.infinity;
+      const distance = Distance();
+
+      for (final r in parsedRoutes) {
+        double penalty = 0.0;
+        
+        // Revisar cada punto de la ruta contra las zonas de peligro
+        // Evaluamos 1 de cada 10 puntos para optimizar rendimiento
+        for (int i = 0; i < r.points.length; i += 10) {
+          final p = r.points[i];
+          for (final rep in reportesCercanos) {
+            if (rep.nivelUrgencia == NivelUrgencia.bajo) continue;
+            
+            final distToDanger = distance.as(LengthUnit.Meter, p, LatLng(rep.lat, rep.lng));
+            final double dangerRadius = rep.nivelUrgencia == NivelUrgencia.critico ? 250 : 150;
+            
+            if (distToDanger < dangerRadius) {
+              // Aumentar penalidad fuertemente si entra en la zona roja
+              penalty += (dangerRadius - distToDanger) * (rep.nivelUrgencia == NivelUrgencia.critico ? 5 : 2);
+            }
+          }
+        }
+        
+        // Sumar una penalidad leve por la distancia extra (para que no elija una ruta absurdamente larga si no hay peligro)
+        penalty += r.distanceMeters * 0.1;
+
+        if (penalty < lowestPenalty) {
+          lowestPenalty = penalty;
+          bestRoute = r;
+        }
+      }
+
+      return bestRoute;
     } catch (e) {
       _logger.e('getRoute error: $e');
       return null;
