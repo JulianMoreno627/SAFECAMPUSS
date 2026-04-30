@@ -1,11 +1,18 @@
 require('dotenv').config();
 const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
 const { Pool } = require('pg');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: { origin: '*' }
+});
+
 const port = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
 
@@ -112,6 +119,10 @@ app.post('/api/reportes', async (req, res) => {
       RETURNING *;
     `;
     const result = await pool.query(query, [tipo, descripcion, nivel_urgencia, lng, lat, user_id]);
+    
+    // Emitir evento en tiempo real a los clientes conectados
+    io.emit('nuevo_reporte', result.rows[0]);
+    
     res.status(201).json(result.rows[0]);
   } catch (err) {
     console.error(err);
@@ -119,6 +130,13 @@ app.post('/api/reportes', async (req, res) => {
   }
 });
 
-app.listen(port, () => {
+io.on('connection', (socket) => {
+  console.log('Un cliente se ha conectado:', socket.id);
+  socket.on('disconnect', () => {
+    console.log('Cliente desconectado:', socket.id);
+  });
+});
+
+server.listen(port, () => {
   console.log(`Servidor corriendo en el puerto ${port}`);
 });

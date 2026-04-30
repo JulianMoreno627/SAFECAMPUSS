@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'app.dart';
 import 'core/services/ai_service.dart';
 import 'core/services/gemini_service.dart';
+import 'core/services/socket_service.dart';
 import 'core/providers/auth_provider.dart';
 
 void main() async {
@@ -38,6 +39,10 @@ void main() async {
 
     final container = ProviderContainer();
     await container.read(authProvider.notifier).init();
+
+    // Inicializar WebSockets
+    final backendUrl = dotenv.maybeGet('API_URL')?.replaceAll('/api', '') ?? 'http://192.168.1.100:3000';
+    socketService.init(backendUrl);
 
     runApp(
       UncontrolledProviderScope(

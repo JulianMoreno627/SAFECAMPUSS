@@ -16,6 +16,10 @@ import '../../presentation/screens/perfil/editar_perfil_screen.dart';
 import '../../presentation/screens/notificaciones/notificaciones_screen.dart';
 import '../../presentation/screens/configuracion/configuracion_screen.dart';
 import '../../presentation/screens/guia/guia_seguridad_screen.dart';
+import '../../presentation/screens/reportes/mis_reportes_screen.dart';
+import '../../presentation/screens/reportes/detalle_reporte_screen.dart';
+import '../../presentation/screens/rutas/ruta_segura_screen.dart';
+import '../../presentation/screens/analisis/analisis_riesgo_screen.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -38,13 +42,27 @@ class AppRouter {
                   path: 'crear-reporte',
                   builder: (c, s) => const CrearReporteScreen(),
                 ),
+                GoRoute(
+                  path: 'ruta-segura',
+                  builder: (c, s) => const RutaSeguraScreen(),
+                ),
               ],
             ),
           ]),
           StatefulShellBranch(routes: [
             GoRoute(
                 path: '/reportes',
-                builder: (c, s) => const ListaReportesScreen()),
+                builder: (c, s) => const ListaReportesScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'detalle',
+                    builder: (c, s) {
+                      final extra = s.extra;
+                      if (extra == null) return const ListaReportesScreen();
+                      return DetalleReporteScreen(reporte: extra as dynamic);
+                    },
+                  ),
+                ]),
           ]),
           StatefulShellBranch(routes: [
             GoRoute(
@@ -66,6 +84,10 @@ class AppRouter {
                 GoRoute(
                   path: 'chat-ia',
                   builder: (c, s) => const ChatIaScreen(),
+                ),
+                GoRoute(
+                  path: 'analisis-riesgo',
+                  builder: (c, s) => const AnalisisRiesgoScreen(),
                 ),
               ],
             ),
@@ -90,6 +112,10 @@ class AppRouter {
                 GoRoute(
                   path: 'guia-seguridad',
                   builder: (c, s) => const GuiaSeguridadScreen(),
+                ),
+                GoRoute(
+                  path: 'mis-reportes',
+                  builder: (c, s) => const MisReportesScreen(),
                 ),
               ],
             ),

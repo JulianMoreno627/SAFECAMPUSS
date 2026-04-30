@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/api_service.dart';
+import '../services/socket_service.dart';
 import '../models/reporte.dart';
 import 'location_provider.dart';
 
@@ -68,6 +69,21 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
       if (next.currentPosition != null) {
         fetchNearbyReports(
             next.currentPosition!.latitude, next.currentPosition!.longitude);
+      }
+    });
+
+    socketService.nuevoReporteStream.listen((data) {
+      try {
+        final nuevoReporte = Reporte.fromMap(data);
+        if (!state.reportesCercanos.any((r) => r.id == nuevoReporte.id)) {
+          final actualizados = [nuevoReporte, ...state.reportesCercanos];
+          state = state.copyWith(
+            reportesCercanos: actualizados,
+            nivelRiesgo: _calcularNivelRiesgo(actualizados),
+          );
+        }
+      } catch (e) {
+        // Error parsing the realtime report
       }
     });
   }
