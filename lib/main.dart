@@ -4,7 +4,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'app.dart';
 import 'core/services/ai_service.dart';
-import 'core/services/gemini_service.dart';
 import 'core/services/socket_service.dart';
 import 'core/providers/auth_provider.dart';
 
@@ -30,7 +29,6 @@ void main() async {
 
     // 4. Inicializar IA
     AiService().init();
-    GeminiService().init();
 
     // 5. Arrancar la app real
     // Crear el ProviderContainer para acceder a providers fuera del widget tree si es necesario

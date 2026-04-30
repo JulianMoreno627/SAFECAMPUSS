@@ -130,6 +130,78 @@ app.post('/api/reportes', async (req, res) => {
   }
 });
 
+// --- EMERGENCIAS (SOS) ---
+app.post('/api/emergencias', async (req, res) => {
+  const { user_id, lat, lng } = req.body;
+  try {
+    const query = `
+      INSERT INTO emergencias (user_id, ubicacion)
+      VALUES ($1, ST_SetSRID(ST_MakePoint($2, $3), 4326))
+      RETURNING *;
+    `;
+    const result = await pool.query(query, [user_id, lng, lat]);
+    io.emit('nueva_emergencia', result.rows[0]);
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al registrar emergencia' });
+  }
+});
+
+// --- CONTACTOS DE EMERGENCIA ---
+app.get('/api/contactos/:user_id', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM contactos_emergencia WHERE user_id = $1', [req.params.user_id]);
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al obtener contactos' });
+  }
+});
+
+app.post('/api/contactos', async (req, res) => {
+  const { user_id, nombre, telefono, relacion } = req.body;
+  try {
+    const query = `
+      INSERT INTO contactos_emergencia (user_id, nombre, telefono, relacion)
+      VALUES ($1, $2, $3, $4)
+      RETURNING *;
+    `;
+    const result = await pool.query(query, [user_id, nombre, telefono, relacion]);
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al crear contacto' });
+  }
+});
+
+// --- RUTAS GUARDADAS ---
+app.get('/api/rutas/:user_id', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM rutas_guardadas WHERE user_id = $1 ORDER BY created_at DESC', [req.params.user_id]);
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al obtener rutas' });
+  }
+});
+
+app.post('/api/rutas', async (req, res) => {
+  const { user_id, nombre, origen_lat, origen_lng, destino_lat, destino_lng, score_seguridad } = req.body;
+  try {
+    const query = `
+      INSERT INTO rutas_guardadas (user_id, nombre, origen_lat, origen_lng, destino_lat, destino_lng, score_seguridad)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING *;
+    `;
+    const result = await pool.query(query, [user_id, nombre, origen_lat, origen_lng, destino_lat, destino_lng, score_seguridad]);
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al guardar ruta' });
+  }
+});
+
 io.on('connection', (socket) => {
   console.log('Un cliente se ha conectado:', socket.id);
   socket.on('disconnect', () => {

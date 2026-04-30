@@ -20,7 +20,9 @@ import '../../presentation/screens/reportes/mis_reportes_screen.dart';
 import '../../presentation/screens/reportes/detalle_reporte_screen.dart';
 import '../../presentation/screens/rutas/ruta_segura_screen.dart';
 import '../../presentation/screens/analisis/analisis_riesgo_screen.dart';
-
+import '../../presentation/screens/analisis/estadisticas_screen.dart';
+import '../../presentation/screens/sos/historial_sos_screen.dart';
+import '../../presentation/screens/map/detalle_zona_screen.dart';
 class AppRouter {
   static final GoRouter router = GoRouter(
     initialLocation: '/splash',
@@ -45,6 +47,16 @@ class AppRouter {
                 GoRoute(
                   path: 'ruta-segura',
                   builder: (c, s) => const RutaSeguraScreen(),
+                ),
+                GoRoute(
+                  path: 'detalle-zona',
+                  builder: (c, s) {
+                    final args = s.extra as Map<String, dynamic>?;
+                    return DetalleZonaScreen(
+                      reportes: args?['reportes'] ?? [],
+                      nombreZona: args?['nombreZona'] ?? 'Zona seleccionada',
+                    );
+                  },
                 ),
               ],
             ),
@@ -73,6 +85,10 @@ class AppRouter {
                   path: 'contactos-emergencia',
                   builder: (c, s) => const ContactosEmergenciaScreen(),
                 ),
+                GoRoute(
+                  path: 'historial-sos',
+                  builder: (c, s) => const HistorialSosScreen(),
+                ),
               ],
             ),
           ]),
@@ -88,6 +104,10 @@ class AppRouter {
                 GoRoute(
                   path: 'analisis-riesgo',
                   builder: (c, s) => const AnalisisRiesgoScreen(),
+                ),
+                GoRoute(
+                  path: 'estadisticas',
+                  builder: (c, s) => const EstadisticasScreen(),
                 ),
               ],
             ),

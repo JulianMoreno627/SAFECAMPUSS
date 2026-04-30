@@ -1,9 +1,12 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/services/gemini_service.dart';
+import '../../../core/services/ai_service.dart';
+import '../../../core/services/routing_service.dart';
 import '../../../core/providers/reports_provider.dart';
 import '../../../core/providers/location_provider.dart';
 import '../../../l10n/app_localizations.dart';
@@ -21,6 +24,7 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
 
   bool _loading = false;
   Map<String, dynamic>? _resultado;
+  RouteResult? _routeResult;
 
   @override
   void initState() {
@@ -56,14 +60,41 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
     setState(() {
       _loading = true;
       _resultado = null;
+      _routeResult = null;
     });
+
+    LatLng? origLatLng;
+    LatLng? destLatLng;
+
+    // 1. Geocode origin
+    final origStr = _origenCtrl.text.trim();
+    if (origStr.contains(',')) {
+      final parts = origStr.split(',');
+      if (parts.length == 2) {
+        origLatLng = LatLng(double.parse(parts[0].trim()), double.parse(parts[1].trim()));
+      }
+    }
+    if (origLatLng == null && origStr.isNotEmpty) {
+      final origPlaces = await RoutingService().searchPlaces(origStr);
+      if (origPlaces.isNotEmpty) origLatLng = origPlaces.first.position;
+    }
+
+    // 2. Geocode destination
+    final destStr = _destinoCtrl.text.trim();
+    final destPlaces = await RoutingService().searchPlaces(destStr);
+    if (destPlaces.isNotEmpty) destLatLng = destPlaces.first.position;
+
+    // 3. Get Route
+    if (origLatLng != null && destLatLng != null) {
+      _routeResult = await RoutingService().getRoute(origLatLng, destLatLng);
+    }
 
     final now = TimeOfDay.now();
     final hora =
         '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
     final reportes = ref.read(reportsProvider).reportesCercanos;
 
-    final result = await GeminiService().recomendarRuta(
+    final result = await aiService.recomendarRuta(
       origen: _origenCtrl.text.trim(),
       destino: _destinoCtrl.text.trim(),
       hora: hora,
@@ -449,6 +480,76 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
                         ],
                       ),
                     )),
+              ],
+            ),
+          ),
+
+        const SizedBox(height: 14),
+
+        if (_routeResult != null)
+          Container(
+            height: 220,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.white12),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Stack(
+              children: [
+                FlutterMap(
+                  options: MapOptions(
+                    initialCenter: _routeResult!.points.first,
+                    initialZoom: 14,
+                  ),
+                  children: [
+                    TileLayer(
+                      urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      subdomains: const ['a', 'b', 'c'],
+                      userAgentPackageName: 'com.safecampus.safecampus_ai',
+                    ),
+                    PolylineLayer(
+                      polylines: [
+                        Polyline(
+                          points: _routeResult!.points,
+                          color: Colors.black.withValues(alpha: 0.2),
+                          strokeWidth: 7,
+                        ),
+                        Polyline(
+                          points: _routeResult!.points,
+                          color: _nivelColor(nivel),
+                          strokeWidth: 4,
+                        ),
+                      ],
+                    ),
+                    MarkerLayer(
+                      markers: [
+                        Marker(
+                          point: _routeResult!.points.first,
+                          child: const Icon(Icons.my_location, color: AppColors.riskLow),
+                        ),
+                        Marker(
+                          point: _routeResult!.points.last,
+                          child: const Icon(Icons.flag, color: AppColors.riskHigh),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                Positioned(
+                  top: 10, right: 10,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface.withValues(alpha: 0.9),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      '${_routeResult!.distanceLabel} • ${_routeResult!.durationLabel}',
+                      style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

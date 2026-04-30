@@ -12,7 +12,7 @@ import '../../../core/providers/location_provider.dart';
 import '../../../core/providers/reports_provider.dart';
 import '../../../core/models/reporte.dart';
 import '../../../core/services/routing_service.dart';
-import '../../../core/services/gemini_service.dart';
+import '../../../core/services/ai_service.dart';
 import '../../widgets/reporte_detalle_sheet.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
@@ -112,19 +112,35 @@ class _MapScreenState extends ConsumerState<MapScreen>
                   userAgentPackageName: 'com.safecampus.safecampus_ai',
                 ),
 
-                // Danger zone circles
+                // Danger zone circles (HeatMap Predictivo)
                 if (_showZones)
                   CircleLayer(
-                    circles: filtered.map((r) {
+                    circles: filtered.expand((r) {
                       final color = _nivelColor(r.nivelUrgencia);
-                      return CircleMarker(
-                        point: LatLng(r.lat, r.lng),
-                        radius: _dangerRadius(r.nivelUrgencia),
-                        useRadiusInMeter: true,
-                        color: color.withValues(alpha: 0.14),
-                        borderColor: color.withValues(alpha: 0.45),
-                        borderStrokeWidth: 1.5,
-                      );
+                      final rMax = _dangerRadius(r.nivelUrgencia);
+                      return [
+                        CircleMarker(
+                          point: LatLng(r.lat, r.lng),
+                          radius: rMax,
+                          useRadiusInMeter: true,
+                          color: color.withValues(alpha: 0.05),
+                          borderStrokeWidth: 0,
+                        ),
+                        CircleMarker(
+                          point: LatLng(r.lat, r.lng),
+                          radius: rMax * 0.6,
+                          useRadiusInMeter: true,
+                          color: color.withValues(alpha: 0.1),
+                          borderStrokeWidth: 0,
+                        ),
+                        CircleMarker(
+                          point: LatLng(r.lat, r.lng),
+                          radius: rMax * 0.3,
+                          useRadiusInMeter: true,
+                          color: color.withValues(alpha: 0.25),
+                          borderStrokeWidth: 0,
+                        ),
+                      ];
                     }).toList(),
                   ),
 
@@ -913,7 +929,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
     final now = TimeOfDay.now();
     final hora = '${now.hour}:${now.minute.toString().padLeft(2, '0')}';
 
-    final result = await GeminiService().recomendarRuta(
+    final result = await aiService.recomendarRuta(
       origen: 'Mi ubicación actual',
       destino: _routeDestName,
       hora: hora,

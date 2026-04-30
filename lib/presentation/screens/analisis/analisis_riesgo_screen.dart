@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/services/gemini_service.dart';
+import '../../../core/services/ai_service.dart';
 import '../../../core/providers/reports_provider.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/models/reporte.dart';
@@ -52,7 +52,7 @@ class _AnalisisRiesgoScreenState extends ConsumerState<AnalisisRiesgoScreen> {
         ? l10n.incidentZonePrefix(misReportes.first.tipo.localizedLabel(l10n))
         : l10n.generalCampusArea;
 
-    final result = await GeminiService().analizarRiesgoPersonal(
+    final result = await aiService.analizarRiesgoPersonal(
       rutaFrecuente: rutaFrecuente,
       horarioHabitual: horario,
       zonasVisitadas: zonas.isEmpty

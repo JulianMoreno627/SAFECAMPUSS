@@ -240,6 +240,100 @@ class AiService {
       return null;
     }
   }
+
+  // ── Recomendar ruta segura ─────────────────────────────────────────────
+  Future<Map<String, dynamic>> recomendarRuta({
+    required String origen,
+    required String destino,
+    required String hora,
+    required List<Reporte> reportesCercanos,
+  }) async {
+    const fallback = {
+      'score_seguridad': 60,
+      'nivel_riesgo': 'medio',
+      'recomendacion': 'Toma precauciones en esta ruta',
+      'ruta_alternativa': false,
+      'motivo': 'Sin datos suficientes',
+      'tips': ['Mantente en zonas iluminadas', 'Comparte tu ubicación'],
+    };
+    if (_apiKey == null) return fallback;
+
+    final reportesStr = reportesCercanos.isEmpty
+        ? 'Sin reportes recientes'
+        : reportesCercanos
+            .take(5)
+            .map((r) => '- ${r.tipo.label}: ${r.descripcion} (${r.nivelUrgencia.label})')
+            .join('\n');
+
+    try {
+      final text = await _complete([
+        {
+          'role': 'system',
+          'content':
+              'Sistema de seguridad universitaria. Responde ÚNICAMENTE con JSON válido sin markdown.',
+        },
+        {
+          'role': 'user',
+          'content':
+              'Origen: $origen\nDestino: $destino\nHora: $hora\nReportes:\n$reportesStr\n\n'
+              '{"score_seguridad":75,"nivel_riesgo":"bajo|medio|alto|critico","recomendacion":"texto","ruta_alternativa":true,"motivo":"breve","tips":["tip1","tip2","tip3"]}',
+        },
+      ], maxTokens: 200, temperature: 0.3);
+      
+      if (text == null) return fallback;
+      final clean = _extractJson(text);
+      if (clean == null) return fallback;
+      return jsonDecode(clean) as Map<String, dynamic>;
+    } catch (e) {
+      _logger.e('AiService.recomendarRuta error: $e');
+      return fallback;
+    }
+  }
+
+  // ── Análisis de riesgo personal ───────────────────────────────────────
+  Future<Map<String, dynamic>> analizarRiesgoPersonal({
+    required String rutaFrecuente,
+    required String horarioHabitual,
+    required List<String> zonasVisitadas,
+  }) async {
+    const fallback = {
+      'nivel_exposicion': 'moderado',
+      'zona_mas_riesgosa': 'Parqueadero',
+      'dia_vulnerable': 'Viernes',
+      'score_riesgo': 50,
+      'recomendacion_principal': 'Evita zonas oscuras en horario nocturno',
+      'acciones': [
+        'Comparte tu ubicación con un contacto',
+        'Activa el modo acompañamiento',
+        'Evita salir solo después de las 9 PM',
+      ],
+    };
+    if (_apiKey == null) return fallback;
+
+    try {
+      final text = await _complete([
+        {
+          'role': 'system',
+          'content':
+              'Sistema de seguridad universitaria. Responde ÚNICAMENTE con JSON válido sin markdown.',
+        },
+        {
+          'role': 'user',
+          'content':
+              'Ruta frecuente: $rutaFrecuente\nHorario: $horarioHabitual\nZonas: ${zonasVisitadas.join(", ")}\n\n'
+              '{"nivel_exposicion":"bajo|moderado|alto","zona_mas_riesgosa":"nombre","dia_vulnerable":"día","score_riesgo":45,"recomendacion_principal":"texto","acciones":["acción1","acción2","acción3"]}',
+        },
+      ], maxTokens: 200, temperature: 0.3);
+
+      if (text == null) return fallback;
+      final clean = _extractJson(text);
+      if (clean == null) return fallback;
+      return jsonDecode(clean) as Map<String, dynamic>;
+    } catch (e) {
+      _logger.e('AiService.analizarRiesgoPersonal error: $e');
+      return fallback;
+    }
+  }
 }
 
 final aiService = AiService();
