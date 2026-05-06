@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:latlong2/latlong.dart';
 import '../services/api_service.dart';
 import '../services/socket_service.dart';
 import '../models/reporte.dart';
@@ -77,9 +78,10 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
         final nuevoReporte = Reporte.fromMap(data);
         if (!state.reportesCercanos.any((r) => r.id == nuevoReporte.id)) {
           final actualizados = [nuevoReporte, ...state.reportesCercanos];
+          final pos = ref.read(locationProvider).currentPosition;
           state = state.copyWith(
             reportesCercanos: actualizados,
-            nivelRiesgo: _calcularNivelRiesgo(actualizados),
+            nivelRiesgo: _calcularNivelRiesgo(actualizados, pos),
           );
         }
       } catch (e) {
@@ -94,7 +96,7 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
       final reportes = await _api.getReportesCercanos(lat, lng);
       state = state.copyWith(
         reportesCercanos: reportes,
-        nivelRiesgo: _calcularNivelRiesgo(reportes),
+        nivelRiesgo: _calcularNivelRiesgo(reportes, LatLng(lat, lng)),
         isLoading: false,
         error: null,
       );
@@ -103,13 +105,36 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
     }
   }
 
-  NivelRiesgo _calcularNivelRiesgo(List<Reporte> reportes) {
+  NivelRiesgo _calcularNivelRiesgo(List<Reporte> reportes, LatLng? currentPos) {
     if (reportes.isEmpty) return NivelRiesgo.bajo;
-    final puntos = reportes.fold<int>(
-        0, (sum, r) => sum + r.nivelUrgencia.puntos);
-    if (puntos > 20) return NivelRiesgo.critico;
-    if (puntos > 10) return NivelRiesgo.alto;
-    if (puntos > 5)  return NivelRiesgo.medio;
+    if (currentPos == null) {
+      // Si no hay posición, cálculo genérico por cantidad/gravedad
+      final puntos = reportes.fold<int>(0, (sum, r) => sum + r.nivelUrgencia.puntos);
+      if (puntos > 20) return NivelRiesgo.critico;
+      if (puntos > 10) return NivelRiesgo.alto;
+      if (puntos > 5)  return NivelRiesgo.medio;
+      return NivelRiesgo.bajo;
+    }
+
+    // Cálculo enfocado en la zona actual (proximidad)
+    const distance = Distance();
+    double totalWeightedPoints = 0.0;
+
+    for (final r in reportes) {
+      final d = distance.as(LengthUnit.Meter, currentPos, LatLng(r.lat, r.lng));
+      
+      // Los reportes a más de 500m tienen impacto casi nulo en la "zona actual"
+      if (d > 500) continue;
+
+      // Factor de decaimiento por distancia (más cerca = más peso)
+      // 1.0 en 0m, 0.0 en 500m
+      final weight = (500 - d) / 500;
+      totalWeightedPoints += r.nivelUrgencia.puntos * weight;
+    }
+
+    if (totalWeightedPoints > 12) return NivelRiesgo.critico;
+    if (totalWeightedPoints > 6)  return NivelRiesgo.alto;
+    if (totalWeightedPoints > 2)  return NivelRiesgo.medio;
     return NivelRiesgo.bajo;
   }
 }

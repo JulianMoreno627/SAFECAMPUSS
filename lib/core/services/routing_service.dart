@@ -126,11 +126,13 @@ class RoutingService {
             if (rep.nivelUrgencia == NivelUrgencia.bajo) continue;
             
             final distToDanger = distance.as(LengthUnit.Meter, p, LatLng(rep.lat, rep.lng));
-            final double dangerRadius = rep.nivelUrgencia == NivelUrgencia.critico ? 250 : 150;
+            // Radio más grande para críticos (350m) para forzar el desvío temprano
+            final double dangerRadius = rep.nivelUrgencia == NivelUrgencia.critico ? 350 : 180;
             
             if (distToDanger < dangerRadius) {
-              // Aumentar penalidad fuertemente si entra en la zona roja
-              penalty += (dangerRadius - distToDanger) * (rep.nivelUrgencia == NivelUrgencia.critico ? 5 : 2);
+              // Penalidad masiva para críticos
+              final multiplier = rep.nivelUrgencia == NivelUrgencia.critico ? 50.0 : 5.0;
+              penalty += (dangerRadius - distToDanger) * multiplier;
             }
           }
         }

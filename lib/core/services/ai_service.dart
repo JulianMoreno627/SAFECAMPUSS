@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
+import 'package:latlong2/latlong.dart';
 import '../models/reporte.dart';
 
 class AiService {
@@ -247,6 +248,7 @@ class AiService {
     required String destino,
     required String hora,
     required List<Reporte> reportesCercanos,
+    LatLng? userLocation,
   }) async {
     const fallback = {
       'score_seguridad': 60,
@@ -258,27 +260,52 @@ class AiService {
     };
     if (_apiKey == null) return fallback;
 
-    final reportesStr = reportesCercanos.isEmpty
-        ? 'Sin reportes recientes'
-        : reportesCercanos
-            .take(5)
-            .map((r) => '- ${r.tipo.label}: ${r.descripcion} (${r.nivelUrgencia.label})')
-            .join('\n');
+    // Calcular distancias si tenemos ubicación del usuario
+    final distance = const Distance();
+    final List<String> reporteContext = [];
+    bool isUserInDangerZone = false;
+
+    for (final r in reportesCercanos) {
+      String context = '- ${r.tipo.label}: ${r.descripcion} (${r.nivelUrgencia.label})';
+      if (userLocation != null) {
+        final d = distance.as(LengthUnit.Meter, userLocation, LatLng(r.lat, r.lng));
+        context += ' [A ${d.toInt()}m de ti]';
+        if (d < 300) isUserInDangerZone = true;
+      }
+      reporteContext.add(context);
+    }
+
+    final reportesStr = reporteContext.isEmpty
+        ? 'Sin reportes recientes en la zona'
+        : reporteContext.take(10).join('\n');
+
+    final userStatus = (userLocation != null && !isUserInDangerZone && reportesCercanos.isNotEmpty)
+        ? 'El usuario se encuentra actualmente en una ZONA SEGURA (fuera del radio de los reportes).'
+        : isUserInDangerZone 
+            ? '¡ALERTA! El usuario está DENTRO de una zona con reportes activos. Debe salir de ahí.'
+            : 'No hay actividad de riesgo en el sector inmediato del usuario.';
 
     try {
       final text = await _complete([
         {
           'role': 'system',
           'content':
-              'Sistema de seguridad universitaria. Responde ÚNICAMENTE con JSON válido sin markdown.',
+              'Eres SafeBot. Tu prioridad es la ubicación ACTUAL del usuario. '
+              '1. Si el usuario está en una ZONA SEGURA (lejos de reportes), DEBES iniciar tu recomendación confirmando: "Te encuentras en una zona segura actualmente". '
+              '2. Luego, analiza si la RUTA hacia el destino cruza zonas de riesgo. '
+              '3. Si hay reportes críticos en la trayectoria, sugiere un desvío obligatorio con "ruta_alternativa": true. '
+              'Responde ÚNICAMENTE con JSON válido sin markdown.',
         },
         {
           'role': 'user',
           'content':
-              'Origen: $origen\nDestino: $destino\nHora: $hora\nReportes:\n$reportesStr\n\n'
-              '{"score_seguridad":75,"nivel_riesgo":"bajo|medio|alto|critico","recomendacion":"texto","ruta_alternativa":true,"motivo":"breve","tips":["tip1","tip2","tip3"]}',
+              'Ubicación actual del usuario: $userStatus\n'
+              'Ruta: de $origen a $destino a las $hora.\n'
+              'Reportes detallados con distancia a la persona:\n$reportesStr\n\n'
+              'Formato JSON requerido:\n'
+              '{"score_seguridad":75,"nivel_riesgo":"bajo|medio|alto|critico","recomendacion":"texto","ruta_alternativa":true,"motivo":"razón del cambio","tips":["tip1","tip2"]}',
         },
-      ], maxTokens: 200, temperature: 0.3);
+      ], maxTokens: 300, temperature: 0.3);
       
       if (text == null) return fallback;
       final clean = _extractJson(text);

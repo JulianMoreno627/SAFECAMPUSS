@@ -99,6 +99,10 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
       destino: _destinoCtrl.text.trim(),
       hora: hora,
       reportesCercanos: reportes,
+      userLocation: ref.read(locationProvider).currentPosition != null 
+          ? LatLng(ref.read(locationProvider).currentPosition!.latitude, 
+                  ref.read(locationProvider).currentPosition!.longitude)
+          : null,
     );
 
     if (mounted) {
@@ -596,7 +600,7 @@ class _RutaSeguraScreenState extends ConsumerState<RutaSeguraScreen> {
         border: Border.all(color: color.withValues(alpha: 0.4)),
       ),
       child: Text(
-        '${l10n.riskLabel} ${nivel[0].toUpperCase()}${nivel.substring(1)}',
+        '${l10n.riskLabel} ${nivel.isNotEmpty ? (nivel[0].toUpperCase() + nivel.substring(1)) : nivel}',
         style: TextStyle(
             color: color, fontSize: 12, fontWeight: FontWeight.bold),
       ),

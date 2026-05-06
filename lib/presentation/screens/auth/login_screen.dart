@@ -14,7 +14,6 @@ import '../../../core/services/api_service.dart';
 import '../../widgets/language_toggle_button.dart';
 
 final _localAuth = LocalAuthentication();
-final _googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -88,12 +87,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     setState(() => _isLoading = true);
     try {
       final l10n = AppLocalizations.of(context)!;
-      final account = await _googleSignIn.signIn();
-      if (account == null) {
-        if (mounted) setState(() => _isLoading = false);
-        return;
-      }
-      final auth = await account.authentication;
+      final GoogleSignInAccount account =
+          await GoogleSignIn.instance.authenticate();
+      final GoogleSignInAuthentication auth = account.authentication;
       if (!mounted) return;
 
       // Enviar idToken al backend para validar y obtener sesión
@@ -105,8 +101,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       );
       if (!mounted) return;
 
-      if (response) {
-        context.go('/map');
+      if (response != null) {
+        await ref.read(authProvider.notifier).setSession(response.usuario, response.token);
+        if (mounted) context.go('/map');
       } else {
         _showError(l10n.googleLoginFailed);
       }
@@ -135,10 +132,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     try {
       final authenticated = await _localAuth.authenticate(
         localizedReason: l10n.biometricPrompt,
-        options: const AuthenticationOptions(
-          biometricOnly: false,
-          stickyAuth: true,
-        ),
+        biometricOnly: false,
+        persistAcrossBackgrounding: true,
       );
       if (authenticated && mounted) {
         ApiService().setToken(savedToken);

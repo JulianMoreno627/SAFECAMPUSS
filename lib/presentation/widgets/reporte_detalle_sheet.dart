@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/theme/app_colors.dart';
@@ -58,7 +59,7 @@ class ReporteDetalleSheet extends StatelessWidget {
           ),
           child: ListView(
             controller: scrollController,
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+            padding: EdgeInsets.zero,
             children: [
               Center(
                 child: Container(
@@ -71,6 +72,38 @@ class ReporteDetalleSheet extends StatelessWidget {
                   ),
                 ),
               ),
+              if (reporte.fotoUrl != null && reporte.fotoUrl!.isNotEmpty)
+                Builder(builder: (_) {
+                  try {
+                    final bytes = base64Decode(reporte.fotoUrl!.split(',').last);
+                    return ClipRRect(
+                      borderRadius: BorderRadius.zero,
+                      child: AspectRatio(
+                        aspectRatio: 16 / 9,
+                        child: Image.memory(
+                          bytes,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            color: cs.surfaceContainerHigh,
+                            child: const Icon(Icons.image_not_supported_rounded, size: 40),
+                          ),
+                        ),
+                      ),
+                    );
+                  } catch (_) {
+                    return Container(
+                      height: 180,
+                      color: cs.surfaceContainerHigh,
+                      child: const Center(child: Icon(Icons.image_not_supported_rounded, size: 40)),
+                    );
+                  }
+                }),
+              
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
 
               // Risk badge + tiempo
               Row(
@@ -112,7 +145,55 @@ class ReporteDetalleSheet extends StatelessWidget {
                 ],
               ),
 
-              const SizedBox(height: 20),
+                    const SizedBox(height: 20),
+
+                    // Autor del reporte
+                    if (reporte.userName != null)
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 20),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: cs.surfaceContainerHigh.withValues(alpha: 0.5),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.5)),
+                        ),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 18,
+                              backgroundColor: AppColors.accent.withValues(alpha: 0.2),
+                              backgroundImage: (reporte.userFotoUrl != null && reporte.userFotoUrl!.isNotEmpty)
+                                  ? MemoryImage(base64Decode(reporte.userFotoUrl!.split(',').last))
+                                  : null,
+                              child: (reporte.userFotoUrl == null || reporte.userFotoUrl!.isEmpty)
+                                  ? Icon(Icons.person_rounded, size: 20, color: AppColors.accent)
+                                  : null,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    l10n.anonymousUser,
+                                    style: TextStyle(color: cs.onSurface, fontWeight: FontWeight.bold, fontSize: 13),
+                                  ),
+                                  Text(
+                                    'Autor del reporte',
+                                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 11),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (reporte.createdAt != null)
+                              Text(
+                                reporte.localizedFechaHora(l10n),
+                                textAlign: TextAlign.right,
+                                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 10, height: 1.2),
+                              ),
+                          ],
+                        ),
+                      ),
 
               // Tipo + ícono
               Row(
@@ -124,7 +205,7 @@ class ReporteDetalleSheet extends StatelessWidget {
                       color: color.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Icon(reporte.tipo.mapIcon, color: color, size: 28),
+                    child: Icon(reporte.tipo.getMapIcon(reporte.tipoRaw), color: color, size: 28),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -132,7 +213,7 @@ class ReporteDetalleSheet extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          reporte.tipo.localizedLabel(l10n),
+                          reporte.tipo.localizedLabel(l10n, reporte.tipoRaw),
                           style: TextStyle(
                             color: cs.onSurface,
                             fontSize: 20,
@@ -235,10 +316,10 @@ class ReporteDetalleSheet extends StatelessWidget {
                       label: l10n.shareLabel,
                       color: AppColors.accent,
                       onTap: () {
-                        Share.share(
-                          'SafeCampus AI - ${l10n.createReport}: ${reporte.tipo.localizedLabel(l10n)} '
+                        SharePlus.instance.share(ShareParams(
+                          text: 'SafeCampus AI - ${l10n.createReport}: ${reporte.tipo.localizedLabel(l10n, reporte.tipoRaw)} '
                           '(${reporte.nivelUrgencia.localizedLabel(l10n)})\n${reporte.descripcion}',
-                        );
+                        ));
                       },
                     ),
                   ),
@@ -252,6 +333,9 @@ class ReporteDetalleSheet extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
+                  ],
+                ),
               ),
             ],
           ),

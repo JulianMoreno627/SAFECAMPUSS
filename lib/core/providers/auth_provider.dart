@@ -133,6 +133,21 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  Future<void> setSession(Usuario user, String token) async {
+    final box = Hive.box(_boxName);
+    await box.put(_tokenKey, token);
+    await box.put(_userKey, jsonEncode(user.toMap()));
+    _api.setToken(token);
+    state = state.copyWith(usuario: user, token: token);
+  }
+
+  Future<void> updateUser(Usuario user) async {
+    final box = Hive.box(_boxName);
+    if (box.containsKey(_userKey)) {
+      await box.put(_userKey, jsonEncode(user.toMap()));
+    }
+    state = state.copyWith(usuario: user);
+  }
   Future<void> logout() async {
     final box = Hive.box(_boxName);
     await box.delete(_tokenKey);

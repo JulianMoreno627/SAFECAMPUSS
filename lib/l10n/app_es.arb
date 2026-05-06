@@ -8,6 +8,7 @@
   "registerButton": "Registrarse",
   "noAccount": "¿No tienes una cuenta?",
   "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+  "anonymousUser": "Anónimo",
   "createReport": "Crear reporte",
   "mapTitle": "Mapa de seguridad",
   "riskLevel": "Nivel de riesgo",

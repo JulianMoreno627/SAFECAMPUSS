@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animate_do/animate_do.dart';
@@ -297,7 +298,7 @@ class _ReporteCard extends StatelessWidget {
                 color: color.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(reporte.tipo.icon, color: color, size: 22),
+              child: Icon(reporte.tipo.getIcon(reporte.tipoRaw), color: color, size: 22),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -307,7 +308,7 @@ class _ReporteCard extends StatelessWidget {
                   Row(
                     children: [
                       Expanded(
-                        child: Text(reporte.tipo.localizedLabel(l10n),
+                        child: Text(reporte.tipo.localizedLabel(l10n, reporte.tipoRaw),
                             style: TextStyle(
                                 color: cs.onSurface,
                                 fontSize: 14,
@@ -348,6 +349,23 @@ class _ReporteCard extends StatelessWidget {
                 ],
               ),
             ),
+            if (reporte.fotoUrl != null && reporte.fotoUrl!.isNotEmpty)
+              Builder(builder: (_) {
+                try {
+                  final bytes = base64Decode(reporte.fotoUrl!.split(',').last);
+                  return Row(mainAxisSize: MainAxisSize.min, children: [
+                    const SizedBox(width: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.memory(bytes, width: 56, height: 56,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const SizedBox.shrink()),
+                    ),
+                  ]);
+                } catch (_) {
+                  return const SizedBox.shrink();
+                }
+              }),
           ],
         ),
       ),

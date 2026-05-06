@@ -115,7 +115,7 @@ class _SosScreenState extends ConsumerState<SosScreen>
     final lng = location.currentPosition!.longitude;
     final mapUrl = 'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
 
-    await Share.share(l10n.sosShareLocationMessage(mapUrl));
+    await SharePlus.instance.share(ShareParams(text: l10n.sosShareLocationMessage(mapUrl)));
   }
 
   Future<void> _alertContacts() async {
@@ -151,7 +151,7 @@ class _SosScreenState extends ConsumerState<SosScreen>
       await launchUrl(smsUri);
     } else {
       // Fallback a compartir el mensaje individualmente si sms: no es soportado
-      await Share.share(message);
+      await SharePlus.instance.share(ShareParams(text: message));
     }
   }
 
@@ -389,7 +389,7 @@ class _SosScreenState extends ConsumerState<SosScreen>
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Tus contactos ahora pueden ver tu ubicación en tiempo real.')));
                 }
               },
-              activeColor: AppColors.accent,
+              activeThumbColor: AppColors.accent,
             ),
           ],
         ),

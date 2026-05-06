@@ -158,6 +158,12 @@ abstract class AppLocalizations {
   /// **'Create Report'**
   String get createReport;
 
+  /// No description provided for @anonymousUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Anonymous'**
+  String get anonymousUser;
+
   /// No description provided for @mapTitle.
   ///
   /// In en, this message translates to:

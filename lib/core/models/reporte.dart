@@ -114,67 +114,56 @@ extension TipoIncidenteX on TipoIncidente {
     }
   }
 
-  String localizedLabel(AppLocalizations l10n) {
-    switch (this) {
-      case TipoIncidente.robo:
-        return l10n.incidentTheft;
-      case TipoIncidente.acoso:
-        return l10n.incidentHarassment;
-      case TipoIncidente.personaSospechosa:
-        return l10n.incidentSuspiciousPerson;
-      case TipoIncidente.iluminacion:
-        return l10n.incidentLighting;
-      case TipoIncidente.pelea:
-        return l10n.incidentFight;
-      case TipoIncidente.vandalismo:
-        return l10n.incidentVandalism;
-      case TipoIncidente.accidente:
-        return l10n.incidentAccident;
-      case TipoIncidente.otro:
-        return l10n.incidentOther;
+  String localizedLabel(AppLocalizations l10n, [String? raw]) {
+    if (this != TipoIncidente.otro) {
+      switch (this) {
+        case TipoIncidente.robo: return l10n.incidentTheft;
+        case TipoIncidente.acoso: return l10n.incidentHarassment;
+        case TipoIncidente.personaSospechosa: return l10n.incidentSuspiciousPerson;
+        case TipoIncidente.iluminacion: return l10n.incidentLighting;
+        case TipoIncidente.pelea: return l10n.incidentFight;
+        case TipoIncidente.vandalismo: return l10n.incidentVandalism;
+        case TipoIncidente.accidente: return l10n.incidentAccident;
+        default: return l10n.incidentOther;
+      }
     }
+    return raw ?? l10n.incidentOther;
   }
 
-  IconData get icon {
-    switch (this) {
-      case TipoIncidente.robo:
-        return Icons.phone_android_rounded;
-      case TipoIncidente.acoso:
-        return Icons.warning_rounded;
-      case TipoIncidente.personaSospechosa:
-        return Icons.person_off_rounded;
-      case TipoIncidente.iluminacion:
-        return Icons.light_mode_rounded;
-      case TipoIncidente.pelea:
-        return Icons.sports_mma_rounded;
-      case TipoIncidente.vandalismo:
-        return Icons.broken_image_rounded;
-      case TipoIncidente.accidente:
-        return Icons.car_crash_rounded;
-      case TipoIncidente.otro:
-        return Icons.more_horiz_rounded;
+  IconData getIcon(String? raw) {
+    if (this != TipoIncidente.otro) {
+      switch (this) {
+        case TipoIncidente.robo: return Icons.phone_android_rounded;
+        case TipoIncidente.acoso: return Icons.warning_rounded;
+        case TipoIncidente.personaSospechosa: return Icons.person_off_rounded;
+        case TipoIncidente.iluminacion: return Icons.light_mode_rounded;
+        case TipoIncidente.pelea: return Icons.sports_mma_rounded;
+        case TipoIncidente.vandalismo: return Icons.broken_image_rounded;
+        case TipoIncidente.accidente: return Icons.car_crash_rounded;
+        default: return Icons.more_horiz_rounded;
+      }
     }
+    final n = raw?.toLowerCase() ?? '';
+    if (n.contains('robo')) return Icons.phone_android_rounded;
+    if (n.contains('acoso')) return Icons.warning_rounded;
+    if (n.contains('pelea')) return Icons.sports_mma_rounded;
+    return Icons.more_horiz_rounded;
   }
 
-  IconData get mapIcon {
-    switch (this) {
-      case TipoIncidente.robo:
-        return Icons.no_backpack_rounded;
-      case TipoIncidente.acoso:
-        return Icons.person_off_rounded;
-      case TipoIncidente.personaSospechosa:
-        return Icons.visibility_rounded;
-      case TipoIncidente.iluminacion:
-        return Icons.flashlight_off_rounded;
-      case TipoIncidente.pelea:
-        return Icons.sports_kabaddi_rounded;
-      case TipoIncidente.vandalismo:
-        return Icons.broken_image_rounded;
-      case TipoIncidente.accidente:
-        return Icons.car_crash_rounded;
-      case TipoIncidente.otro:
-        return Icons.report_rounded;
+  IconData getMapIcon(String? raw) {
+    if (this != TipoIncidente.otro) {
+      switch (this) {
+        case TipoIncidente.robo: return Icons.no_backpack_rounded;
+        case TipoIncidente.acoso: return Icons.person_off_rounded;
+        case TipoIncidente.personaSospechosa: return Icons.visibility_rounded;
+        case TipoIncidente.iluminacion: return Icons.flashlight_off_rounded;
+        case TipoIncidente.pelea: return Icons.sports_kabaddi_rounded;
+        case TipoIncidente.vandalismo: return Icons.broken_image_rounded;
+        case TipoIncidente.accidente: return Icons.car_crash_rounded;
+        default: return Icons.report_rounded;
+      }
     }
+    return Icons.report_rounded;
   }
 
   static TipoIncidente fromString(String? value) {
@@ -203,6 +192,7 @@ extension TipoIncidenteX on TipoIncidente {
 class Reporte {
   final String id;
   final TipoIncidente tipo;
+  final String tipoRaw;
   final String descripcion;
   final NivelUrgencia nivelUrgencia;
   final double lat;
@@ -213,10 +203,14 @@ class Reporte {
   final int votosNegativos;
   final String? fotoUrl;
   final DateTime? createdAt;
+  final String? userName;
+  final String? userLastName;
+  final String? userFotoUrl;
 
   const Reporte({
     required this.id,
     required this.tipo,
+    required this.tipoRaw,
     required this.descripcion,
     required this.nivelUrgencia,
     required this.lat,
@@ -227,12 +221,17 @@ class Reporte {
     this.votosNegativos = 0,
     this.fotoUrl,
     this.createdAt,
+    this.userName,
+    this.userLastName,
+    this.userFotoUrl,
   });
 
   factory Reporte.fromMap(Map<String, dynamic> map) {
+    final rawType = map['tipo']?.toString() ?? 'Otro';
     return Reporte(
       id: map['id']?.toString() ?? '',
-      tipo: TipoIncidenteX.fromString(map['tipo']?.toString()),
+      tipo: TipoIncidenteX.fromString(rawType),
+      tipoRaw: rawType,
       descripcion: map['descripcion']?.toString() ?? '',
       nivelUrgencia:
           NivelUrgenciaX.fromString(map['nivel_urgencia']?.toString()),
@@ -244,8 +243,13 @@ class Reporte {
       votosNegativos: (map['votos_negativos'] as num?)?.toInt() ?? 0,
       fotoUrl: map['foto_url']?.toString(),
       createdAt: map['created_at'] != null
-          ? DateTime.tryParse(map['created_at'].toString())
+          ? (map['created_at'] is DateTime 
+              ? map['created_at'] as DateTime 
+              : DateTime.tryParse(map['created_at'].toString()))
           : null,
+      userName: map['usuario_nombre']?.toString() ?? 'Anónimo',
+      userLastName: map['usuario_apellido']?.toString() ?? '',
+      userFotoUrl: map['usuario_foto_url']?.toString(),
     );
   }
 
@@ -282,6 +286,13 @@ class Reporte {
     if (diff.inHours < 24) return l10n.timeAgoHours(diff.inHours);
     if (diff.inDays < 7) return l10n.timeAgoDays(diff.inDays);
     return '${createdAt!.day}/${createdAt!.month}/${createdAt!.year}';
+  }
+
+  String localizedFechaHora(AppLocalizations l10n) {
+    if (createdAt == null) return l10n.timeAgoNow;
+    final h = createdAt!.hour.toString().padLeft(2, '0');
+    final m = createdAt!.minute.toString().padLeft(2, '0');
+    return '${createdAt!.day}/${createdAt!.month}/${createdAt!.year} $h:$m';
   }
 
   bool perteneceA(String uid) => userId == uid;

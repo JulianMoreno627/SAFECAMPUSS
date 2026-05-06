@@ -66,5 +66,15 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Esta aplicación requiere acceso al reconocimiento de voz para transcribir los reportes.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Esta aplicación requiere acceso al micrófono para grabar los reportes.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Esta aplicación requiere acceso a su ubicación para mostrar reportes cercanos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Esta aplicación requiere acceso a su galería para adjuntar fotos a los reportes.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Esta aplicación requiere acceso a su cámara para tomar fotos para los reportes.</string>
 </dict>
 </plist>

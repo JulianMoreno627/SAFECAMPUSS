@@ -83,11 +83,14 @@ class _MapScreenState extends ConsumerState<MapScreen>
       if (total != _lastSeenCount) _lastSeenCount = total;
     });
 
-    final filtered = _activeFilter == null
-        ? reportsState.reportesCercanos
-        : reportsState.reportesCercanos
-            .where((r) => r.nivelUrgencia == _activeFilter)
-            .toList();
+    final now = DateTime.now();
+    final filtered = reportsState.reportesCercanos
+        .where((r) {
+          if (_activeFilter != null && r.nivelUrgencia != _activeFilter) return false;
+          if (r.createdAt != null && now.difference(r.createdAt!).inDays > 3) return false;
+          return true;
+        })
+        .toList();
 
     return Scaffold(
       body: Stack(
@@ -351,7 +354,7 @@ class _MapScreenState extends ConsumerState<MapScreen>
             ),
           ],
         ),
-        child: Icon(reporte.tipo.mapIcon, size: size * 0.44, color: Colors.white),
+        child: Icon(reporte.tipo.getMapIcon(reporte.tipoRaw), size: size * 0.44, color: Colors.white),
       ),
     );
     if (reporte.nivelUrgencia == NivelUrgencia.critico) {
@@ -1576,9 +1579,9 @@ class _NotifTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: _color.withValues(alpha: 0.3)),
         ),
-        child: Icon(reporte.tipo.mapIcon, color: _color, size: 20),
+        child: Icon(reporte.tipo.getMapIcon(reporte.tipoRaw), color: _color, size: 20),
       ),
-      title: Text(reporte.tipo.label,
+      title: Text(reporte.tipo.localizedLabel(AppLocalizations.of(context)!, reporte.tipoRaw),
           style: TextStyle(
               color: cs.onSurface,
               fontWeight: FontWeight.w600,

@@ -6,6 +6,8 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'dart:convert';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../../../core/theme/app_colors.dart';
 import '../../../core/services/api_service.dart';
 import '../../../core/services/ai_service.dart';
@@ -13,6 +15,7 @@ import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/location_provider.dart';
 import '../../../core/providers/reports_provider.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../core/models/categoria_incidente.dart';
 
 class CrearReporteScreen extends ConsumerStatefulWidget {
   const CrearReporteScreen({super.key});
@@ -39,6 +42,11 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
   double? _lat;
   double? _lng;
 
+  // Categorías Dinámicas
+  List<CategoriaIncidente> _categorias = [];
+  bool _loadingCategorias = true;
+  final _otroController = TextEditingController();
+
   // IA
   Timer? _debounceTimer;
   bool _aiSuggesting = false;
@@ -46,10 +54,46 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
   String? _aiSuggestedUrgencia;
   String? _aiRazon;
 
+  // Speech To Text
+  final stt.SpeechToText _speech = stt.SpeechToText();
+  bool _isListening = false;
+
   @override
   void initState() {
     super.initState();
     _obtenerUbicacion();
+    _speech.initialize();
+    _cargarCategorias();
+  }
+
+  Future<void> _cargarCategorias() async {
+    try {
+      final cats = await ApiService().getCategorias();
+      if (mounted) {
+        setState(() {
+          _categorias = cats;
+          _tiposIncidente = _getTiposIncidente(context);
+          _loadingCategorias = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _categorias = [
+            const CategoriaIncidente(id: 1, nombre: 'Robo'),
+            const CategoriaIncidente(id: 2, nombre: 'Acoso'),
+            const CategoriaIncidente(id: 3, nombre: 'Pelea'),
+            const CategoriaIncidente(id: 4, nombre: 'Vandalismo'),
+            const CategoriaIncidente(id: 5, nombre: 'Accidente'),
+            const CategoriaIncidente(id: 6, nombre: 'Persona sospechosa'),
+            const CategoriaIncidente(id: 7, nombre: 'Iluminación'),
+            const CategoriaIncidente(id: 8, nombre: 'Otro'),
+          ];
+          _tiposIncidente = _getTiposIncidente(context);
+          _loadingCategorias = false;
+        });
+      }
+    }
   }
 
   @override
@@ -61,57 +105,36 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
   }
 
   List<Map<String, dynamic>> _getTiposIncidente(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return [
-      {
-        'code': 'Robo',
-        'label': l10n.incidentTheft,
-        'icon': Icons.phone_android_rounded,
-        'color': AppColors.riskHigh
-      },
-      {
-        'code': 'Acoso',
-        'label': l10n.incidentHarassment,
-        'icon': Icons.warning_rounded,
-        'color': AppColors.riskHigh
-      },
-      {
-        'code': 'Persona sospechosa',
-        'label': l10n.incidentSuspiciousPerson,
-        'icon': Icons.person_off_rounded,
-        'color': AppColors.riskMedium
-      },
-      {
-        'code': 'Iluminación',
-        'label': l10n.incidentLighting,
-        'icon': Icons.light_mode_rounded,
-        'color': AppColors.riskLow
-      },
-      {
-        'code': 'Pelea',
-        'label': l10n.incidentFight,
-        'icon': Icons.sports_mma_rounded,
-        'color': AppColors.riskCritical
-      },
-      {
-        'code': 'Vandalismo',
-        'label': l10n.incidentVandalism,
-        'icon': Icons.broken_image_rounded,
-        'color': AppColors.riskMedium
-      },
-      {
-        'code': 'Accidente',
-        'label': l10n.incidentAccident,
-        'icon': Icons.car_crash_rounded,
-        'color': AppColors.riskHigh
-      },
-      {
-        'code': 'Otro',
-        'label': l10n.incidentOther,
-        'icon': Icons.more_horiz_rounded,
-        'color': Theme.of(context).colorScheme.onSurfaceVariant
-      },
-    ];
+    if (_categorias.isEmpty) return [];
+
+    return _categorias.map((cat) {
+      return <String, dynamic>{
+        'code': cat.nombre,
+        'label': cat.nombre,
+        'icon': _getIconFor(cat.nombre),
+        'color': _getColorFor(cat.nombre),
+      };
+    }).toList();
+  }
+
+  IconData _getIconFor(String nombre) {
+    final n = nombre.toLowerCase();
+    if (n.contains('robo')) return Icons.phone_android_rounded;
+    if (n.contains('acoso')) return Icons.warning_rounded;
+    if (n.contains('persona')) return Icons.person_off_rounded;
+    if (n.contains('iluminacion') || n.contains('luz')) return Icons.light_mode_rounded;
+    if (n.contains('pelea')) return Icons.sports_mma_rounded;
+    if (n.contains('vandalismo')) return Icons.broken_image_rounded;
+    if (n.contains('accidente')) return Icons.car_crash_rounded;
+    if (n.contains('otro')) return Icons.more_horiz_rounded;
+    return Icons.report_problem_rounded;
+  }
+
+  Color _getColorFor(String nombre) {
+    final n = nombre.toLowerCase();
+    if (n.contains('robo') || n.contains('pelea') || n.contains('acoso')) return AppColors.riskHigh;
+    if (n.contains('accidente')) return AppColors.riskCritical;
+    return AppColors.riskMedium;
   }
 
   List<Map<String, dynamic>> _getNivelesUrgencia(BuildContext context) {
@@ -149,6 +172,7 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
     _debounceTimer?.cancel();
     _descripcionController.dispose();
     _testigosController.dispose();
+    _otroController.dispose();
     super.dispose();
   }
 
@@ -161,6 +185,24 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
     setState(() => _aiSuggesting = true);
     _debounceTimer = Timer(
         const Duration(milliseconds: 1600), () => _clasificarConIA(value));
+  }
+
+  void _toggleListening() async {
+    if (!_isListening) {
+      bool available = await _speech.initialize();
+      if (available) {
+        setState(() => _isListening = true);
+        _speech.listen(onResult: (val) {
+          setState(() {
+            _descripcionController.text = val.recognizedWords;
+            _onDescripcionChanged(val.recognizedWords);
+          });
+        });
+      }
+    } else {
+      setState(() => _isListening = false);
+      _speech.stop();
+    }
   }
 
   Future<void> _clasificarConIA(String descripcion) async {
@@ -202,8 +244,10 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
     // 3. Fresh GPS with timeout
     try {
       final pos = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.medium,
-        timeLimit: const Duration(seconds: 10),
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.medium,
+          timeLimit: Duration(seconds: 10),
+        ),
       );
       _lat = pos.latitude;
       _lng = pos.longitude;
@@ -246,7 +290,9 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
   Future<void> _seleccionarImagen(ImageSource source) async {
     final XFile? imagen = await _picker.pickImage(
       source: source,
-      imageQuality: 80,
+      imageQuality: 60,
+      maxWidth: 1024,
+      maxHeight: 1024,
     );
     if (imagen != null) {
       setState(() => _imagenSeleccionada = File(imagen.path));
@@ -397,14 +443,54 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
     setState(() => _isLoading = true);
 
     try {
+      String? fotoBase64;
+      if (_imagenSeleccionada != null) {
+        final bytes = await _imagenSeleccionada!.readAsBytes();
+        final encoded = base64Encode(bytes);
+        // Rechazar si supera ~1.5 MB en base64 (evita error 413 del servidor)
+        if (encoded.length > 1500000) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('La imagen es demasiado grande. Usa una foto más pequeña.'),
+              backgroundColor: AppColors.riskMedium,
+            ),
+          );
+          setState(() => _isLoading = false);
+          return;
+        }
+        fotoBase64 = 'data:image/jpeg;base64,$encoded';
+      }
+
       final userId = ref.read(authProvider).usuario?.id ?? '';
+      
+      String tipoFinal = _tipoSeleccionado!;
+      if (tipoFinal == 'Otro') {
+        tipoFinal = _otroController.text.trim();
+        if (tipoFinal.isEmpty) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Por favor ingresa el nombre del nuevo tipo de incidente')),
+          );
+          setState(() => _isLoading = false);
+          return;
+        }
+        // Verificar si existe o crearla
+        final existe = _categorias.any((CategoriaIncidente c) => c.nombre.toLowerCase() == tipoFinal.toLowerCase());
+        if (!existe) {
+          await ApiService().crearCategoria(tipoFinal);
+        }
+      }
+
       await ApiService().crearReporte(
-        tipo: _tipoSeleccionado!,
+        tipo: tipoFinal,
         descripcion: _descripcionController.text.trim(),
         nivelUrgencia: _nivelUrgencia,
         lat: _lat!,
         lng: _lng!,
         userId: userId,
+        fotoUrl: fotoBase64,
+        testigos: int.tryParse(_testigosController.text) ?? 0,
       );
 
       await ref.read(reportsProvider.notifier).fetchNearbyReports(_lat!, _lng!);
@@ -487,7 +573,31 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
                                 .incidentTypeSectionTitle,
                             AppLocalizations.of(context)!
                                 .incidentTypeSectionSub,
-                            _buildTiposGrid(),
+                            Column(
+                              children: [
+                                if (_loadingCategorias)
+                                  const Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.all(20),
+                                      child: CircularProgressIndicator(color: AppColors.accent),
+                                    ),
+                                  )
+                                else
+                                  _buildTiposGrid(),
+                                if (_tipoSeleccionado == 'Otro') ...[
+                                  const SizedBox(height: 12),
+                                  TextFormField(
+                                    controller: _otroController,
+                                    decoration: InputDecoration(
+                                      hintText: '¿Cuál es el nuevo tipo?',
+                                      filled: true,
+                                      fillColor: Theme.of(context).cardColor,
+                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
                           ),
                           const SizedBox(height: 20),
                           _buildSeccion(
@@ -874,6 +984,13 @@ class _CrearReporteScreenState extends ConsumerState<CrearReporteScreen> {
           decoration: InputDecoration(
             hintText: l10n.incidentExampleHint,
             hintStyle: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
+            suffixIcon: IconButton(
+              icon: Icon(
+                _isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
+                color: _isListening ? AppColors.riskHigh : cs.onSurfaceVariant,
+              ),
+              onPressed: _toggleListening,
+            ),
             filled: true,
             fillColor: Theme.of(context).cardColor,
             border: OutlineInputBorder(

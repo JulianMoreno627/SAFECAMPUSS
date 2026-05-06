@@ -4,6 +4,7 @@ class Usuario {
   final String apellido;
   final String email;
   final String? telefono;
+  final String? fotoUrl;
   final DateTime? createdAt;
 
   const Usuario({
@@ -12,6 +13,7 @@ class Usuario {
     required this.apellido,
     required this.email,
     this.telefono,
+    this.fotoUrl,
     this.createdAt,
   });
 
@@ -22,6 +24,7 @@ class Usuario {
       apellido: map['apellido']?.toString() ?? '',
       email: map['email']?.toString() ?? '',
       telefono: map['telefono']?.toString(),
+      fotoUrl: map['foto_url']?.toString(),
       createdAt: map['created_at'] != null
           ? DateTime.tryParse(map['created_at'].toString())
           : null,
@@ -34,6 +37,7 @@ class Usuario {
         'apellido': apellido,
         'email': email,
         if (telefono != null) 'telefono': telefono,
+        if (fotoUrl != null) 'foto_url': fotoUrl,
         if (createdAt != null) 'created_at': createdAt!.toIso8601String(),
       };
 
@@ -50,6 +54,7 @@ class Usuario {
     String? apellido,
     String? email,
     String? telefono,
+    String? fotoUrl,
   }) {
     return Usuario(
       id: id,
@@ -57,6 +62,7 @@ class Usuario {
       apellido: apellido ?? this.apellido,
       email: email ?? this.email,
       telefono: telefono ?? this.telefono,
+      fotoUrl: fotoUrl ?? this.fotoUrl,
       createdAt: createdAt,
     );
   }

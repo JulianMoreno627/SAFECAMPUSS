@@ -1,15 +1,15 @@
-import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/models/usuario.dart';
 import '../../../core/providers/theme_provider.dart';
 import '../../../core/providers/locale_provider.dart';
+import '../../../core/services/api_service.dart';
 import '../../../l10n/app_localizations.dart';
 
 class PerfilScreen extends ConsumerStatefulWidget {
@@ -20,26 +20,37 @@ class PerfilScreen extends ConsumerStatefulWidget {
 }
 
 class _PerfilScreenState extends ConsumerState<PerfilScreen> {
-  String? _photoPath;
+  int _totalReportes = 0;
+  bool _loadingStats = false;
   final _picker = ImagePicker();
-
-  static const _photoKey = 'profile_photo_path';
 
   @override
   void initState() {
     super.initState();
-    _loadPhoto();
+    _fetchStats();
   }
 
-  void _loadPhoto() {
-    final path = Hive.box('settings').get(_photoKey) as String?;
-    if (path != null && File(path).existsSync()) {
-      setState(() => _photoPath = path);
+  Future<void> _fetchStats() async {
+    final userId = ref.read(authProvider).usuario?.id;
+    if (userId == null) return;
+    
+    setState(() => _loadingStats = true);
+    try {
+      final reports = await ApiService().getReportesDelUsuario(userId);
+      if (mounted) {
+        setState(() {
+          _totalReportes = reports.length;
+          _loadingStats = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _loadingStats = false);
     }
   }
 
   Future<void> _pickPhoto() async {
     final l10n = AppLocalizations.of(context)!;
+    final user = ref.read(authProvider).usuario;
     showModalBottomSheet(
       context: context,
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -76,7 +87,7 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
                   child: _photoOption(ctx, Icons.photo_library_rounded,
                       l10n.gallery, ImageSource.gallery)),
             ]),
-            if (_photoPath != null) ...[
+            if (user?.fotoUrl != null && user!.fotoUrl!.isNotEmpty) ...[
               const SizedBox(height: 12),
               TextButton.icon(
                 onPressed: () {
@@ -100,10 +111,9 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
     return GestureDetector(
       onTap: () async {
         Navigator.pop(ctx);
-        final file = await _picker.pickImage(source: source, imageQuality: 85);
+        final file = await _picker.pickImage(source: source, imageQuality: 70, maxWidth: 400);
         if (file != null) {
-          await Hive.box('settings').put(_photoKey, file.path);
-          if (mounted) setState(() => _photoPath = file.path);
+          _uploadPhoto(file);
         }
       },
       child: Container(
@@ -124,9 +134,39 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
     );
   }
 
-  void _removePhoto() {
-    Hive.box('settings').delete(_photoKey);
-    setState(() => _photoPath = null);
+  Future<void> _uploadPhoto(XFile file) async {
+    final user = ref.read(authProvider).usuario;
+    if (user == null) return;
+
+    try {
+      final bytes = await file.readAsBytes();
+      final base64Image = 'data:image/jpeg;base64,${base64Encode(bytes)}';
+      
+      final updatedUser = await ApiService().actualizarFotoPerfil(user.id, base64Image);
+      await ref.read(authProvider.notifier).updateUser(updatedUser);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Foto de perfil actualizada')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.riskHigh),
+        );
+      }
+    }
+  }
+
+  void _removePhoto() async {
+    final user = ref.read(authProvider).usuario;
+    if (user == null) return;
+    
+    try {
+      final updatedUser = await ApiService().actualizarFotoPerfil(user.id, '');
+      await ref.read(authProvider.notifier).updateUser(updatedUser);
+    } catch (_) {}
   }
 
   @override
@@ -175,7 +215,7 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
                   height: 90,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: _photoPath == null
+                    gradient: (user?.fotoUrl == null || user!.fotoUrl!.isEmpty)
                         ? const LinearGradient(
                             colors: [AppColors.primary, AppColors.accent],
                             begin: Alignment.topLeft,
@@ -190,10 +230,10 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
                       ),
                     ],
                   ),
-                  child: _photoPath != null
+                  child: (user?.fotoUrl != null && user!.fotoUrl!.isNotEmpty)
                       ? ClipOval(
-                          child: Image.file(
-                            File(_photoPath!),
+                          child: Image.memory(
+                            base64Decode(user.fotoUrl!.split(',').last),
                             width: 90,
                             height: 90,
                             fit: BoxFit.cover,
@@ -265,7 +305,7 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
     return FadeInUp(
       child: Row(
         children: [
-          _StatItem(value: '0', label: l10n.statsReports),
+          _StatItem(value: _loadingStats ? '...' : '$_totalReportes', label: l10n.statsReports),
           _divider(context),
           _StatItem(value: '0', label: l10n.statsAlerts),
           _divider(context),
@@ -358,6 +398,11 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
             icon: Icons.help_outline_rounded,
             label: l10n.safetyGuide,
             onTap: () => context.push('/perfil/guia-seguridad'),
+          ),
+          _OptionTile(
+            icon: Icons.info_outline_rounded,
+            label: l10n.aboutApp,
+            onTap: () {},
           ),
           _OptionTile(
             icon: Icons.info_outline_rounded,

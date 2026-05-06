@@ -4,6 +4,7 @@ import 'package:animate_do/animate_do.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/models/reporte.dart';
 import '../../../core/services/ai_service.dart';
+import '../../../l10n/app_localizations.dart';
 
 class DetalleZonaScreen extends ConsumerStatefulWidget {
   final List<Reporte> reportes;
@@ -170,13 +171,13 @@ class _DetalleZonaScreenState extends ConsumerState<DetalleZonaScreen> {
             ),
             child: Row(
               children: [
-                Icon(r.tipo.mapIcon, color: AppColors.accent, size: 20),
+                Icon(r.tipo.getMapIcon(r.tipoRaw), color: AppColors.accent, size: 20),
                 const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(r.tipo.label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+                      Text(r.tipo.localizedLabel(AppLocalizations.of(context)!, r.tipoRaw), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
                       const SizedBox(height: 4),
                       Text(r.descripcion.isEmpty ? 'Sin descripción' : r.descripcion, style: const TextStyle(color: Colors.white54, fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
                     ],

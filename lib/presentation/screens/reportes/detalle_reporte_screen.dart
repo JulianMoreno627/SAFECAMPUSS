@@ -1,6 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shimmer/shimmer.dart';
@@ -39,7 +39,7 @@ class _DetalleReporteScreenState extends State<DetalleReporteScreen> {
     ];
 
     final msg =
-        'Incidente de tipo ${widget.reporte.tipo.label} (${widget.reporte.nivelUrgencia.label}). Descripción: ${widget.reporte.descripcion}';
+        'Incidente de tipo ${widget.reporte.tipo.localizedLabel(AppLocalizations.of(context)!, widget.reporte.tipoRaw)} (${widget.reporte.nivelUrgencia.label}). Descripción: ${widget.reporte.descripcion}';
 
     try {
       final analysis = await aiService.sendChatMessage(history, msg);
@@ -94,15 +94,22 @@ class _DetalleReporteScreenState extends State<DetalleReporteScreen> {
                 ),
               ),
               background: r.fotoUrl != null && r.fotoUrl!.isNotEmpty
-                  ? CachedNetworkImage(
-                      imageUrl: r.fotoUrl!,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(color: cs.surfaceContainerHighest),
-                      errorWidget: (context, url, error) => Container(
-                        color: cs.surfaceContainerHighest,
-                        child: Icon(Icons.broken_image, color: cs.onSurfaceVariant),
-                      ),
-                    )
+                  ? Builder(builder: (_) {
+                      try {
+                        final bytes = base64Decode(r.fotoUrl!.split(',').last);
+                        return Image.memory(bytes, fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            color: cs.surfaceContainerHighest,
+                            child: Icon(Icons.broken_image, color: cs.onSurfaceVariant),
+                          ),
+                        );
+                      } catch (_) {
+                        return Container(
+                          color: cs.surfaceContainerHighest,
+                          child: Icon(Icons.broken_image, color: cs.onSurfaceVariant),
+                        );
+                      }
+                    })
                   : Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -129,7 +136,7 @@ class _DetalleReporteScreenState extends State<DetalleReporteScreen> {
                             color: color.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Icon(r.tipo.icon, color: color, size: 28),
+                          child: Icon(r.tipo.getIcon(r.tipoRaw), color: color, size: 28),
                         ),
                         const SizedBox(width: 16),
                         Expanded(
@@ -137,7 +144,7 @@ class _DetalleReporteScreenState extends State<DetalleReporteScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                r.tipo.localizedLabel(l10n),
+                                r.tipo.localizedLabel(l10n, r.tipoRaw),
                                 style: TextStyle(
                                   color: cs.onSurface,
                                   fontSize: 22,

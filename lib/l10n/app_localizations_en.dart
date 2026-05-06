@@ -39,6 +39,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createReport => 'Create Report';
 
   @override
+  String get anonymousUser => 'Anonymous';
+
+  @override
   String get mapTitle => 'Safety Map';
 
   @override

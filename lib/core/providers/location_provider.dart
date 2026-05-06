@@ -44,7 +44,7 @@ class LocationNotifier extends StateNotifier<LocationState> {
     const androidParams = AndroidInitializationSettings('@mipmap/ic_launcher');
     const darwinParams = DarwinInitializationSettings();
     const initSettings = InitializationSettings(android: androidParams, iOS: darwinParams);
-    await _notificationsPlugin.initialize(initSettings);
+    await _notificationsPlugin.initialize(settings: initSettings);
     _notifInitialized = true;
   }
 
@@ -95,8 +95,10 @@ class LocationNotifier extends StateNotifier<LocationState> {
     // Request accurate position with timeout
     try {
       final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.medium,
-        timeLimit: const Duration(seconds: 15),
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.medium,
+          timeLimit: Duration(seconds: 15),
+        ),
       );
       state = state.copyWith(
         currentPosition: LatLng(position.latitude, position.longitude),
@@ -153,10 +155,10 @@ class LocationNotifier extends StateNotifier<LocationState> {
     );
     const details = NotificationDetails(android: androidDetails);
     await _notificationsPlugin.show(
-      DateTime.now().millisecond,
-      '⚠️ ZONA DE ALERTA CERCANA',
-      'Estás a ${r.tipo.label} a menos de 150m. Mantente alerta.',
-      details,
+      id: DateTime.now().millisecond,
+      title: '⚠️ ZONA DE ALERTA CERCANA',
+      body: 'Estás a ${r.tipo.label} a menos de 150m. Mantente alerta.',
+      notificationDetails: details,
     );
   }
 }

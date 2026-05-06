@@ -9,6 +9,7 @@
   "noAccount": "Don't have an account?",
   "alreadyHaveAccount": "Already have an account?",
   "createReport": "Create Report",
+  "anonymousUser": "Anonymous",
   "mapTitle": "Safety Map",
   "riskLevel": "Risk Level",
   "lowRisk": "Low",

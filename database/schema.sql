@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS profiles (
     password TEXT NOT NULL, -- Nueva columna para autenticación propia
     nombre TEXT,
     apellido TEXT,
+    foto_url TEXT, -- Base64 o URL de la foto de perfil
     telefono TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -23,7 +24,9 @@ CREATE TABLE IF NOT EXISTS reportes (
     -- Campo geoespacial: Punto (longitud, latitud) en SRID 4326 (WGS 84)
     ubicacion GEOMETRY(Point, 4326), 
     foto_url TEXT,
-    testigos TEXT,
+    testigos INTEGER DEFAULT 0,
+    votos_positivos INTEGER DEFAULT 0,
+    votos_negativos INTEGER DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

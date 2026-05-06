@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
@@ -6,6 +7,8 @@ import '../../../core/providers/reports_provider.dart';
 import '../../../core/providers/location_provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/models/reporte.dart';
+import '../../../core/models/categoria_incidente.dart';
+import '../../../core/services/api_service.dart';
 import '../../widgets/reporte_detalle_sheet.dart';
 
 class ListaReportesScreen extends ConsumerStatefulWidget {
@@ -20,6 +23,35 @@ class _ListaReportesScreenState extends ConsumerState<ListaReportesScreen> {
   final _searchController = TextEditingController();
   String _searchQuery = '';
   String _selectedKey = '';
+  List<CategoriaIncidente> _dynamicCats = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCats();
+  }
+
+  Future<void> _loadCats() async {
+    try {
+      final cats = await ApiService().getCategorias();
+      if (mounted) setState(() => _dynamicCats = cats);
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _dynamicCats = [
+            const CategoriaIncidente(id: 1, nombre: 'Robo'),
+            const CategoriaIncidente(id: 2, nombre: 'Acoso'),
+            const CategoriaIncidente(id: 3, nombre: 'Pelea'),
+            const CategoriaIncidente(id: 4, nombre: 'Vandalismo'),
+            const CategoriaIncidente(id: 5, nombre: 'Accidente'),
+            const CategoriaIncidente(id: 6, nombre: 'Persona sospechosa'),
+            const CategoriaIncidente(id: 7, nombre: 'Iluminación'),
+            const CategoriaIncidente(id: 8, nombre: 'Otro'),
+          ];
+        });
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -27,26 +59,21 @@ class _ListaReportesScreenState extends ConsumerState<ListaReportesScreen> {
     super.dispose();
   }
 
-  List<(String, String)> _tipos(AppLocalizations l10n) => [
-        ('', l10n.filterAll),
-        ('robo', l10n.filterTheft),
-        ('acoso', l10n.filterHarassment),
-        ('pelea', l10n.filterFight),
-        ('vandalismo', l10n.filterVandalism),
-        ('accidente', l10n.filterAccident),
-        ('persona_sospechosa', l10n.filterSuspicious),
-        ('iluminacion', l10n.filterLighting),
-        ('otro', l10n.filterOther),
-      ];
+  List<(String, String)> _tipos(AppLocalizations l10n) {
+    final list = [('', l10n.filterAll)];
+    for (var cat in _dynamicCats) {
+      list.add((cat.nombre, cat.nombre));
+    }
+    return list;
+  }
 
   List<Reporte> _filtered(List<Reporte> all, AppLocalizations l10n) {
     return all.where((r) {
-      final tipoKey = r.tipo.key;
-      final tipoLabel = r.tipo.localizedLabel(l10n).toLowerCase();
+      final tipoLabel = r.tipo.localizedLabel(l10n, r.tipoRaw).toLowerCase();
       final desc = r.descripcion.toLowerCase();
       final query = _searchQuery.toLowerCase();
 
-      final matchesTipo = _selectedKey.isEmpty || tipoKey == _selectedKey;
+      final matchesTipo = _selectedKey.isEmpty || r.tipoRaw == _selectedKey;
       final matchesSearch =
           query.isEmpty || tipoLabel.contains(query) || desc.contains(query);
 
@@ -183,16 +210,16 @@ class _ListaReportesScreenState extends ConsumerState<ListaReportesScreen> {
   }
 
   Widget _buildFilterChips(ColorScheme cs, AppLocalizations l10n) {
-    final tipos = _tipos(l10n);
+    final types = _tipos(l10n);
     return SizedBox(
       height: 44,
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
         scrollDirection: Axis.horizontal,
-        itemCount: tipos.length,
+        itemCount: types.length,
         separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (_, i) {
-          final (key, label) = tipos[i];
+          final (key, label) = types[i];
           final selected = key == _selectedKey;
           return GestureDetector(
             onTap: () => setState(() => _selectedKey = key),
@@ -354,7 +381,7 @@ class _ReportCard extends StatelessWidget {
                 color: color.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: Icon(reporte.tipo.mapIcon, color: color, size: 24),
+              child: Icon(reporte.tipo.getIcon(reporte.tipoRaw), color: color, size: 24),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -365,7 +392,7 @@ class _ReportCard extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          reporte.tipo.localizedLabel(l10n),
+                          reporte.tipo.localizedLabel(l10n, reporte.tipoRaw),
                           style: TextStyle(
                             color: cs.onSurface,
                             fontWeight: FontWeight.w600,
@@ -374,10 +401,10 @@ class _ReportCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        reporte.localizedTiempoTranscurrido(l10n),
+                        reporte.localizedFechaHora(l10n),
                         style: TextStyle(
                             color: cs.onSurface.withValues(alpha: 0.38),
-                            fontSize: 11),
+                            fontSize: 10),
                       ),
                     ],
                   ),
@@ -424,11 +451,38 @@ class _ReportCard extends StatelessWidget {
                               fontSize: 11),
                         ),
                       ],
+                      const Spacer(),
+                      if (reporte.userName != null)
+                        Text(
+                          l10n.anonymousUser,
+                          style: TextStyle(
+                            color: cs.onSurface.withValues(alpha: 0.45),
+                            fontSize: 11,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
                     ],
                   ),
                 ],
               ),
             ),
+            if (reporte.fotoUrl != null && reporte.fotoUrl!.isNotEmpty)
+              Builder(builder: (_) {
+                try {
+                  final bytes = base64Decode(reporte.fotoUrl!.split(',').last);
+                  return Row(mainAxisSize: MainAxisSize.min, children: [
+                    const SizedBox(width: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.memory(bytes, width: 56, height: 56,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const SizedBox.shrink()),
+                    ),
+                  ]);
+                } catch (_) {
+                  return const SizedBox.shrink();
+                }
+              }),
             const SizedBox(width: 8),
             Icon(Icons.chevron_right_rounded,
                 color: cs.onSurface.withValues(alpha: 0.24), size: 20),
