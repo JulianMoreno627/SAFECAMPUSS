@@ -1,11 +1,11 @@
 {
-    "name": "safecampus_ai",
-    "short_name": "safecampus_ai",
+    "name": "SafeCampus AI",
+    "short_name": "SafeCampus",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#1A237E",
+    "theme_color": "#1A237E",
+    "description": "SafeCampus AI - Tu seguridad, nuestra prioridad",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

@@ -48,23 +48,20 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 FadeInDown(
                   duration: const Duration(milliseconds: 800),
                   child: Container(
-                    width: 100,
-                    height: 100,
+                    width: 120,
+                    height: 120,
                     decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.accent.withValues(alpha: 0.4),
-                          blurRadius: 30,
-                          spreadRadius: 5,
-                        )
+                          color: AppColors.accent.withValues(alpha: 0.35),
+                          blurRadius: 40,
+                          spreadRadius: 8,
+                        ),
                       ],
                     ),
-                    child: const Icon(
-                      Icons.shield_rounded,
-                      size: 60,
-                      color: Colors.white,
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      fit: BoxFit.contain,
                     ),
                   ),
                 ),

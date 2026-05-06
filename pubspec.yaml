@@ -71,12 +71,30 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   hive_generator: ^2.0.1
   build_runner: ^2.4.9
+  flutter_launcher_icons: ^0.14.1  
 
 flutter:
-  generate: true # Habilitar generación de código para intl
+  generate: true 
   uses-material-design: true
   assets:
     - assets/images/
     - assets/icons/
     - assets/animations/
     - .env
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  image_path: "assets/images/app_icon.png"
+  min_sdk_android: 21
+  adaptive_icon_background: "#1A237E"
+  adaptive_icon_foreground: "assets/images/app_icon_foreground.png"
+  web:
+    generate: true
+    image_path: "assets/images/app_icon.png"
+    background_color: "#1A237E"
+    theme_color: "#1A237E"
+  windows:
+    generate: true
+    image_path: "assets/images/app_icon.png"
