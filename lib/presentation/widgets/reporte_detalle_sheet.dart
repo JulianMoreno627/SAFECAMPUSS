@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/models/reporte.dart';
+import '../../core/providers/auth_provider.dart';
+import '../../core/services/api_service.dart';
 import '../../l10n/app_localizations.dart';
 
-class ReporteDetalleSheet extends StatelessWidget {
+class ReporteDetalleSheet extends ConsumerWidget {
   final Reporte reporte;
 
   const ReporteDetalleSheet({super.key, required this.reporte});
@@ -33,10 +36,13 @@ class ReporteDetalleSheet extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final color = _riskColor;
     final cs = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context)!;
+    final user = ref.watch(authProvider).usuario;
+
+    final canManage = user != null && (user.isAdmin || (reporte.userId != null && user.id == reporte.userId));
 
     return DraggableScrollableSheet(
       initialChildSize: 0.52,
@@ -334,6 +340,69 @@ class ReporteDetalleSheet extends StatelessWidget {
                   ),
                 ],
               ),
+
+              if (canManage) ...[
+                const SizedBox(height: 32),
+                _Section(
+                  title: 'ADMINISTRACIÓN DEL REPORTE',
+                  child: Column(
+                    children: [
+                      _ActionButton(
+                        icon: Icons.edit_rounded,
+                        label: 'Editar Información',
+                        color: AppColors.primary,
+                        onTap: () {
+                          // TODO: Implementar pantalla de edición o diálogo
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Función de edición próximamente'))
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      _ActionButton(
+                        icon: Icons.delete_forever_rounded,
+                        label: 'Eliminar Reporte',
+                        color: AppColors.riskHigh,
+                        onTap: () async {
+                          final confirmar = await showDialog<bool>(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              backgroundColor: cs.surface,
+                              title: const Text('¿Eliminar reporte?', style: TextStyle(color: Colors.white)),
+                              content: const Text('Esta acción no se puede deshacer.', style: TextStyle(color: Colors.white70)),
+                              actions: [
+                                TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancelar')),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(ctx, true),
+                                  child: const Text('Eliminar', style: TextStyle(color: AppColors.riskHigh)),
+                                ),
+                              ],
+                            ),
+                          );
+
+                          if (confirmar == true) {
+                            try {
+                              await ApiService().eliminarReporte(reporte.id, user.id);
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Reporte eliminado correctamente'))
+                                );
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Error: $e'))
+                                );
+                              }
+                            }
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
                   ],
                 ),
               ),

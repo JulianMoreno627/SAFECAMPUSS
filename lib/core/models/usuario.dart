@@ -5,6 +5,7 @@ class Usuario {
   final String email;
   final String? telefono;
   final String? fotoUrl;
+  final String role;
   final DateTime? createdAt;
 
   const Usuario({
@@ -14,6 +15,7 @@ class Usuario {
     required this.email,
     this.telefono,
     this.fotoUrl,
+    this.role = 'user',
     this.createdAt,
   });
 
@@ -25,6 +27,7 @@ class Usuario {
       email: map['email']?.toString() ?? '',
       telefono: map['telefono']?.toString(),
       fotoUrl: map['foto_url']?.toString(),
+      role: map['role']?.toString() ?? 'user',
       createdAt: map['created_at'] != null
           ? DateTime.tryParse(map['created_at'].toString())
           : null,
@@ -36,10 +39,13 @@ class Usuario {
         'nombre': nombre,
         'apellido': apellido,
         'email': email,
+        'role': role,
         if (telefono != null) 'telefono': telefono,
         if (fotoUrl != null) 'foto_url': fotoUrl,
         if (createdAt != null) 'created_at': createdAt!.toIso8601String(),
       };
+
+  bool get isAdmin => role == 'admin';
 
   String get nombreCompleto => '$nombre $apellido'.trim();
 
@@ -55,6 +61,7 @@ class Usuario {
     String? email,
     String? telefono,
     String? fotoUrl,
+    String? role,
   }) {
     return Usuario(
       id: id,
@@ -63,6 +70,7 @@ class Usuario {
       email: email ?? this.email,
       telefono: telefono ?? this.telefono,
       fotoUrl: fotoUrl ?? this.fotoUrl,
+      role: role ?? this.role,
       createdAt: createdAt,
     );
   }

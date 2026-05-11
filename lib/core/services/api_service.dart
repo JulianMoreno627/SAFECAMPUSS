@@ -294,6 +294,52 @@ class ApiService {
         data['detail'] ?? data['error'] ?? 'Error al crear el reporte (${response.statusCode})');
   }
 
+  Future<Reporte> actualizarReporte({
+    required String id,
+    required String tipo,
+    required String descripcion,
+    required String nivelUrgencia,
+    required String userId,
+    int testigos = 0,
+    String? fotoUrl,
+  }) async {
+    final response = await http
+        .put(
+          Uri.parse('$baseUrl/reportes/$id'),
+          headers: _headers,
+          body: jsonEncode({
+            'tipo': tipo,
+            'descripcion': descripcion,
+            'nivel_urgencia': nivelUrgencia,
+            'user_id': userId,
+            'testigos': testigos,
+            if (fotoUrl != null) 'foto_url': fotoUrl,
+          }),
+        )
+        .timeout(_timeout);
+    if (response.statusCode == 200) {
+      return Reporte.fromMap(_decodeJson(response) as Map<String, dynamic>);
+    }
+    final data = _decodeJson(response) as Map<String, dynamic>;
+    throw Exception(
+        data['detail'] ?? data['error'] ?? 'Error al actualizar el reporte (${response.statusCode})');
+  }
+
+  Future<void> eliminarReporte(String id, String userId) async {
+    final response = await http
+        .delete(
+          Uri.parse('$baseUrl/reportes/$id'),
+          headers: _headers,
+          body: jsonEncode({'user_id': userId}),
+        )
+        .timeout(_timeout);
+    if (response.statusCode != 200) {
+      final data = _decodeJson(response) as Map<String, dynamic>;
+      throw Exception(
+          data['detail'] ?? data['error'] ?? 'Error al eliminar el reporte (${response.statusCode})');
+    }
+  }
+
   // ── Notificaciones ────────────────────────────────────────────────────────
 
   Future<List<Map<String, dynamic>>> getNotificaciones(String userId) async {

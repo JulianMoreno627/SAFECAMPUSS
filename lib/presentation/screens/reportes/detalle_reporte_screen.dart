@@ -1,6 +1,6 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:shimmer/shimmer.dart';
@@ -39,7 +39,7 @@ class _DetalleReporteScreenState extends State<DetalleReporteScreen> {
     ];
 
     final msg =
-        'Incidente de tipo ${widget.reporte.tipo.localizedLabel(AppLocalizations.of(context)!, widget.reporte.tipoRaw)} (${widget.reporte.nivelUrgencia.label}). Descripción: ${widget.reporte.descripcion}';
+        'Incidente de tipo ${widget.reporte.tipo.label} (${widget.reporte.nivelUrgencia.label}). Descripción: ${widget.reporte.descripcion}';
 
     try {
       final analysis = await aiService.sendChatMessage(history, msg);
@@ -94,22 +94,15 @@ class _DetalleReporteScreenState extends State<DetalleReporteScreen> {
                 ),
               ),
               background: r.fotoUrl != null && r.fotoUrl!.isNotEmpty
-                  ? Builder(builder: (_) {
-                      try {
-                        final bytes = base64Decode(r.fotoUrl!.split(',').last);
-                        return Image.memory(bytes, fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
-                            color: cs.surfaceContainerHighest,
-                            child: Icon(Icons.broken_image, color: cs.onSurfaceVariant),
-                          ),
-                        );
-                      } catch (_) {
-                        return Container(
-                          color: cs.surfaceContainerHighest,
-                          child: Icon(Icons.broken_image, color: cs.onSurfaceVariant),
-                        );
-                      }
-                    })
+                  ? CachedNetworkImage(
+                      imageUrl: r.fotoUrl!,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(color: cs.surfaceContainerHighest),
+                      errorWidget: (context, url, error) => Container(
+                        color: cs.surfaceContainerHighest,
+                        child: Icon(Icons.broken_image, color: cs.onSurfaceVariant),
+                      ),
+                    )
                   : Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -207,13 +200,13 @@ class _DetalleReporteScreenState extends State<DetalleReporteScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
+                          const Row(
                             children: [
-                              const Icon(Icons.psychology_rounded, color: AppColors.accent),
-                              const SizedBox(width: 8),
+                              Icon(Icons.psychology_rounded, color: AppColors.accent),
+                              SizedBox(width: 8),
                               Text(
                                 'Análisis SafeBot',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: AppColors.accent,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
