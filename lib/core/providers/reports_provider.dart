@@ -85,7 +85,39 @@ class ReportsNotifier extends StateNotifier<ReportsState> {
           );
         }
       } catch (e) {
-        // Error parsing the realtime report
+        // Error parsing
+      }
+    });
+
+    socketService.reporteActualizadoStream.listen((data) {
+      try {
+        final reporteEditado = Reporte.fromMap(data);
+        final actualizados = state.reportesCercanos.map((r) {
+          return r.id == reporteEditado.id ? reporteEditado : r;
+        }).toList();
+        
+        final pos = ref.read(locationProvider).currentPosition;
+        state = state.copyWith(
+          reportesCercanos: actualizados,
+          nivelRiesgo: _calcularNivelRiesgo(actualizados, pos),
+        );
+      } catch (e) {
+        // Error parsing
+      }
+    });
+
+    socketService.reporteEliminadoStream.listen((data) {
+      try {
+        final idEliminado = data['id'];
+        final actualizados = state.reportesCercanos.where((r) => r.id != idEliminado).toList();
+        
+        final pos = ref.read(locationProvider).currentPosition;
+        state = state.copyWith(
+          reportesCercanos: actualizados,
+          nivelRiesgo: _calcularNivelRiesgo(actualizados, pos),
+        );
+      } catch (e) {
+        // Error parsing
       }
     });
   }

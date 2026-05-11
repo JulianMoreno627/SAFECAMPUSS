@@ -26,7 +26,28 @@ const pool = new Pool({
 
 // Inicialización de columnas faltantes para nuevas funciones (Migración automática)
 (async () => {
+  const client = await pool.connect();
   try {
+    // Escuchar notificaciones de la base de datos
+    await client.query('LISTEN db_changes');
+    client.on('notification', (msg) => {
+      const payload = JSON.parse(msg.payload);
+      // Emitir el cambio a todos los sockets conectados
+      // El evento será por ejemplo: 'reportes_updated' o 'categorias_incidente_deleted'
+      const eventName = `${payload.table}_${payload.action.toLowerCase()}`;
+      io.emit(eventName, payload.data || payload.old);
+      
+      // También emitir eventos genéricos para mayor facilidad en el frontend
+      if (payload.table === 'reportes') {
+        if (payload.action === 'INSERT') io.emit('nuevo_reporte', payload.data);
+        if (payload.action === 'UPDATE') io.emit('reporte_actualizado', payload.data);
+        if (payload.action === 'DELETE') io.emit('reporte_eliminado', payload.old);
+      }
+      if (payload.table === 'categorias_incidente') {
+        io.emit('categorias_cambiadas');
+      }
+    });
+
     await pool.query('ALTER TABLE profiles ADD COLUMN IF NOT EXISTS foto_url TEXT');
     await pool.query('ALTER TABLE reportes ADD COLUMN IF NOT EXISTS foto_url TEXT');
     await pool.query('ALTER TABLE reportes ADD COLUMN IF NOT EXISTS testigos INTEGER DEFAULT 0');
@@ -53,10 +74,49 @@ const pool = new Pool({
       )
     `);
 
-    // Poblar categorías iniciales
-    const cats = ['Robo', 'Acoso', 'Pelea', 'Vandalismo', 'Accidente', 'Persona sospechosa', 'Iluminación', 'Otro'];
-    for (const cat of cats) {
-      await pool.query('INSERT INTO categorias_incidente (nombre) VALUES ($1) ON CONFLICT DO NOTHING', [cat]);
+    // --- SISTEMA DE NOTIFICACIONES EN TIEMPO REAL (DB -> SOCKET) ---
+    
+    // 1. Función genérica de notificación
+    await pool.query(`
+      CREATE OR REPLACE FUNCTION notify_db_change() RETURNS trigger AS $$
+      DECLARE
+        payload JSON;
+      BEGIN
+        IF (TG_OP = 'DELETE') THEN
+          payload = json_build_object('table', TG_TABLE_NAME, 'action', TG_OP, 'old', row_to_json(OLD));
+        ELSE
+          payload = json_build_object('table', TG_TABLE_NAME, 'action', TG_OP, 'data', row_to_json(NEW));
+        END IF;
+        PERFORM pg_notify('db_changes', payload::text);
+        RETURN NULL;
+      END;
+      $$ LANGUAGE plpgsql;
+    `);
+
+    // 2. Triggers para reportes
+    await pool.query(`
+      DROP TRIGGER IF EXISTS trg_reportes_changes ON reportes;
+      CREATE TRIGGER trg_reportes_changes
+      AFTER INSERT OR UPDATE OR DELETE ON reportes
+      FOR EACH ROW EXECUTE FUNCTION notify_db_change();
+    `);
+
+    // 3. Triggers para categorías
+    await pool.query(`
+      DROP TRIGGER IF EXISTS trg_categorias_changes ON categorias_incidente;
+      CREATE TRIGGER trg_categorias_changes
+      AFTER INSERT OR UPDATE OR DELETE ON categorias_incidente
+      FOR EACH ROW EXECUTE FUNCTION notify_db_change();
+    `);
+
+    // Poblar categorías iniciales solo si la tabla está vacía
+    const countRes = await pool.query('SELECT COUNT(*) FROM categorias_incidente');
+    if (parseInt(countRes.rows[0].count) === 0) {
+      const cats = ['Robo', 'Acoso', 'Pelea', 'Vandalismo', 'Accidente', 'Persona sospechosa', 'Iluminación', 'Otro'];
+      for (const cat of cats) {
+        await pool.query('INSERT INTO categorias_incidente (nombre) VALUES ($1)', [cat]);
+      }
+      console.log('Categorías iniciales creadas.');
     }
 
     console.log('Migración de DB completada.');
@@ -294,6 +354,34 @@ app.post('/api/categorias', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error al crear categoría' });
+  }
+});
+
+app.put('/api/categorias/:id', async (req, res) => {
+  const { id } = req.params;
+  const { nombre, icono, color } = req.body;
+  try {
+    const result = await pool.query(
+      'UPDATE categorias_incidente SET nombre = $1, icono = $2, color = $3 WHERE id = $4 RETURNING *',
+      [nombre, icono, color, id]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Categoría no encontrada' });
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al actualizar categoría' });
+  }
+});
+
+app.delete('/api/categorias/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query('DELETE FROM categorias_incidente WHERE id = $1 RETURNING *', [id]);
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Categoría no encontrada' });
+    res.json({ message: 'Categoría eliminada correctamente' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al eliminar categoría' });
   }
 });
 

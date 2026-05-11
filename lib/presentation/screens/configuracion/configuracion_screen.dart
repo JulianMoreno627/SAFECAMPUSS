@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../l10n/app_localizations.dart';
+import 'gestion_categorias_screen.dart';
 
 class ConfiguracionScreen extends StatefulWidget {
   const ConfiguracionScreen({super.key});
@@ -59,6 +60,11 @@ class _ConfiguracionScreenState extends State<ConfiguracionScreen> {
                     const SizedBox(height: 20),
                     FadeInUp(
                       delay: const Duration(milliseconds: 320),
+                      child: _buildSeccion('Administración', _adminItems()),
+                    ),
+                    const SizedBox(height: 20),
+                    FadeInUp(
+                      delay: const Duration(milliseconds: 400),
                       child: _buildSeccion(l10n.configInfoSection, _infoItems(l10n)),
                     ),
                   ],
@@ -292,6 +298,21 @@ class _ConfiguracionScreenState extends State<ConfiguracionScreen> {
           color: AppColors.riskLow,
           value: _vibracion,
           onChanged: (v) => setState(() => _vibracion = v),
+          isLast: true,
+        ),
+      ];
+
+  List<Widget> _adminItems() => [
+        _InfoTile(
+          icon: Icons.category_rounded,
+          label: 'Gestionar Categorías',
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const GestionCategoriasScreen()),
+            );
+          },
+          isFirst: true,
           isLast: true,
         ),
       ];

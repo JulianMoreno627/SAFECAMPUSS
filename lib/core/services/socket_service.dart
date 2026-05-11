@@ -11,7 +11,14 @@ class SocketService {
   final _logger = Logger();
   
   final _nuevoReporteController = StreamController<Map<String, dynamic>>.broadcast();
+  final _reporteActualizadoController = StreamController<Map<String, dynamic>>.broadcast();
+  final _reporteEliminadoController = StreamController<Map<String, dynamic>>.broadcast();
+  final _categoriasCambiadasController = StreamController<void>.broadcast();
+
   Stream<Map<String, dynamic>> get nuevoReporteStream => _nuevoReporteController.stream;
+  Stream<Map<String, dynamic>> get reporteActualizadoStream => _reporteActualizadoController.stream;
+  Stream<Map<String, dynamic>> get reporteEliminadoStream => _reporteEliminadoController.stream;
+  Stream<void> get categoriasCambiadasStream => _categoriasCambiadasController.stream;
 
   void init(String url) {
     if (_socket != null) return;
@@ -27,10 +34,23 @@ class SocketService {
     });
 
     _socket!.on('nuevo_reporte', (data) {
-      _logger.i('Nuevo reporte recibido via socket: $data');
-      if (data is Map<String, dynamic>) {
-        _nuevoReporteController.add(data);
-      }
+      _logger.i('Nuevo reporte recibido via socket');
+      if (data is Map<String, dynamic>) _nuevoReporteController.add(data);
+    });
+
+    _socket!.on('reporte_actualizado', (data) {
+      _logger.i('Reporte actualizado recibido via socket');
+      if (data is Map<String, dynamic>) _reporteActualizadoController.add(data);
+    });
+
+    _socket!.on('reporte_eliminado', (data) {
+      _logger.i('Reporte eliminado recibido via socket');
+      if (data is Map<String, dynamic>) _reporteEliminadoController.add(data);
+    });
+
+    _socket!.on('categorias_cambiadas', (_) {
+      _logger.i('Categorías cambiadas recibidas via socket');
+      _categoriasCambiadasController.add(null);
     });
 
     _socket!.onDisconnect((_) {

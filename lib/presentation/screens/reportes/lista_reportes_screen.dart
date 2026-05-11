@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +10,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../core/models/reporte.dart';
 import '../../../core/models/categoria_incidente.dart';
 import '../../../core/services/api_service.dart';
+import '../../../core/services/socket_service.dart';
 import '../../widgets/reporte_detalle_sheet.dart';
 
 class ListaReportesScreen extends ConsumerStatefulWidget {
@@ -24,11 +26,15 @@ class _ListaReportesScreenState extends ConsumerState<ListaReportesScreen> {
   String _searchQuery = '';
   String _selectedKey = '';
   List<CategoriaIncidente> _dynamicCats = [];
+  StreamSubscription? _catsSubscription;
 
   @override
   void initState() {
     super.initState();
     _loadCats();
+    _catsSubscription = socketService.categoriasCambiadasStream.listen((_) {
+      _loadCats();
+    });
   }
 
   Future<void> _loadCats() async {
@@ -56,6 +62,7 @@ class _ListaReportesScreenState extends ConsumerState<ListaReportesScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _catsSubscription?.cancel();
     super.dispose();
   }
 

@@ -212,6 +212,37 @@ class ApiService {
     throw Exception('Error al crear categoría');
   }
 
+  Future<CategoriaIncidente> actualizarCategoria(int id, String nombre, {String? icono, String? color}) async {
+    final response = await http
+        .put(
+          Uri.parse('$baseUrl/categorias/$id'),
+          headers: _headers,
+          body: jsonEncode({
+            'nombre': nombre,
+            'icono': icono,
+            'color': color,
+          }),
+        )
+        .timeout(_timeout);
+    if (response.statusCode == 200) {
+      return CategoriaIncidente.fromMap(
+          _decodeJson(response) as Map<String, dynamic>);
+    }
+    throw Exception('Error al actualizar categoría');
+  }
+
+  Future<void> eliminarCategoria(int id) async {
+    final response = await http
+        .delete(
+          Uri.parse('$baseUrl/categorias/$id'),
+          headers: _headers,
+        )
+        .timeout(_timeout);
+    if (response.statusCode != 200) {
+      throw Exception('Error al eliminar categoría');
+    }
+  }
+
   Future<List<Reporte>> getReportesDelUsuario(String userId) async {
     final response = await http
         .get(
