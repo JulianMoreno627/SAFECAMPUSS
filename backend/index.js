@@ -260,12 +260,9 @@ const canManageReport = async (userId, reportId) => {
 
 // Endpoint para obtener reportes cercanos (Uso de PostGIS)
 app.get('/api/reportes/cercanos', async (req, res) => {
-  const { lat, lng, radio = 5000, mapa } = req.query; // radio en metros (default 5km)
+  const { lat, lng, radio = 5000 } = req.query; // radio por defecto 5km (5000m)
 
   try {
-    // Si mapa es 'true', ignoramos los reportes de más de 3 días
-    const timeFilter = mapa === 'true' ? "AND r.created_at >= NOW() - INTERVAL '3 days'" : "";
-    
     const query = `
       SELECT r.id, r.tipo, r.descripcion, r.nivel_urgencia, r.foto_url, r.created_at, r.user_id,
              ST_X(r.ubicacion::geometry) as lng, 
@@ -277,7 +274,14 @@ app.get('/api/reportes/cercanos', async (req, res) => {
       FROM reportes r
       LEFT JOIN profiles p ON r.user_id = p.id
       WHERE ST_DWithin(r.ubicacion, ST_SetSRID(ST_MakePoint($1, $2), 4326), $3)
-      ${timeFilter}
+      AND (
+        (r.tipo ILIKE '%robo%' AND r.created_at >= NOW() - INTERVAL '2 days') OR
+        (r.tipo ILIKE '%acoso%' AND r.created_at >= NOW() - INTERVAL '1 day') OR
+        (r.tipo ILIKE '%accidente%' AND r.created_at >= NOW() - INTERVAL '2 hours') OR
+        (r.tipo ILIKE '%pelea%' AND r.created_at >= NOW() - INTERVAL '4 hours') OR
+        (r.tipo ILIKE '%vandalismo%' AND r.created_at >= NOW() - INTERVAL '12 hours') OR
+        (r.tipo NOT ILIKE ALL(ARRAY['%robo%', '%acoso%', '%accidente%', '%pelea%', '%vandalismo%']) AND r.created_at >= NOW() - INTERVAL '24 hours')
+      )
       ORDER BY r.created_at DESC;
     `;
     const result = await pool.query(query, [lng, lat, radio]);
