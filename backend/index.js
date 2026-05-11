@@ -49,6 +49,7 @@ const pool = new Pool({
     });
 
     await pool.query('ALTER TABLE profiles ADD COLUMN IF NOT EXISTS foto_url TEXT');
+    await pool.query('ALTER TABLE profiles ADD COLUMN IF NOT EXISTS role TEXT DEFAULT \'user\'');
     await pool.query('ALTER TABLE reportes ADD COLUMN IF NOT EXISTS foto_url TEXT');
     await pool.query('ALTER TABLE reportes ADD COLUMN IF NOT EXISTS testigos INTEGER DEFAULT 0');
     // Migrar testigos de TEXT a INTEGER si el tipo actual es text
@@ -149,7 +150,7 @@ app.post('/api/auth/register', async (req, res) => {
     const query = `
       INSERT INTO profiles (email, password, nombre, apellido, telefono)
       VALUES ($1, $2, $3, $4, $5)
-      RETURNING id, email, nombre, apellido, foto_url;
+      RETURNING id, email, nombre, apellido, foto_url, role;
     `;
     const result = await pool.query(query, [email, hashedPassword, nombre, apellido, telefono]);
     
@@ -178,7 +179,7 @@ app.post('/api/auth/login', async (req, res) => {
     }
 
     const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '7d' });
-    res.json({ user: { id: user.id, email: user.email, nombre: user.nombre, apellido: user.apellido, foto_url: user.foto_url }, token });
+    res.json({ user: { id: user.id, email: user.email, nombre: user.nombre, apellido: user.apellido, foto_url: user.foto_url, role: user.role }, token });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error al iniciar sesión' });
@@ -199,7 +200,7 @@ app.post('/api/auth/google', async (req, res) => {
       const query = `
         INSERT INTO profiles (email, password, nombre, apellido)
         VALUES ($1, $2, $3, $4)
-        RETURNING id, email, nombre, apellido, foto_url;
+        RETURNING id, email, nombre, apellido, foto_url, role;
       `;
       // Usamos un password dummy o simplemente lo dejamos como 'google_auth'
       result = await pool.query(query, [email, 'google_auth_placeholder', nombre, apellido]);
@@ -210,7 +211,7 @@ app.post('/api/auth/google', async (req, res) => {
 
     const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '7d' });
     res.json({ 
-      user: { id: user.id, email: user.email, nombre: user.nombre, apellido: user.apellido, foto_url: user.foto_url }, 
+      user: { id: user.id, email: user.email, nombre: user.nombre, apellido: user.apellido, foto_url: user.foto_url, role: user.role }, 
       token 
     });
   } catch (err) {
@@ -239,6 +240,23 @@ app.put('/api/perfil/foto', async (req, res) => {
 });
 
 // --- REPORTES ---
+
+// Helper para verificar si un usuario puede editar/borrar un reporte
+const canManageReport = async (userId, reportId) => {
+  try {
+    const userRes = await pool.query('SELECT role FROM profiles WHERE id = $1', [userId]);
+    if (userRes.rows.length === 0) return false;
+    
+    if (userRes.rows[0].role === 'admin') return true;
+
+    const reportRes = await pool.query('SELECT user_id FROM reportes WHERE id = $1', [reportId]);
+    if (reportRes.rows.length === 0) return false;
+
+    return reportRes.rows[0].user_id === userId;
+  } catch (e) {
+    return false;
+  }
+};
 
 // Endpoint para obtener reportes cercanos (Uso de PostGIS)
 app.get('/api/reportes/cercanos', async (req, res) => {
@@ -317,6 +335,58 @@ app.post('/api/reportes', async (req, res) => {
   } catch (err) {
     console.error('Error al crear reporte:', err.message);
     res.status(500).json({ error: 'Error al crear el reporte', detail: err.message });
+  }
+});
+
+// Endpoint para editar un reporte
+app.put('/api/reportes/:id', async (req, res) => {
+  const { id } = req.params;
+  const { tipo, descripcion, nivel_urgencia, user_id, foto_url, testigos } = req.body;
+
+  try {
+    const allowed = await canManageReport(user_id, id);
+    if (!allowed) return res.status(403).json({ error: 'No tienes permiso para editar este reporte' });
+
+    const query = `
+      UPDATE reportes 
+      SET tipo = $1, descripcion = $2, nivel_urgencia = $3, foto_url = $4, testigos = $5
+      WHERE id = $6
+      RETURNING *, ST_X(ubicacion::geometry) as lng, ST_Y(ubicacion::geometry) as lat;
+    `;
+    const result = await pool.query(query, [tipo, descripcion, nivel_urgencia, foto_url, parseInt(testigos) || 0, id]);
+    
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Reporte no encontrado' });
+
+    // Emitir actualización en tiempo real
+    io.emit('reporte_actualizado', result.rows[0]);
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al actualizar reporte' });
+  }
+});
+
+// Endpoint para eliminar un reporte
+app.delete('/api/reportes/:id', async (req, res) => {
+  const { id } = req.params;
+  const { user_id } = req.body; // Se envía el ID del usuario que solicita borrar
+
+  try {
+    const allowed = await canManageReport(user_id, id);
+    if (!allowed) return res.status(403).json({ error: 'No tienes permiso para eliminar este reporte' });
+
+    const result = await pool.query('DELETE FROM reportes WHERE id = $1 RETURNING id', [id]);
+    
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Reporte no encontrado' });
+
+    // Emitir eliminación en tiempo real
+    io.emit('reporte_eliminado', { id });
+
+    res.json({ message: 'Reporte eliminado correctamente' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al eliminar reporte' });
   }
 });
 
